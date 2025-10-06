@@ -1,0 +1,333 @@
+I need you to enhance the existing Document Vault feature in my Shield Ops 
+child care compliance app. DO NOT change the overall app structure or other 
+features - ONLY update the Document Vault section.
+
+CONTEXT:
+This is a compliance management app for Texas child care facilities. The 
+Document Vault helps facilities track required forms, certifications, and 
+documents with automatic expiration tracking. The current version works but 
+needs enhancements to match Texas DFPS requirements.
+
+CURRENT STATE:
+- Tabs: All Documents (94), Staff Certs (45), Facility (15), Insurance (8), 
+  Children (26)
+- Expiration alerts showing: Expired, Expiring in 30 Days, Current
+- Document table with: Name, Category, Owner/Subject, Issue Date, Expiration 
+  Date, Status, Actions
+- Search bar and Upload Document button
+- Works well but missing critical Texas compliance features
+
+REQUIRED ENHANCEMENTS:
+
+═══════════════════════════════════════════════════════════════════════
+
+1. UPDATE CATEGORY TABS
+
+Change the existing tabs to:
+- All Documents (94)
+- Licensing & Permits (NEW - add this tab)
+- Staff Records (rename from "Staff Certs")
+- Children (26)
+- Health & Safety (NEW - add this tab)
+- Facility & Inspections (rename from "Facility")
+- Insurance (8)
+
+Keep the same tab styling and layout, just update the names and add 2 new tabs.
+
+═══════════════════════════════════════════════════════════════════════
+
+2. ADD FORM NUMBER TRACKING
+
+In the document table, add a new column between DOCUMENT NAME and CATEGORY:
+- Column header: "FORM #"
+- Shows form number like "2971", "7255", "2910", etc.
+- Should be sortable
+- Make it narrow width (60-80px)
+
+Updated table columns in this order:
+DOCUMENT NAME | FORM # | CATEGORY | OWNER/SUBJECT | ISSUE DATE | EXPIRATION 
+DATE | STATUS | ACTIONS
+
+═══════════════════════════════════════════════════════════════════════
+
+3. ADD VIOLATION WEIGHT INDICATORS
+
+Next to the STATUS badge, add a small badge showing violation weight:
+- HIGH (red) - Missing this = serious violation
+- MED-HIGH (orange)
+- MEDIUM (yellow)
+- MED-LOW (light yellow)
+- LOW (gray)
+
+Style: Small badge, subtle, doesn't overwhelm the status
+
+Example row appearance:
+CPR Certification | 2971 | Staff Records | Emily Rodriguez | Nov 15, 2023 | 
+Nov 15, 2025 | [Exp 12 days] [MED-HIGH] | [Renew]
+
+═══════════════════════════════════════════════════════════════════════
+
+4. ENHANCE UPLOAD DOCUMENT MODAL
+
+When user clicks "+ Upload Document", show a modal with these fields:
+
+STEP 1: BASIC INFORMATION
+- Document Name (text input, required)
+- Form Number (dropdown with common Texas forms + "Other" option, required)
+  * Dropdown options:
+    - Form 2910 - Application for License
+    - Form 2948 - Plan of Operation
+    - Form 2971 - Background Check Request
+    - Form 2985 - Employment Affidavit
+    - Form 7239 - Incident/Illness Report
+    - Form 7243 - Emergency Phone Numbers
+    - Form 7250 - Staff Training Record
+    - Form 7255 - Medication Authorization
+    - Form 7259 - Personnel Records Evaluation
+    - Form 7260 - Children's Records Evaluation
+    - Form 7263 - Emergency Practices
+    - Other (free text input)
+- Category (dropdown auto-populates based on form number, but can be changed)
+  * Options: Licensing & Permits, Staff Records, Children, Health & Safety, 
+    Facility & Inspections, Insurance
+- Violation Weight (dropdown auto-populates based on form number, can change)
+  * Options: High, Medium-High, Medium, Medium-Low, Low
+
+STEP 2: DATES & ASSOCIATION
+- Issue Date (date picker, required)
+- Expiration Date (date picker, optional - checkbox for "No expiration")
+- Associated With (dropdown, required)
+  * If Staff Records category: dropdown of all staff members
+  * If Children category: dropdown of all children
+  * If Facility/Licensing/Insurance: "Facility-wide"
+- Owner/Subject (text input, auto-fills based on "Associated With")
+
+STEP 3: FILE UPLOAD
+- File upload area (drag & drop or click to browse)
+- Accepts: PDF, JPG, PNG, DOCX
+- Shows file preview thumbnail after upload
+- Max size: 10MB
+
+STEP 4: REVIEW & CONFIRM
+- Show all entered information in a summary view
+- "Does this look correct?" 
+- [Edit] [Cancel] [Save Document] buttons
+
+After saving:
+- Show success message
+- Document appears in appropriate category tab
+- If expiring soon or expired, appears in alerts
+
+═══════════════════════════════════════════════════════════════════════
+
+5. ADD "MISSING REQUIRED FORMS" DETECTION
+
+Below the expiration alerts, add a new alert section:
+
+[📋 Missing Required Forms]
+[12 required documents are not on file - Add them now]
+
+When clicked, shows a modal with:
+"Missing Required Documents for Bright Futures Learning Center"
+
+Grouped by category:
+□ LICENSING & PERMITS (2 missing)
+  □ Form 2910 - Application for License
+  □ Current License (MUST BE POSTED)
+
+□ STAFF RECORDS (5 missing)
+  □ Form 2971 - Background Check (Sarah Johnson)
+  □ Form 2985 - Employment Affidavit (Mike Chen)
+  □ CPR Certification (John Doe)
+  [etc...]
+
+□ FACILITY & INSPECTIONS (3 missing)
+  □ Fire Inspection Report (Annual - Overdue)
+  □ Sanitation Inspection Report
+  [etc...]
+
+Each item has an [+ Add Document] button that opens the upload modal with 
+pre-filled form information.
+
+═══════════════════════════════════════════════════════════════════════
+
+6. ADD INSPECTION READINESS BUTTON
+
+Next to "+ Upload Document" button, add:
+[📊 Inspection Readiness Report]
+
+When clicked, generates a modal showing:
+
+"INSPECTION READINESS REPORT"
+Generated: [current date/time]
+Facility: Bright Futures Learning Center
+
+✅ LICENSING & PERMITS (10/12 Complete) - 83%
+  ✅ Current License - Posted
+  ✅ Form 2910 - Application
+  ✅ Director's Certificate - Current
+  ❌ MISSING: Form 2948 - Plan of Operation
+  ❌ MISSING: Permit renewal documentation
+
+✅ STAFF RECORDS (40/45 Complete) - 89%
+  ✅ Background Checks (15/15)
+  ⚠️ CPR Certifications (12/15) - 3 expired
+  ✅ Training Records (13/15) - 2 incomplete
+  [etc...]
+
+[Show by category with completion % and issues]
+
+OVERALL COMPLIANCE SCORE: 87% (YELLOW)
+Status: CAUTION - Address missing items before inspection
+
+[Print Report] [Email Report] [Close]
+
+═══════════════════════════════════════════════════════════════════════
+
+7. ENHANCE SEARCH & FILTER
+
+Update the search bar to include advanced filters:
+
+Search bar with filter dropdown:
+🔍 [Search documents...] [▼ Filters]
+
+Filter options when clicked:
+□ Status
+  □ Current
+  □ Expiring (30/60/90 days)
+  □ Expired
+  □ Missing
+
+□ Violation Weight
+  □ High
+  □ Medium-High
+  □ Medium
+  □ Medium-Low
+  □ Low
+
+□ Category
+  [All the category options]
+
+□ Date Range
+  From: [date] To: [date]
+
+[Apply Filters] [Reset]
+
+═══════════════════════════════════════════════════════════════════════
+
+8. ADD BULK ACTIONS
+
+Add checkbox column at the start of the table.
+When items are selected, show action bar at top:
+
+[3 documents selected] [Bulk Actions ▼]
+- Download Selected
+- Print Selected
+- Delete Selected
+- Update Expiration Dates
+- Change Category
+
+═══════════════════════════════════════════════════════════════════════
+
+9. IMPROVE EXPIRATION ALERT CARDS
+
+Current cards show: 2 Expired | 3 Expiring in 30 Days | 89 Current
+
+Enhance to be clickable and more detailed:
+
+[🔴 2 Expired]
+CPR Cert (Emily R.) - 12 days overdue
+Fire Inspection - 5 days overdue
+[View All Expired →]
+
+[🟡 3 Expiring in 30 Days]
+First Aid (David M.) - 25 days
+License Renewal - 28 days
+Insurance - 30 days
+[View All Expiring →]
+
+[🟢 89 Current]
+All other documents are up to date
+[View All Current →]
+
+Clicking any card filters the table to show only those documents.
+
+═══════════════════════════════════════════════════════════════════════
+
+10. ADD QUICK STATS AT TOP
+
+Above the tabs, add a stats bar:
+
+Document Vault 📁
+Centralized storage with automatic expiration tracking
+
+[Quick Stats]
+Total Documents: 94 | Required: 82 | Missing: 12 | Compliance: 87%
+
+═══════════════════════════════════════════════════════════════════════
+
+TECHNICAL REQUIREMENTS:
+
+- Use existing React components and styling
+- Store documents in Replit Database with these fields:
+  * id, documentName, formNumber, category, violationWeight, issuedDate, 
+    expirationDate, associatedWith, ownerSubject, status, fileUrl, 
+    uploadedDate, facilityId
+- Calculate status dynamically:
+  * Current = expiration > 30 days from today
+  * Expiring Soon = expiration <= 30 days from today
+  * Expired = expiration < today
+- Auto-categorize based on form number when possible
+- Auto-assign violation weight based on form number (use this mapping):
+  * Forms 2971, 2910, 7239, Current License = HIGH
+  * Forms 2985, 7250, 7255 = MEDIUM-HIGH
+  * Forms 7243, 7259, 7260, 7263 = MEDIUM
+  * Most others = MEDIUM-LOW or LOW
+- Keep all existing functionality working (don't break current features)
+- Use consistent color scheme: Red (expired), Yellow (expiring), Green (current)
+- Make it mobile responsive
+
+═══════════════════════════════════════════════════════════════════════
+
+TESTING CHECKLIST:
+
+After implementation, verify:
+✓ All 7 tabs display correctly
+✓ Form number column appears and sorts
+✓ Violation weight badges display
+✓ Upload modal has all fields and validation
+✓ Missing forms detection works
+✓ Inspection readiness report generates
+✓ Search and filters work
+✓ Expiration alerts are clickable
+✓ Quick stats calculate correctly
+✓ Existing documents still display
+✓ Other app sections unchanged
+
+═══════════════════════════════════════════════════════════════════════
+
+STYLE NOTES:
+
+- Keep the existing blue color scheme (#4F46E5 or similar)
+- Status badges: 
+  * Expired = red background, white text
+  * Expiring = yellow/orange background, dark text
+  * Current = green background, white text
+- Violation weight badges: Small, subtle, don't overpower status
+- Modal: Clean, white background, good spacing
+- Buttons: Primary (blue), Secondary (gray), Danger (red)
+- Typography: Keep existing font family and sizes
+
+═══════════════════════════════════════════════════════════════════════
+
+START WITH:
+1. Update the tabs first (add Licensing and Health & Safety)
+2. Add Form # column to table
+3. Then work on upload modal enhancement
+4. Then add missing forms detection
+5. Finally add inspection readiness report
+
+Do this incrementally and create checkpoints after each major change so we 
+can roll back if needed.
+
+Ready to begin? Start with Step 1: Updating the category tabs.
