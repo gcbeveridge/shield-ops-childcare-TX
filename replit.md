@@ -13,6 +13,14 @@ Shield Ops is a comprehensive child care safety and compliance platform prototyp
 - **Deployment:** Autoscale deployment configured
 
 ## Recent Changes
+- **2025-10-06:** Document Vault enhancements completed (7 features)
+  - **Updated Category Tabs:** Renamed existing tabs, added "Licensing & Permits" and "Health & Safety" categories
+  - **Form # Column:** Added Texas DFPS form number column to document table (2971, 2910, 7250, etc.)
+  - **Violation Weight Indicators:** Added 5-tier badge system (HIGH/MED-HIGH/MEDIUM/MED-LOW/LOW) to show compliance impact
+  - **Multi-Step Upload Modal:** Redesigned upload with 4-step wizard (Basic Info → Dates → File Upload → Review)
+  - **Missing Forms Detection:** Alert card and modal showing 12 missing required documents grouped by category
+  - **Inspection Readiness Report:** Comprehensive compliance report with 87% overall score and per-category breakdowns
+  - **Quick Stats Bar:** Dashboard-style stats showing Total (94), Required (82), Missing (12), Compliance (87%)
 - **2025-10-06:** Custom logo integration
   - Replaced shield emoji icons with custom Champion logo throughout application
   - Login/signup pages: Logo sized at 120px (2x original size)
@@ -83,11 +91,24 @@ The prototype includes the following modules:
 - Task completion percentages
 
 ### Document Vault
-- Centralized document storage
-- Expiration tracking
-- Document categorization
-- Upload functionality
-- Reminder system (30 days before expiration)
+**Enhanced compliance document management system with Texas DFPS integration:**
+
+- **Quick Stats Dashboard:** Total documents (94), Required (82), Missing (12), Compliance percentage (87%)
+- **6 Category Tabs:** Licensing & Permits, Staff Records, Health & Safety, Facility & Inspections, Children, Insurance
+- **Document Table Features:**
+  - Form # column displaying Texas DFPS form numbers (2971, 2910, 7250, 7239, 7255, etc.)
+  - Violation weight indicator badges (5-tier: HIGH/MED-HIGH/MEDIUM/MED-LOW/LOW)
+  - Status tracking (Current, Expiring Soon, Expired)
+  - Expiration date monitoring
+- **Multi-Step Upload Workflow:**
+  - Step 1: Basic Info (Document name, Form # selection with auto-population)
+  - Step 2: Dates & Association (Issue/expiration dates, facility/staff association)
+  - Step 3: File Upload (Drag & drop interface)
+  - Step 4: Review & Confirm (Summary before saving)
+- **Missing Forms Detection:** Alert card and detailed modal showing 12 missing required documents grouped by category with quick-add functionality
+- **Inspection Readiness Report:** Comprehensive compliance report showing overall 87% readiness score with per-category breakdowns and progress indicators
+- **Expiration Alerts:** Color-coded cards showing Expired (2), Expiring in 30 Days (3), Expiring in 60 Days (4)
+- **Automated Reminders:** 30/60 day expiration warnings
 
 ### Medication Tracking
 - Medication authorization management
