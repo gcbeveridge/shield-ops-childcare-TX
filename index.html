@@ -1838,13 +1838,38 @@
                     <p class="page-subtitle">Centralized storage with automatic expiration tracking</p>
                 </div>
 
+                <!-- Quick Stats Bar -->
+                <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 24px; text-align: center;">
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;">94</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Total Documents</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;">82</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Required</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px; color: #fef3c7;">12</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Missing</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;">87%</div>
+                            <div style="font-size: 13px; opacity: 0.9;">Compliance</div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
                         <div>
                             <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--danger);">⚠️ Expiration Alerts</h3>
                             <p style="font-size: 14px; color: var(--gray-700);">5 documents require attention</p>
                         </div>
-                        <button class="btn-small btn-primary-small" onclick="openModal('upload-document')">+ Upload Document</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-small btn-secondary-small" onclick="openModal('inspection-readiness')">📊 Inspection Readiness</button>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document')">+ Upload Document</button>
+                        </div>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                         <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
@@ -1859,6 +1884,17 @@
                             <div style="font-size: 24px; font-weight: 700; color: var(--success);">89</div>
                             <div style="font-size: 13px; color: var(--gray-700);">Current</div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Missing Required Forms Alert -->
+                <div class="card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); cursor: pointer;" onclick="openModal('missing-forms')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--warning);">📋 Missing Required Forms</h3>
+                            <p style="font-size: 14px; color: var(--gray-700);">12 required documents are not on file - Add them now</p>
+                        </div>
+                        <div style="font-size: 32px; color: var(--warning);">→</div>
                     </div>
                 </div>
 
@@ -1898,7 +1934,10 @@
                                 <td>Emily Rodriguez</td>
                                 <td>Nov 15, 2023</td>
                                 <td>Nov 15, 2025</td>
-                                <td><span class="badge" style="background: #fee2e2; color: #991b1b;">Exp 12 days</span></td>
+                                <td>
+                                    <span class="badge" style="background: #fee2e2; color: #991b1b;">Exp 12 days</span>
+                                    <span class="badge" style="background: #dc2626; color: white; font-size: 10px; padding: 2px 6px; margin-left: 4px;">HIGH</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">Renew</button></td>
                             </tr>
                             <tr>
@@ -1908,7 +1947,10 @@
                                 <td>David Martinez</td>
                                 <td>Nov 28, 2023</td>
                                 <td>Nov 28, 2025</td>
-                                <td><span class="badge" style="background: #fef3c7; color: #92400e;">Exp 25 days</span></td>
+                                <td>
+                                    <span class="badge" style="background: #fef3c7; color: #92400e;">Exp 25 days</span>
+                                    <span class="badge" style="background: #f97316; color: white; font-size: 10px; padding: 2px 6px; margin-left: 4px;">MED-HIGH</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">Renew</button></td>
                             </tr>
                             <tr>
@@ -1918,7 +1960,10 @@
                                 <td>Facility</td>
                                 <td>Dec 10, 2024</td>
                                 <td>Dec 10, 2025</td>
-                                <td><span class="badge" style="background: #fef3c7; color: #92400e;">Exp 68 days</span></td>
+                                <td>
+                                    <span class="badge" style="background: #fef3c7; color: #92400e;">Exp 68 days</span>
+                                    <span class="badge" style="background: #eab308; color: #713f12; font-size: 10px; padding: 2px 6px; margin-left: 4px;">MEDIUM</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View</button></td>
                             </tr>
                             <tr>
@@ -1928,7 +1973,10 @@
                                 <td>Facility</td>
                                 <td>Jan 1, 2025</td>
                                 <td>Jan 1, 2026</td>
-                                <td><span class="badge badge-complete">Valid 90 days</span></td>
+                                <td>
+                                    <span class="badge badge-complete">Valid 90 days</span>
+                                    <span class="badge" style="background: #fbbf24; color: #78350f; font-size: 10px; padding: 2px 6px; margin-left: 4px;">MED-LOW</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View</button></td>
                             </tr>
                             <tr>
@@ -1938,7 +1986,10 @@
                                 <td>Kitchen Staff</td>
                                 <td>Oct 1, 2023</td>
                                 <td>Oct 1, 2025</td>
-                                <td><span class="badge badge-overdue">Expired 2 days ago</span></td>
+                                <td>
+                                    <span class="badge badge-overdue">Expired 2 days ago</span>
+                                    <span class="badge" style="background: #dc2626; color: white; font-size: 10px; padding: 2px 6px; margin-left: 4px;">HIGH</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer;">Renew Now</button></td>
                             </tr>
                             <tr>
@@ -1948,7 +1999,10 @@
                                 <td>Sarah Johnson</td>
                                 <td>Jan 15, 2023</td>
                                 <td>N/A</td>
-                                <td><span class="badge badge-complete">Cleared</span></td>
+                                <td>
+                                    <span class="badge badge-complete">Cleared</span>
+                                    <span class="badge" style="background: #dc2626; color: white; font-size: 10px; padding: 2px 6px; margin-left: 4px;">HIGH</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View</button></td>
                             </tr>
                             <tr>
@@ -1958,7 +2012,10 @@
                                 <td>Facility</td>
                                 <td>Mar 15, 2025</td>
                                 <td>Mar 15, 2026</td>
-                                <td><span class="badge badge-complete">Valid 163 days</span></td>
+                                <td>
+                                    <span class="badge badge-complete">Valid 163 days</span>
+                                    <span class="badge" style="background: #fbbf24; color: #78350f; font-size: 10px; padding: 2px 6px; margin-left: 4px;">MED-LOW</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View</button></td>
                             </tr>
                             <tr>
@@ -1968,7 +2025,10 @@
                                 <td>Lisa Thompson</td>
                                 <td>Feb 1, 2021</td>
                                 <td>N/A</td>
-                                <td><span class="badge badge-complete">Valid</span></td>
+                                <td>
+                                    <span class="badge badge-complete">Valid</span>
+                                    <span class="badge" style="background: #dc2626; color: white; font-size: 10px; padding: 2px 6px; margin-left: 4px;">HIGH</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View</button></td>
                             </tr>
                             <tr>
@@ -1978,7 +2038,10 @@
                                 <td>Emma S.</td>
                                 <td>Sep 1, 2024</td>
                                 <td>Sep 1, 2025</td>
-                                <td><span class="badge badge-complete">Valid 333 days</span></td>
+                                <td>
+                                    <span class="badge badge-complete">Valid 333 days</span>
+                                    <span class="badge" style="background: #6b7280; color: white; font-size: 10px; padding: 2px 6px; margin-left: 4px;">LOW</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View</button></td>
                             </tr>
                             <tr>
@@ -1988,7 +2051,10 @@
                                 <td>Facility</td>
                                 <td>Apr 20, 2025</td>
                                 <td>Apr 20, 2026</td>
-                                <td><span class="badge badge-complete">Valid 199 days</span></td>
+                                <td>
+                                    <span class="badge badge-complete">Valid 199 days</span>
+                                    <span class="badge" style="background: #eab308; color: #713f12; font-size: 10px; padding: 2px 6px; margin-left: 4px;">MEDIUM</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View</button></td>
                             </tr>
                             <tr>
@@ -1998,7 +2064,10 @@
                                 <td>Van #1</td>
                                 <td>Aug 1, 2024</td>
                                 <td>Aug 1, 2025</td>
-                                <td><span class="badge badge-overdue">Expired 63 days ago</span></td>
+                                <td>
+                                    <span class="badge badge-overdue">Expired 63 days ago</span>
+                                    <span class="badge" style="background: #fbbf24; color: #78350f; font-size: 10px; padding: 2px 6px; margin-left: 4px;">MED-LOW</span>
+                                </td>
                                 <td><button class="btn-small" style="padding: 4px 12px; font-size: 12px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer;">Renew Now</button></td>
                             </tr>
                         </tbody>
@@ -2448,61 +2517,461 @@
         </div>
     </div>
 
-    <!-- Upload Document Modal -->
+    <!-- Upload Document Modal (4-Step Enhanced) -->
     <div id="upload-document" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 600px;">
             <div class="modal-header">
                 <h2 class="modal-title">Upload Document 📁</h2>
+                <div style="display: flex; gap: 8px; margin-top: 12px; font-size: 12px;">
+                    <div id="step-indicator-1" style="flex: 1; padding: 4px; background: var(--primary); color: white; text-align: center; border-radius: 4px;">1. Basic Info</div>
+                    <div id="step-indicator-2" style="flex: 1; padding: 4px; background: var(--gray-200); color: var(--gray-600); text-align: center; border-radius: 4px;">2. Dates</div>
+                    <div id="step-indicator-3" style="flex: 1; padding: 4px; background: var(--gray-200); color: var(--gray-600); text-align: center; border-radius: 4px;">3. Upload</div>
+                    <div id="step-indicator-4" style="flex: 1; padding: 4px; background: var(--gray-200); color: var(--gray-600); text-align: center; border-radius: 4px;">4. Review</div>
+                </div>
             </div>
             <form>
-                <div class="form-group">
-                    <label class="form-label">Document Type</label>
-                    <select class="form-input" required>
-                        <option>Staff Certification</option>
-                        <option>Facility Inspection</option>
-                        <option>Insurance Document</option>
-                        <option>Child Health Record</option>
-                        <option>Transportation Document</option>
-                        <option>Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Document Name</label>
-                    <input type="text" class="form-input" placeholder="e.g., CPR Certification" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Owner/Subject</label>
-                    <input type="text" class="form-input" placeholder="e.g., Sarah Johnson or Facility" required>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <!-- Step 1: Basic Information -->
+                <div id="upload-step-1" class="upload-step">
                     <div class="form-group">
-                        <label class="form-label">Issue Date</label>
-                        <input type="date" class="form-input" required>
+                        <label class="form-label">Document Name</label>
+                        <input type="text" id="upload-doc-name" class="form-input" placeholder="e.g., CPR Certification" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Expiration Date (if applicable)</label>
-                        <input type="date" class="form-input">
+                        <label class="form-label">Form Number</label>
+                        <select id="upload-form-number" class="form-input" required>
+                            <option value="">Select a form...</option>
+                            <option value="2910">Form 2910 - Application for License</option>
+                            <option value="2948">Form 2948 - Plan of Operation</option>
+                            <option value="2971">Form 2971 - Background Check Request</option>
+                            <option value="2985">Form 2985 - Employment Affidavit</option>
+                            <option value="7239">Form 7239 - Incident/Illness Report</option>
+                            <option value="7243">Form 7243 - Emergency Phone Numbers</option>
+                            <option value="7250">Form 7250 - Staff Training Record</option>
+                            <option value="7255">Form 7255 - Medication Authorization</option>
+                            <option value="7259">Form 7259 - Personnel Records Evaluation</option>
+                            <option value="7260">Form 7260 - Children's Records Evaluation</option>
+                            <option value="7263">Form 7263 - Emergency Practices</option>
+                            <option value="other">Other (free text)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select id="upload-category" class="form-input" required>
+                            <option value="">Select category...</option>
+                            <option value="licensing">Licensing & Permits</option>
+                            <option value="staff">Staff Records</option>
+                            <option value="children">Children</option>
+                            <option value="health">Health & Safety</option>
+                            <option value="facility">Facility & Inspections</option>
+                            <option value="insurance">Insurance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Violation Weight</label>
+                        <select id="upload-violation" class="form-input" required>
+                            <option value="">Select weight...</option>
+                            <option value="high">High</option>
+                            <option value="med-high">Medium-High</option>
+                            <option value="medium">Medium</option>
+                            <option value="med-low">Medium-Low</option>
+                            <option value="low">Low</option>
+                        </select>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Upload File</label>
-                    <div style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 32px; text-align: center; cursor: pointer;">
-                        <div style="font-size: 48px; margin-bottom: 8px;">📄</div>
-                        <div style="font-size: 14px; color: var(--gray-700); margin-bottom: 4px;">Click to upload document</div>
-                        <div style="font-size: 12px; color: var(--gray-700);">PDF, JPG, PNG (Max 10MB)</div>
+
+                <!-- Step 2: Dates & Association -->
+                <div id="upload-step-2" class="upload-step" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Issue Date</label>
+                            <input type="date" id="upload-issue-date" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Expiration Date</label>
+                            <input type="date" id="upload-exp-date" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="upload-no-exp">
+                            <span class="form-label" style="margin: 0;">No expiration date</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Associated With</label>
+                        <select id="upload-associated" class="form-input" required>
+                            <option value="">Select association...</option>
+                            <option value="facility">Facility-wide</option>
+                            <option value="emily">Emily Rodriguez (Staff)</option>
+                            <option value="david">David Martinez (Staff)</option>
+                            <option value="sarah">Sarah Johnson (Staff)</option>
+                            <option value="lisa">Lisa Thompson (Staff)</option>
+                            <option value="emma">Emma S. (Child)</option>
+                            <option value="other-child">Other Child...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Owner/Subject</label>
+                        <input type="text" id="upload-owner" class="form-input" placeholder="Auto-filled based on selection" required>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox">
-                        <span class="form-label" style="margin: 0;">Send expiration reminder 30 days in advance</span>
-                    </label>
+
+                <!-- Step 3: File Upload -->
+                <div id="upload-step-3" class="upload-step" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Upload File</label>
+                        <div style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 48px; text-align: center; cursor: pointer; transition: all var(--transition-base);" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--gray-300)'">
+                            <div style="font-size: 48px; margin-bottom: 12px;">📄</div>
+                            <div style="font-size: 14px; color: var(--gray-900); margin-bottom: 4px; font-weight: 600;">Click to upload or drag & drop</div>
+                            <div style="font-size: 12px; color: var(--gray-600);">PDF, JPG, PNG, DOCX (Max 10MB)</div>
+                        </div>
+                    </div>
+                    <div id="upload-preview" style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 32px;">📄</div>
+                            <div style="flex: 1;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--gray-900);">filename.pdf</div>
+                                <div style="font-size: 12px; color: var(--gray-600);">2.5 MB</div>
+                            </div>
+                            <button type="button" style="padding: 4px 8px; font-size: 12px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer;">Remove</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer">
+
+                <!-- Step 4: Review & Confirm -->
+                <div id="upload-step-4" class="upload-step" style="display: none;">
+                    <div style="background: var(--gray-50); border-radius: 8px; padding: 20px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--gray-900);">Does this look correct?</h3>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Document Name:</div>
+                                <div id="review-doc-name" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Form Number:</div>
+                                <div id="review-form-number" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Category:</div>
+                                <div id="review-category" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Violation Weight:</div>
+                                <div id="review-violation" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Issue Date:</div>
+                                <div id="review-issue-date" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Expiration Date:</div>
+                                <div id="review-exp-date" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Associated With:</div>
+                                <div id="review-associated" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 140px 1fr; gap: 8px;">
+                                <div style="font-size: 13px; color: var(--gray-600);">Owner/Subject:</div>
+                                <div id="review-owner" style="font-size: 13px; font-weight: 600; color: var(--gray-900);">—</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="margin-top: 24px;">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('upload-document')">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="closeModal('upload-document')">Upload Document</button>
+                    <button type="button" id="upload-prev-btn" class="btn btn-secondary" style="display: none;" onclick="previousUploadStep()">← Previous</button>
+                    <button type="button" id="upload-next-btn" class="btn btn-primary" onclick="nextUploadStep()">Next →</button>
+                    <button type="button" id="upload-save-btn" class="btn btn-primary" style="display: none;" onclick="saveDocument()">Save Document</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Missing Required Forms Modal -->
+    <div id="missing-forms" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Missing Required Documents</h2>
+                <p style="font-size: 14px; color: var(--gray-600); margin-top: 8px;">Bright Futures Learning Center</p>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Licensing & Permits -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <input type="checkbox" style="width: 16px; height: 16px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">LICENSING & PERMITS (2 missing)</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-left: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Form 2910 - Application for License</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Current License (MUST BE POSTED)</span>
+                                <span class="badge" style="background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; margin-left: 8px;">CRITICAL</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Staff Records -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <input type="checkbox" style="width: 16px; height: 16px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">STAFF RECORDS (5 missing)</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-left: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Form 2971 - Background Check (Sarah Johnson)</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Form 2985 - Employment Affidavit (Mike Chen)</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">CPR Certification (John Doe)</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Form 7250 - Staff Training Record (New Hire)</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">TB Test Results (Multiple Staff)</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Facility & Inspections -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <input type="checkbox" style="width: 16px; height: 16px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">FACILITY & INSPECTIONS (3 missing)</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-left: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Fire Inspection Report (Annual - Overdue)</span>
+                                <span class="badge" style="background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; margin-left: 8px;">OVERDUE</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Sanitation Inspection Report</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Playground Equipment Certification</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Children -->
+                <div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <input type="checkbox" style="width: 16px; height: 16px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">CHILDREN (2 missing)</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px; margin-left: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Enrollment Form (New Child - Started Monday)</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--gray-50); border-radius: 6px;">
+                            <div>
+                                <input type="checkbox" style="margin-right: 8px;">
+                                <span style="font-size: 14px; color: var(--gray-900);">Medical Emergency Authorization (Tommy L.)</span>
+                            </div>
+                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document'); closeModal('missing-forms');">+ Add Document</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('missing-forms')">Close</button>
+                <button type="button" class="btn btn-primary">Print Checklist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspection Readiness Report Modal -->
+    <div id="inspection-readiness" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📊 Inspection Readiness Report</h2>
+                <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+                    <p style="font-size: 14px; color: var(--gray-600);">Generated: October 6, 2025 at 3:45 PM</p>
+                    <p style="font-size: 14px; color: var(--gray-600);">Facility: Bright Futures Learning Center</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Overall Compliance Score -->
+                <div style="padding: 24px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); border-radius: 12px; text-align: center;">
+                    <div style="font-size: 48px; font-weight: 800; color: var(--warning); margin-bottom: 8px;">87%</div>
+                    <div style="font-size: 16px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px;">OVERALL COMPLIANCE SCORE</div>
+                    <div style="display: inline-block; padding: 6px 16px; background: var(--warning); color: white; border-radius: 20px; font-size: 14px; font-weight: 600;">CAUTION</div>
+                    <p style="font-size: 13px; color: var(--gray-600); margin-top: 12px;">Address missing items before inspection</p>
+                </div>
+
+                <!-- Licensing & Permits -->
+                <div style="border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">✅ LICENSING & PERMITS</h3>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: var(--gray-600);">10/12 Complete</span>
+                            <span style="font-size: 18px; font-weight: 700; color: #f59e0b;">83%</span>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="width: 83%; height: 100%; background: linear-gradient(90deg, #f59e0b, #eab308);"></div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--gray-700);">
+                        ✅ Current License - Posted<br>
+                        ✅ Form 2910 - Application<br>
+                        ✅ Director's Certificate - Current<br>
+                        ❌ MISSING: Form 2948 - Plan of Operation<br>
+                        ❌ MISSING: Permit renewal documentation
+                    </div>
+                </div>
+
+                <!-- Staff Records -->
+                <div style="border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">✅ STAFF RECORDS</h3>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: var(--gray-600);">40/45 Complete</span>
+                            <span style="font-size: 18px; font-weight: 700; color: #10b981;">89%</span>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="width: 89%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--gray-700);">
+                        ✅ Background Checks (15/15)<br>
+                        ⚠️ CPR Certifications (12/15) - 3 expired<br>
+                        ✅ Training Records (13/15) - 2 incomplete
+                    </div>
+                </div>
+
+                <!-- Health & Safety -->
+                <div style="border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">✅ HEALTH & SAFETY</h3>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: var(--gray-600);">8/10 Complete</span>
+                            <span style="font-size: 18px; font-weight: 700; color: #10b981;">80%</span>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="width: 80%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--gray-700);">
+                        ✅ Health Inspections Current<br>
+                        ⚠️ Food Handler Permits - 1 expired<br>
+                        ✅ Emergency Procedures Posted
+                    </div>
+                </div>
+
+                <!-- Facility & Inspections -->
+                <div style="border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">✅ FACILITY & INSPECTIONS</h3>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: var(--gray-600);">12/15 Complete</span>
+                            <span style="font-size: 18px; font-weight: 700; color: #10b981;">80%</span>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="width: 80%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--gray-700);">
+                        ✅ Building Safety Current<br>
+                        ❌ Fire Inspection Overdue<br>
+                        ✅ Sanitation Report Current
+                    </div>
+                </div>
+
+                <!-- Children -->
+                <div style="border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">✅ CHILDREN</h3>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: var(--gray-600);">24/26 Complete</span>
+                            <span style="font-size: 18px; font-weight: 700; color: #10b981;">92%</span>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="width: 92%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--gray-700);">
+                        ✅ Immunization Records Current<br>
+                        ✅ Emergency Contacts Verified<br>
+                        ⚠️ 2 enrollment forms pending
+                    </div>
+                </div>
+
+                <!-- Insurance -->
+                <div style="border: 1px solid var(--gray-200); border-radius: 8px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-900);">✅ INSURANCE</h3>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 14px; color: var(--gray-600);">8/8 Complete</span>
+                            <span style="font-size: 18px; font-weight: 700; color: #10b981;">100%</span>
+                        </div>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="width: 100%; height: 100%; background: linear-gradient(90deg, #10b981, #059669);"></div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--gray-700);">
+                        ✅ General Liability - Current<br>
+                        ✅ Workers Comp - Current<br>
+                        ✅ Vehicle Insurance - Current
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 24px;">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('inspection-readiness')">Close</button>
+                <button type="button" class="btn" style="background: var(--gray-700); color: white;">🖨️ Print Report</button>
+                <button type="button" class="btn btn-primary">📧 Email Report</button>
+            </div>
         </div>
     </div>
 
@@ -2826,6 +3295,108 @@
                 }, 500);
             }, 2000);
         }
+
+        // Upload Document Multi-Step Functions
+        let currentUploadStep = 1;
+
+        function nextUploadStep() {
+            if (currentUploadStep < 4) {
+                document.getElementById('upload-step-' + currentUploadStep).style.display = 'none';
+                document.getElementById('step-indicator-' + currentUploadStep).style.background = 'var(--gray-200)';
+                document.getElementById('step-indicator-' + currentUploadStep).style.color = 'var(--gray-600)';
+                
+                currentUploadStep++;
+                
+                document.getElementById('upload-step-' + currentUploadStep).style.display = 'block';
+                document.getElementById('step-indicator-' + currentUploadStep).style.background = 'var(--primary)';
+                document.getElementById('step-indicator-' + currentUploadStep).style.color = 'white';
+                
+                // Update buttons
+                document.getElementById('upload-prev-btn').style.display = 'inline-block';
+                if (currentUploadStep === 4) {
+                    document.getElementById('upload-next-btn').style.display = 'none';
+                    document.getElementById('upload-save-btn').style.display = 'inline-block';
+                    updateReviewSummary();
+                }
+            }
+        }
+
+        function previousUploadStep() {
+            if (currentUploadStep > 1) {
+                document.getElementById('upload-step-' + currentUploadStep).style.display = 'none';
+                document.getElementById('step-indicator-' + currentUploadStep).style.background = 'var(--gray-200)';
+                document.getElementById('step-indicator-' + currentUploadStep).style.color = 'var(--gray-600)';
+                
+                currentUploadStep--;
+                
+                document.getElementById('upload-step-' + currentUploadStep).style.display = 'block';
+                document.getElementById('step-indicator-' + currentUploadStep).style.background = 'var(--primary)';
+                document.getElementById('step-indicator-' + currentUploadStep).style.color = 'white';
+                
+                // Update buttons
+                if (currentUploadStep === 1) {
+                    document.getElementById('upload-prev-btn').style.display = 'none';
+                }
+                document.getElementById('upload-next-btn').style.display = 'inline-block';
+                document.getElementById('upload-save-btn').style.display = 'none';
+            }
+        }
+
+        function updateReviewSummary() {
+            document.getElementById('review-doc-name').textContent = document.getElementById('upload-doc-name').value || '—';
+            
+            const formSelect = document.getElementById('upload-form-number');
+            document.getElementById('review-form-number').textContent = formSelect.options[formSelect.selectedIndex].text || '—';
+            
+            const catSelect = document.getElementById('upload-category');
+            document.getElementById('review-category').textContent = catSelect.options[catSelect.selectedIndex].text || '—';
+            
+            const violationSelect = document.getElementById('upload-violation');
+            document.getElementById('review-violation').textContent = violationSelect.options[violationSelect.selectedIndex].text || '—';
+            
+            document.getElementById('review-issue-date').textContent = document.getElementById('upload-issue-date').value || '—';
+            document.getElementById('review-exp-date').textContent = document.getElementById('upload-exp-date').value || 'No expiration';
+            
+            const assocSelect = document.getElementById('upload-associated');
+            document.getElementById('review-associated').textContent = assocSelect.options[assocSelect.selectedIndex].text || '—';
+            
+            document.getElementById('review-owner').textContent = document.getElementById('upload-owner').value || '—';
+        }
+
+        function saveDocument() {
+            alert('Document saved successfully!\n\nThe document has been added to the Document Vault and will appear in the appropriate category.');
+            closeModal('upload-document');
+            resetUploadModal();
+        }
+
+        function resetUploadModal() {
+            currentUploadStep = 1;
+            document.querySelectorAll('.upload-step').forEach(step => step.style.display = 'none');
+            document.getElementById('upload-step-1').style.display = 'block';
+            
+            for (let i = 1; i <= 4; i++) {
+                if (i === 1) {
+                    document.getElementById('step-indicator-' + i).style.background = 'var(--primary)';
+                    document.getElementById('step-indicator-' + i).style.color = 'white';
+                } else {
+                    document.getElementById('step-indicator-' + i).style.background = 'var(--gray-200)';
+                    document.getElementById('step-indicator-' + i).style.color = 'var(--gray-600)';
+                }
+            }
+            
+            document.getElementById('upload-prev-btn').style.display = 'none';
+            document.getElementById('upload-next-btn').style.display = 'inline-block';
+            document.getElementById('upload-save-btn').style.display = 'none';
+        }
+
+        // Auto-fill owner based on association
+        document.getElementById('upload-associated')?.addEventListener('change', function() {
+            const ownerField = document.getElementById('upload-owner');
+            const selectedText = this.options[this.selectedIndex].text;
+            if (selectedText !== 'Select association...') {
+                ownerField.value = selectedText.split(' (')[0];
+            }
+        });
 
         // Close modal when clicking outside
         document.querySelectorAll('.modal').forEach(modal => {
