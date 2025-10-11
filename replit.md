@@ -13,6 +13,16 @@ Shield Ops is a comprehensive child care safety and compliance platform prototyp
 - **Deployment:** Autoscale deployment configured
 
 ## Recent Changes
+- **2025-10-11:** Phase 3 Backend Implementation Complete
+  - **Daily Checklist System:** 11 tasks across 3 categories (Morning, Throughout Day, Evening) with auto-creation and week stats
+  - **Training Hub:** 12 monthly training modules (Jan-Dec) with completion tracking and staff training history
+  - **Document Management:** File upload system with category filtering, expiration tracking, and download functionality
+  - **New Models:** DailyChecklist, TrainingModule, TrainingCompletion, Document with expiration status calculation
+  - **File Upload:** Multer configured for facility-specific folders, 10MB limit, supports PDF/images/Office docs
+  - **Critical Fix:** Document expiration status now dynamically recalculated (not cached)
+  - **Critical Fix:** Auth login/signup now handles null arrays defensively
+  - **10 New Endpoints:** 3 checklist, 3 training, 4 document endpoints
+  - **26 Total Endpoints:** All Phase 1-3 endpoints tested and working
 - **2025-10-11:** Phase 2 Backend Implementation Complete
   - **Staff Management:** Full CRUD operations with certification tracking
   - **Incident Reporting:** Create, retrieve, filter incidents with parent signatures

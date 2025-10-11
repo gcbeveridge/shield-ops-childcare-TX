@@ -11,7 +11,7 @@ async function signup(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const existingUsers = await db.getByPrefix('users:');
+    const existingUsers = await db.getByPrefix('users:') || [];
     const userExists = existingUsers.some(u => u.email === email);
 
     if (userExists) {
@@ -63,7 +63,7 @@ async function login(req, res) {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    const users = await db.getByPrefix('users:');
+    const users = await db.getByPrefix('users:') || [];
     const user = users.find(u => u.email === email);
 
     if (!user) {

@@ -10,14 +10,21 @@ async function listDocuments(req, res) {
     
     let documents = await db.list(`document:${facilityId}:`);
     
+    documents = documents.map(doc => {
+      const docInstance = new Document(doc);
+      return {
+        ...doc,
+        expirationStatus: docInstance.getExpirationStatus()
+      };
+    });
+    
     if (category) {
       documents = documents.filter(doc => doc.category.toLowerCase() === category.toLowerCase());
     }
     
     if (expiringOnly === 'true') {
       documents = documents.filter(doc => {
-        const status = doc.expirationStatus || new Document(doc).getExpirationStatus();
-        return status === 'expiring_soon' || status === 'expired';
+        return doc.expirationStatus === 'expiring_soon' || doc.expirationStatus === 'expired';
       });
     }
     
@@ -30,8 +37,7 @@ async function listDocuments(req, res) {
     }, {});
     
     const expiringCount = documents.filter(doc => {
-      const status = doc.expirationStatus || new Document(doc).getExpirationStatus();
-      return status === 'expiring_soon' || status === 'expired';
+      return doc.expirationStatus === 'expiring_soon' || doc.expirationStatus === 'expired';
     }).length;
     
     res.json({
@@ -120,9 +126,15 @@ async function getDocument(req, res) {
       });
     }
     
+    const docInstance = new Document(document);
+    const documentWithStatus = {
+      ...document,
+      expirationStatus: docInstance.getExpirationStatus()
+    };
+    
     res.json({
       success: true,
-      data: document
+      data: documentWithStatus
     });
   } catch (error) {
     console.error('Error fetching document:', error);
