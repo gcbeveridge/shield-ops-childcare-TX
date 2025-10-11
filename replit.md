@@ -13,6 +13,18 @@ Shield Ops is a comprehensive child care safety and compliance platform prototyp
 - **Deployment:** Autoscale deployment configured
 
 ## Recent Changes
+- **2025-10-11:** Phase 4 Form Integration & UX Enhancements Complete
+  - **Toast Notification System:** Added showSuccess() and showError() functions with visual toast notifications (auto-dismiss after 3s)
+  - **Form Submissions:** Connected all forms to backend APIs with proper validation and error handling
+    - Add Staff: POST to /api/facilities/:id/staff with name, email, role, hireDate
+    - Create Incident: POST to /api/facilities/:id/incidents with type, severity, childInfo, location, description, immediateActions
+  - **Tab Filtering:** Implemented client-side and server-side filtering across modules
+    - Incidents: Filter by type (injury/illness/behavior/all) via query params
+    - Medications: Filter by status (active/expired/today) client-side
+    - Documents: Filter by category client-side
+  - **API Response Fix:** Critical fix - changed all list functions to use response.data instead of response.staff/incidents/medications/documents to match backend {success, data} envelope
+  - **Loading States:** Added setLoading() function with visual feedback on all form submissions
+  - **Status:** Core Phase 4 functionality complete - forms integrated, filtering working, toast UX added
 - **2025-10-11:** Phase 4 Frontend Integration Complete
   - **Server Consolidation:** Merged Python & Node servers → Single Node.js/Express server on port 5000 serves both static files and APIs
   - **API Client:** Created HTTP client with JWT authentication and localStorage token management
