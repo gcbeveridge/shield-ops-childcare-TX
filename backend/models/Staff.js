@@ -38,6 +38,22 @@ class Staff {
     this.createdAt = data.createdAt || new Date().toISOString();
   }
 
+  validate() {
+    const errors = [];
+
+    if (!this.facilityId) errors.push('Facility ID is required');
+    if (!this.name || this.name.trim().length === 0) errors.push('Name is required');
+    if (!this.email || this.email.trim().length === 0) {
+      errors.push('Email is required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+      errors.push('Email must be a valid email address');
+    }
+    if (!this.role || this.role.trim().length === 0) errors.push('Role is required');
+    if (!this.hireDate) errors.push('Hire date is required');
+
+    return errors;
+  }
+
   toJSON() {
     return {
       id: this.id,
