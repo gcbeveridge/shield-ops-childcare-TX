@@ -12,7 +12,7 @@ async function getDashboard(req, res) {
     }
 
     const staff = await db.getByPrefix(`staff:${facilityId}:`) || [];
-    const incidents = await db.getByPrefix(`incidents:${facilityId}:`) || [];
+    const incidents = await db.getByPrefix(`incident:${facilityId}:`) || [];
     const compliance = await db.getByPrefix(`compliance:${facilityId}:`) || [];
 
     const today = new Date().toISOString().split('T')[0];

@@ -3512,13 +3512,43 @@
             }
         }
         
+        // Validate cached auth data on page load
+        async function validateAuth() {
+            if (!AppState.token || !AppState.user || !AppState.facility) {
+                return false;
+            }
+            
+            try {
+                // Validate token and user/facility still exist
+                const userData = await apiRequest('/auth/me');
+                
+                // Update AppState with fresh data from server
+                AppState.user = userData.user;
+                AppState.facility = userData.facility;
+                localStorage.setItem('user', JSON.stringify(userData.user));
+                localStorage.setItem('facility', JSON.stringify(userData.facility));
+                
+                return true;
+            } catch (error) {
+                console.warn('Auth validation failed:', error.message);
+                // Clear stale auth data
+                clearAuthData();
+                return false;
+            }
+        }
+        
         // Check if user is already logged in on page load
         window.addEventListener('DOMContentLoaded', async () => {
-            if (AppState.token && AppState.user && AppState.facility) {
+            const isValid = await validateAuth();
+            
+            if (isValid) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app').classList.add('active');
                 updateFacilityInfo();
                 await loadDashboard();
+            } else {
+                // Show login screen
+                document.getElementById('login-screen').style.display = 'flex';
             }
         });
 
