@@ -17,25 +17,25 @@ class InMemoryDatabase {
   }
 
   async list(prefix) {
-    const keys = [];
-    for (const key of this.store.keys()) {
-      if (key.startsWith(prefix)) {
-        keys.push(key);
-      }
-    }
-    return keys;
-  }
-
-  async getByPrefix(prefix) {
     const results = [];
-    const keys = await this.list(prefix);
-    for (const key of keys) {
-      const value = await this.get(key);
-      if (value) {
+    for (const [key, value] of this.store.entries()) {
+      if (key.startsWith(prefix)) {
         results.push(value);
       }
     }
     return results;
+  }
+
+  async getByPrefix(prefix, filterFn = null) {
+    const results = [];
+    for (const [key, value] of this.store.entries()) {
+      if (key.startsWith(prefix)) {
+        if (!filterFn || filterFn(key, value)) {
+          results.push(value);
+        }
+      }
+    }
+    return filterFn && results.length === 1 ? results[0] : results.length > 0 ? results : null;
   }
 
   async clear() {

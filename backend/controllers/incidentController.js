@@ -9,11 +9,11 @@ async function getAllIncidents(req, res) {
     let incidents = await db.list(`incident:${facilityId}:`);
     
     if (type) {
-      incidents = incidents.filter(inc => inc.type.toLowerCase() === type.toLowerCase());
+      incidents = incidents.filter(inc => inc.type && inc.type.toLowerCase() === type.toLowerCase());
     }
     
     if (severity) {
-      incidents = incidents.filter(inc => inc.severity.toLowerCase() === severity.toLowerCase());
+      incidents = incidents.filter(inc => inc.severity && inc.severity.toLowerCase() === severity.toLowerCase());
     }
     
     if (startDate) {
