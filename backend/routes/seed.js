@@ -4,6 +4,9 @@ const db = require('../config/database');
 const User = require('../models/User');
 const Facility = require('../models/Facility');
 const Staff = require('../models/Staff');
+const Incident = require('../models/Incident');
+const Medication = require('../models/Medication');
+const MedicationLog = require('../models/MedicationLog');
 const { TEXAS_COMPLIANCE_REQUIREMENTS } = require('../config/constants');
 
 router.post('/seed', async (req, res) => {
@@ -101,6 +104,138 @@ router.post('/seed', async (req, res) => {
       await db.set(`compliance:${facility.id}:${req.id}`, complianceItem);
     }
 
+    const incidents = [
+      new Incident({
+        facilityId: facility.id,
+        type: 'injury',
+        severity: 'minor',
+        description: 'Child fell on playground and scraped knee',
+        childInfo: { name: 'Tommy Anderson', age: 4, classroom: 'Sunshine Room' },
+        injuries: ['Scraped knee - right side', 'Minor bruising'],
+        location: 'Outdoor Playground',
+        dateTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        witnesses: ['Sarah Johnson', 'Emma Williams'],
+        immediateActions: 'Cleaned wound with soap and water, applied bandage, applied ice pack for 5 minutes',
+        parentNotified: true,
+        parentNotificationMethod: 'Phone call at 10:45 AM',
+        reportedBy: 'Sarah Johnson'
+      }),
+      new Incident({
+        facilityId: facility.id,
+        type: 'illness',
+        severity: 'moderate',
+        description: 'Child complained of stomach ache and vomited once',
+        childInfo: { name: 'Lily Chen', age: 3, classroom: 'Rainbow Room' },
+        injuries: [],
+        location: 'Rainbow Room Classroom',
+        dateTime: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        witnesses: ['Mike Chen'],
+        immediateActions: 'Moved child to quiet area, took temperature (99.2°F), contacted parent for pickup',
+        parentNotified: true,
+        parentNotificationMethod: 'Phone call at 2:15 PM - parent picked up at 2:45 PM',
+        reportedBy: 'Mike Chen',
+        parentSignature: {
+          signature: 'Jennifer Chen',
+          signedBy: 'Jennifer Chen',
+          signedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        parentSignatureDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+      }),
+      new Incident({
+        facilityId: facility.id,
+        type: 'behavior',
+        severity: 'minor',
+        description: 'Child had difficulty sharing toys and pushed another child',
+        childInfo: { name: 'Max Rodriguez', age: 5, classroom: 'Sunshine Room' },
+        injuries: [],
+        location: 'Sunshine Room Block Area',
+        dateTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        witnesses: ['Emma Williams'],
+        immediateActions: 'Redirected child to different activity, discussed sharing and gentle hands, both children reconciled',
+        parentNotified: true,
+        parentNotificationMethod: 'In-person at pickup time',
+        reportedBy: 'Emma Williams'
+      })
+    ];
+
+    for (const incident of incidents) {
+      await db.set(`incident:${facility.id}:${incident.id}`, incident.toJSON());
+    }
+
+    const medications = [
+      new Medication({
+        facilityId: facility.id,
+        childInfo: { name: 'Sophie Martinez', age: 4, classroom: 'Rainbow Room' },
+        medicationName: 'Amoxicillin',
+        dosage: '250mg',
+        route: 'oral',
+        schedule: '3 times daily with meals (8:00 AM, 12:00 PM, 4:00 PM)',
+        startDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        prescribedBy: 'Dr. Sarah Williams, Austin Pediatrics',
+        parentAuthorization: {
+          signedBy: 'Maria Martinez',
+          signedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          relationship: 'Mother'
+        },
+        storageInstructions: 'Refrigerate, shake well before use',
+        sideEffects: ['Possible mild stomach upset', 'Diarrhea'],
+        specialInstructions: 'Give with food to reduce stomach upset',
+        status: 'active'
+      }),
+      new Medication({
+        facilityId: facility.id,
+        childInfo: { name: 'Oliver Smith', age: 5, classroom: 'Sunshine Room' },
+        medicationName: 'Albuterol Inhaler',
+        dosage: '2 puffs',
+        route: 'inhaled',
+        schedule: 'As needed for wheezing or difficulty breathing',
+        startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        endDate: new Date(Date.now() + 335 * 24 * 60 * 60 * 1000).toISOString(),
+        prescribedBy: 'Dr. Michael Chen, Children\'s Health Clinic',
+        parentAuthorization: {
+          signedBy: 'Rachel Smith',
+          signedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+          relationship: 'Mother'
+        },
+        storageInstructions: 'Store at room temperature, keep away from heat',
+        sideEffects: ['Rapid heartbeat', 'Shakiness', 'Nervousness'],
+        specialInstructions: 'Use spacer device. Wait 1 minute between puffs. Notify parent immediately after use.',
+        status: 'active'
+      })
+    ];
+
+    for (const medication of medications) {
+      await db.set(`medication:${facility.id}:${medication.id}`, medication.toJSON());
+    }
+
+    const medicationLogs = [
+      new MedicationLog({
+        medicationId: medications[0].id,
+        facilityId: facility.id,
+        administeredBy: { id: staffMembers[0].id, name: 'Sarah Johnson' },
+        witnessedBy: { id: staffMembers[1].id, name: 'Mike Chen' },
+        dateTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        dosageGiven: '250mg',
+        notes: 'Given with lunch',
+        childResponse: 'No adverse reactions observed'
+      }),
+      new MedicationLog({
+        medicationId: medications[0].id,
+        facilityId: facility.id,
+        administeredBy: { id: staffMembers[2].id, name: 'Emma Williams' },
+        witnessedBy: { id: staffMembers[0].id, name: 'Sarah Johnson' },
+        dateTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        dosageGiven: '250mg',
+        notes: 'Given with lunch',
+        childResponse: 'Child tolerated well'
+      })
+    ];
+
+    for (const log of medicationLogs) {
+      await db.set(`medication-log:${facility.id}:${log.id}`, log.toJSON());
+    }
+
     res.json({
       message: 'Database seeded successfully!',
       credentials: {
@@ -108,7 +243,13 @@ router.post('/seed', async (req, res) => {
         password: 'password123'
       },
       facility: facility.toJSON(),
-      staffCount: staffMembers.length
+      counts: {
+        staff: staffMembers.length,
+        incidents: incidents.length,
+        medications: medications.length,
+        medicationLogs: medicationLogs.length,
+        compliance: TEXAS_COMPLIANCE_REQUIREMENTS.length
+      }
     });
   } catch (error) {
     console.error('Seed error:', error);
