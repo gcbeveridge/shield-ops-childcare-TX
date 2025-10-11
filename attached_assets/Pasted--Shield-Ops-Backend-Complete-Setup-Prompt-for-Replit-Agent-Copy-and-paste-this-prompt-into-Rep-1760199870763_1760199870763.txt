@@ -1,0 +1,686 @@
+# Shield Ops Backend - Complete Setup Prompt for Replit Agent
+
+Copy and paste this prompt into Replit Agent to build the entire backend structure:
+
+---
+
+## MASTER PROMPT: Shield Ops Backend Setup
+
+Build a complete Node.js backend for Shield Ops, a Texas child care compliance management SaaS platform. This backend will power the existing frontend prototype with real data storage, authentication, and business logic.
+
+### Project Context
+Shield Ops helps Texas child care facilities manage compliance with DFPS minimum standards (Texas Admin Code Title 40, Chapter 744). The app tracks staff certifications, incident reports, daily checklists, medication administration, training requirements, and generates audit-ready compliance reports.
+
+### Tech Stack Requirements
+- **Framework**: Express.js
+- **Database**: Replit Database (key-value store)
+- **Auth**: Replit Auth for user authentication
+- **File Storage**: Replit filesystem for document uploads
+- **API Style**: RESTful JSON API
+- **Port**: 3000
+
+---
+
+## Project Structure
+
+Create this folder structure:
+
+```
+backend/
+├── server.js                 # Main entry point
+├── config/
+│   ├── database.js          # Replit DB connection
+│   └── constants.js         # Texas compliance constants
+├── middleware/
+│   ├── auth.js              # Authentication middleware
+│   └── validation.js        # Request validation
+├── models/
+│   ├── Facility.js          # Facility data structure
+│   ├── User.js              # User/staff data structure
+│   ├── Child.js             # Child enrollment records
+│   ├── Staff.js             # Staff member records
+│   ├── Incident.js          # Incident reports
+│   ├── Checklist.js         # Daily checklists
+│   ├── Medication.js        # Medication authorizations
+│   ├── Training.js          # Training records
+│   └── Document.js          # Document metadata
+├── controllers/
+│   ├── authController.js
+│   ├── dashboardController.js
+│   ├── complianceController.js
+│   ├── staffController.js
+│   ├── incidentController.js
+│   ├── checklistController.js
+│   ├── medicationController.js
+│   ├── trainingController.js
+│   └── documentController.js
+└── routes/
+    ├── auth.js
+    ├── dashboard.js
+    ├── facilities.js
+    ├── compliance.js
+    ├── staff.js
+    ├── incidents.js
+    ├── checklists.js
+    ├── medications.js
+    ├── training.js
+    └── documents.js
+```
+
+---
+
+## 1. Server Setup (server.js)
+
+Create the main Express server with:
+- CORS enabled for frontend requests
+- JSON body parsing
+- Error handling middleware
+- All route imports and mounting
+- Server listening on port 3000
+- Health check endpoint: GET /api/health
+
+**Example response for health check:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-10-11T10:30:00Z",
+  "service": "Shield Ops Backend"
+}
+```
+
+---
+
+## 2. Database Configuration (config/database.js)
+
+Set up Replit Database with helper functions:
+- Initialize @replit/database
+- Wrapper functions for common operations:
+  - `get(key)` - retrieve data
+  - `set(key, value)` - store data  
+  - `list(prefix)` - get all keys with prefix
+  - `delete(key)` - remove data
+  - `getByPrefix(prefix)` - get all values for keys starting with prefix
+
+**Database Key Structure:**
+```
+facilities:{facilityId}
+users:{userId}
+staff:{facilityId}:{staffId}
+children:{facilityId}:{childId}
+incidents:{facilityId}:{incidentId}
+checklists:{facilityId}:{YYYY-MM-DD}
+medications:{facilityId}:{medicationId}
+training:{facilityId}:{staffId}:{trainingId}
+documents:{facilityId}:{documentId}
+compliance:{facilityId}:{requirementId}
+```
+
+---
+
+## 3. Authentication System
+
+### Routes (routes/auth.js)
+
+**POST /api/auth/signup**
+- Accept: `{ email, password, name, facilityName, facilityAddress, phone }`
+- Create user with Replit Auth
+- Generate unique facilityId and userId
+- Store user record at `users:{userId}`
+- Store facility record at `facilities:{facilityId}`
+- Return JWT token + user + facility data
+
+**POST /api/auth/login**
+- Accept: `{ email, password }`
+- Verify with Replit Auth
+- Retrieve user and facility from database
+- Return JWT token + user + facility data
+
+**GET /api/auth/me**
+- Require authentication
+- Return current user with facility data
+
+### Middleware (middleware/auth.js)
+
+Create these middleware functions:
+- `authenticateToken(req, res, next)` - Verify JWT, attach user to req.user
+- `requireRole(role)` - Check user has specific role ('owner', 'director', 'staff')
+- `checkFacilityAccess(req, res, next)` - Verify user belongs to facility in request
+
+---
+
+## 4. Data Models
+
+### Facility Model (models/Facility.js)
+```javascript
+{
+  id: string (uuid),
+  name: string (required),
+  address: {
+    street: string,
+    city: string,
+    state: "TX",
+    zip: string
+  },
+  phone: string,
+  email: string,
+  licenseNumber: string,
+  capacity: number,
+  ownerId: string (references user),
+  settings: {
+    timezone: "America/Chicago",
+    hoursOfOperation: {
+      monday: { open: "06:00", close: "18:00" },
+      // ... other days
+    }
+  },
+  createdAt: timestamp,
+  updatedAt: timestamp
+}
+```
+
+### Staff Model (models/Staff.js)
+```javascript
+{
+  id: string (uuid),
+  facilityId: string (required),
+  name: string (required),
+  email: string,
+  role: string ("Lead Teacher", "Assistant Teacher", "Director", etc.),
+  hireDate: date (YYYY-MM-DD),
+  certifications: {
+    cpr: {
+      valid: boolean,
+      expiresAt: date,
+      certificateUrl: string
+    },
+    firstAid: {
+      valid: boolean,
+      expiresAt: date,
+      certificateUrl: string
+    },
+    backgroundCheck: {
+      status: "Clear" | "Pending" | "Expired",
+      completedAt: date,
+      expiresAt: date
+    },
+    tuberculosisScreening: {
+      status: "Complete" | "Pending",
+      completedAt: date
+    }
+  },
+  trainingHours: {
+    required: number (15 for staff, 20 for directors per Texas §744.1309),
+    completed: number,
+    year: number
+  },
+  active: boolean,
+  createdAt: timestamp
+}
+```
+
+### Incident Model (models/Incident.js)
+```javascript
+{
+  id: string (uuid),
+  facilityId: string (required),
+  childName: string (required),
+  childId: string,
+  incidentType: "injury" | "illness" | "behavior",
+  description: string (required),
+  occurredAt: timestamp (required),
+  reportedBy: string (staff name),
+  reportedById: string (staff id),
+  location: string ("playground", "classroom", etc.),
+  witnessedBy: [string] (staff names),
+  actionTaken: string,
+  firstAidProvided: boolean,
+  parentNotified: boolean,
+  parentNotifiedAt: timestamp,
+  parentNotificationMethod: "phone" | "email" | "in-person",
+  parentSignature: {
+    signed: boolean,
+    signedBy: string,
+    signedAt: timestamp,
+    digitalSignature: string
+  },
+  photoUrls: [string],
+  requiresFollowup: boolean,
+  status: "open" | "parent-signed" | "closed",
+  createdAt: timestamp
+}
+```
+
+### Medication Model (models/Medication.js)
+```javascript
+{
+  id: string (uuid),
+  facilityId: string (required),
+  childName: string (required),
+  childId: string,
+  medicationName: string (required),
+  dosage: string (required),
+  instructions: string,
+  frequency: string ("once daily", "twice daily", "as needed"),
+  startDate: date (required),
+  endDate: date (required, expires within 1 year per §744.2653),
+  administrationTimes: [string] (["08:00", "14:00"]),
+  parentAuthorization: {
+    authorized: boolean (required),
+    authorizedBy: string (parent name),
+    signedAt: timestamp,
+    digitalSignature: string
+  },
+  originalContainerPhoto: string (url, required per §744.2655),
+  administrationLog: [{
+    administeredAt: timestamp,
+    administeredBy: string (staff name),
+    verifiedBy: string (second staff name for dual verification),
+    dosageGiven: string,
+    notes: string
+  }],
+  active: boolean,
+  createdAt: timestamp
+}
+```
+
+### Daily Checklist Model (models/Checklist.js)
+```javascript
+{
+  id: string (uuid),
+  facilityId: string (required),
+  date: date (YYYY-MM-DD),
+  tasks: [{
+    id: string,
+    category: "morning" | "throughout-day" | "evening",
+    title: string,
+    description: string,
+    completed: boolean,
+    completedBy: string (staff name),
+    completedAt: timestamp,
+    notes: string
+  }],
+  completionPercentage: number,
+  createdAt: timestamp
+}
+```
+
+**Default Checklist Template Tasks:**
+```javascript
+Morning Safety Walk (6:00-7:00):
+- Facility Inspection
+- Playground Equipment Check
+- Temperature Logs
+- Hand Sanitizer Refill
+
+Throughout Day:
+- Child Attendance Tracking
+- Meal Service Documentation
+- Medication Administration
+- Diaper/Bathroom Logs (if applicable)
+- Activity Documentation
+
+Evening Closing (5:30-6:00):
+- Final Headcount & Sign-Out
+- Security Check & Lock-Up
+- Tomorrow's Prep Notes
+```
+
+---
+
+## 5. Dashboard API (routes/dashboard.js)
+
+**GET /api/facilities/:facilityId/dashboard**
+- Require authentication
+- Return comprehensive dashboard data:
+
+```json
+{
+  "facilityInfo": {
+    "name": "Bright Futures Learning Center",
+    "location": "Austin, TX",
+    "currentEnrollment": 42,
+    "capacity": 60,
+    "staffCount": 15
+  },
+  "complianceStatus": {
+    "overallPercentage": 94,
+    "completeRequirements": 11,
+    "totalRequirements": 12,
+    "pendingRequirements": 1,
+    "overdueRequirements": 0
+  },
+  "todayStats": {
+    "childrenPresent": 38,
+    "staffOnDuty": 12,
+    "incidentsToday": 1,
+    "medicationsGiven": 3,
+    "checklistCompletion": 90
+  },
+  "recentIncidents": [{
+    "id": "inc-123",
+    "childName": "Emma S.",
+    "type": "injury",
+    "description": "Minor scrape on knee...",
+    "occurredAt": "2025-10-11T14:30:00Z",
+    "parentNotified": true
+  }],
+  "upcomingExpirations": [{
+    "type": "certification",
+    "item": "CPR - Sarah Johnson",
+    "expiresAt": "2025-12-15",
+    "daysUntilExpiration": 65,
+    "priority": "medium"
+  }],
+  "actionItems": [{
+    "priority": "high",
+    "title": "Complete October fire drill documentation",
+    "dueDate": "2025-10-15",
+    "overdue": false
+  }]
+}
+```
+
+---
+
+## 6. Compliance Tracking (routes/compliance.js)
+
+**GET /api/facilities/:facilityId/compliance**
+- Return all 12 Texas minimum standards requirements
+- Show status: "complete", "pending", "overdue"
+- Include due dates and completion dates
+
+**Texas Requirements to Track:**
+```javascript
+[
+  {
+    id: "req-001",
+    name: "Orientation Training",
+    description: "Emergency procedures, abuse reporting, policies",
+    category: "Staff Training",
+    priority: "Medium-High",
+    dueDate: "Within 7 days of hire",
+    frequency: "one-time",
+    texasCode: "§744.1301",
+    status: "complete"
+  },
+  {
+    id: "req-002",
+    name: "Pre-Service Training",
+    description: "8 clock hours on child development & safety",
+    category: "Staff Training",
+    priority: "Medium-High",
+    dueDate: "Within 90 days of hire",
+    frequency: "one-time",
+    texasCode: "§744.1305",
+    status: "complete"
+  },
+  // ... include all 12 requirements from the prototype
+]
+```
+
+**POST /api/facilities/:facilityId/compliance/:requirementId/complete**
+- Mark requirement as complete
+- Store completion date and completed by staff member
+
+**GET /api/facilities/:facilityId/compliance/audit-report**
+- Generate comprehensive audit report data
+- Include all documentation references
+- Calculate overall compliance percentage
+- Return structured data for PDF generation
+
+---
+
+## 7. Staff Management (routes/staff.js)
+
+**GET /api/facilities/:facilityId/staff**
+- Return all staff members with certification statuses
+- Include expiration warnings (< 30 days)
+
+**POST /api/facilities/:facilityId/staff**
+- Create new staff member
+- Accept: `{ name, email, role, hireDate }`
+- Initialize empty certifications
+
+**GET /api/staff/:staffId**
+- Return detailed staff profile
+
+**PUT /api/staff/:staffId**
+- Update staff information
+
+**PUT /api/staff/:staffId/certifications**
+- Update specific certification
+- Accept: `{ type: 'cpr', valid: true, expiresAt: '2026-06-15', certificateUrl: '...' }`
+
+**GET /api/staff/:staffId/training**
+- Return training history for staff member
+
+---
+
+## 8. Incident Management (routes/incidents.js)
+
+**GET /api/facilities/:facilityId/incidents**
+- Query params: `?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD&type=injury&status=open`
+- Return filtered incidents, sorted by date (newest first)
+
+**POST /api/facilities/:facilityId/incidents**
+- Create new incident report
+- Auto-generate unique incident ID
+- Set status to "open" (requires parent signature)
+
+**GET /api/incidents/:incidentId**
+- Return incident details
+
+**PUT /api/incidents/:incidentId/parent-signature**
+- Add parent's digital signature
+- Update status to "parent-signed"
+- Record signature timestamp
+
+**POST /api/incidents/:incidentId/photos**
+- Upload incident photo
+- Store in filesystem
+- Return photo URL
+
+---
+
+## 9. Medication Tracking (routes/medications.js)
+
+**GET /api/facilities/:facilityId/medications**
+- Return all active medication authorizations
+- Include administration schedule and logs
+
+**POST /api/facilities/:facilityId/medications**
+- Create medication authorization
+- Require parent authorization signature
+- Validate expiration date (max 1 year per Texas §744.2653)
+
+**POST /api/medications/:medicationId/administer**
+- Log medication administration
+- Accept: `{ administeredBy, verifiedBy, dosageGiven, administeredAt, notes }`
+- Require dual-staff verification per Texas standards
+
+**GET /api/medications/:medicationId**
+- Return medication details with full administration log
+
+---
+
+## 10. Daily Checklist System (routes/checklists.js)
+
+**GET /api/facilities/:facilityId/checklist/today**
+- Return today's checklist
+- Auto-generate from template if doesn't exist
+
+**POST /api/facilities/:facilityId/checklist/today/tasks/:taskId/complete**
+- Mark task as complete
+- Accept: `{ completedBy, notes }`
+- Update completion percentage
+
+**GET /api/facilities/:facilityId/checklist/week**
+- Return past 7 days completion stats
+- Format: `[{ date, completionPercentage, completedTasks, totalTasks }]`
+
+---
+
+## 11. Training Hub (routes/training.js)
+
+**GET /api/facilities/:facilityId/training/modules**
+- Return monthly training modules
+- Show completion status per staff member
+
+**Monthly Training Modules:**
+```javascript
+[
+  {
+    month: "January",
+    title: "Child Abuse Prevention & Reporting",
+    description: "Recognize signs, mandatory reporting, documentation",
+    requiredForAll: true,
+    duration: "2 hours",
+    status: "available"
+  },
+  {
+    month: "February", 
+    title: "Emergency Response Procedures",
+    // ... etc
+  }
+]
+```
+
+**POST /api/training/:moduleId/complete**
+- Mark training module complete for staff member
+- Accept: `{ staffId, completedAt, certificateUrl }`
+- Update staff training hours
+
+---
+
+## 12. Document Management (routes/documents.js)
+
+**GET /api/facilities/:facilityId/documents**
+- Return all documents with categories and expiration tracking
+- Categories: "licenses", "policies", "inspections", "certifications", "training"
+
+**POST /api/facilities/:facilityId/documents/upload**
+- Handle file upload
+- Store in Replit filesystem
+- Create document metadata record
+- Accept: `{ file, category, name, expiresAt }`
+
+**GET /api/documents/:documentId**
+- Return document metadata
+
+**GET /api/documents/:documentId/download**
+- Return actual file for download
+
+---
+
+## Error Handling
+
+Implement consistent error responses:
+```json
+{
+  "error": true,
+  "message": "Descriptive error message",
+  "code": "ERROR_CODE",
+  "statusCode": 400
+}
+```
+
+Common error codes:
+- UNAUTHORIZED (401)
+- FORBIDDEN (403)
+- NOT_FOUND (404)
+- VALIDATION_ERROR (400)
+- SERVER_ERROR (500)
+
+---
+
+## Validation Requirements
+
+Use middleware/validation.js to validate:
+- Required fields present
+- Email format valid
+- Dates in correct format (YYYY-MM-DD)
+- Phone numbers formatted correctly
+- IDs are valid UUIDs
+- File uploads within size limits (5MB max)
+
+---
+
+## Security Requirements
+
+1. All endpoints except /auth/signup and /auth/login require authentication
+2. Users can only access data for their own facility
+3. Sanitize all user inputs to prevent injection
+4. Hash passwords with bcrypt (min 10 rounds)
+5. JWT tokens expire after 7 days
+6. CORS only allow specific frontend origins
+
+---
+
+## Testing Endpoints
+
+Include a route: **GET /api/test/seed-data**
+- Only available in development mode
+- Seeds database with sample facility, staff, incidents, medications
+- Returns: `{ message: "Test data created", facilityId: "...", userId: "..." }`
+
+---
+
+## Package.json Dependencies
+
+Include these packages:
+- express
+- @replit/database
+- jsonwebtoken
+- bcrypt
+- cors
+- dotenv
+- uuid
+- multer (for file uploads)
+- express-validator
+
+---
+
+## Environment Variables (.env)
+
+```
+PORT=3000
+JWT_SECRET=your-secret-key-here
+NODE_ENV=development
+```
+
+---
+
+## Final Checklist
+
+Ensure the backend has:
+✅ All routes implemented and tested
+✅ Authentication working with JWT tokens
+✅ Database operations functioning (CRUD)
+✅ Error handling on all endpoints
+✅ Input validation on POST/PUT requests
+✅ Multi-tenant isolation (facilities can't access each other's data)
+✅ File upload working for documents and photos
+✅ Audit report generation logic
+✅ Compliance percentage calculation
+✅ Expiration tracking for certifications/documents
+✅ Daily checklist auto-generation
+✅ Test data seeding endpoint
+
+---
+
+## Success Criteria
+
+After running this backend, you should be able to:
+1. POST to /api/auth/signup and create a facility
+2. POST to /api/auth/login and get a JWT token
+3. GET /api/facilities/:id/dashboard with valid token
+4. POST to create staff, incidents, medications
+5. GET the compliance status
+6. Generate today's checklist
+7. Upload documents
+
+The backend should be ready to connect to the existing Shield Ops frontend prototype.
+
+---
+
+**Build this backend following best practices: clean code, proper error handling, comprehensive comments, and modular structure. Make it production-ready.**
