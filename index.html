@@ -3210,7 +3210,28 @@
         // API CLIENT & AUTHENTICATION
         // =============================================
         
-        const API_BASE_URL = 'http://localhost:3000/api';
+        // Determine API base URL based on environment
+        function getApiBaseUrl() {
+            const hostname = window.location.hostname;
+            
+            // Local development (localhost or 127.0.0.1)
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3000/api';
+            }
+            
+            // Replit environment: add -3000 port to hostname
+            // e.g., xxx.replit.dev -> xxx-3000.replit.dev
+            if (hostname.includes('.replit.dev')) {
+                const backendHostname = hostname.replace(/\.replit\.dev$/, '-3000.replit.dev');
+                return `https://${backendHostname}/api`;
+            }
+            
+            // Fallback: use current origin with /api path
+            return `${window.location.protocol}//${hostname}:3000/api`;
+        }
+        
+        const API_BASE_URL = getApiBaseUrl();
+        console.log('API Base URL:', API_BASE_URL);
         
         const AppState = {
             token: localStorage.getItem('token') || null,
