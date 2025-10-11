@@ -3067,35 +3067,35 @@
             <div class="modal-header">
                 <h2 class="modal-title">Log New Incident 🚨</h2>
             </div>
-            <form>
+            <form id="new-incident-form" onsubmit="createIncident(event)">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Child Name</label>
-                        <input type="text" class="form-input" placeholder="Select child..." required>
+                        <input id="incident-child-name" type="text" class="form-input" placeholder="Select child..." required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Incident Type</label>
-                        <select class="form-input" required>
-                            <option>Injury</option>
-                            <option>Illness</option>
-                            <option>Behavior</option>
-                            <option>Other</option>
+                        <select id="incident-type" class="form-input" required>
+                            <option value="injury">Injury</option>
+                            <option value="illness">Illness</option>
+                            <option value="behavior">Behavior</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Date</label>
-                        <input type="date" class="form-input" required>
+                        <input id="incident-date" type="date" class="form-input" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Time</label>
-                        <input type="time" class="form-input" required>
+                        <input id="incident-time" type="time" class="form-input" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Location</label>
-                    <select class="form-input" required>
+                    <select id="incident-location" class="form-input" required>
                         <option>Playground</option>
                         <option>Classroom</option>
                         <option>Bathroom</option>
@@ -3106,33 +3106,25 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Description of Incident</label>
-                    <textarea class="form-input" rows="3" placeholder="Describe what happened in detail..." required></textarea>
+                    <textarea id="incident-description" class="form-input" rows="3" placeholder="Describe what happened in detail..." required></textarea>
                 </div>
                 <div class="form-group">
                     <label class="form-label">First Aid/Action Taken</label>
-                    <textarea class="form-input" rows="2" placeholder="Band-Aid applied, ice pack provided, etc..." required></textarea>
+                    <textarea id="incident-action" class="form-input" rows="2" placeholder="Band-Aid applied, ice pack provided, etc..." required></textarea>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Staff Member(s) Present</label>
-                    <input type="text" class="form-input" placeholder="Sarah Johnson, Michael Chen" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Photo Evidence (Optional)</label>
-                    <div style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s;">
-                        <div style="font-size: 48px; margin-bottom: 8px;">📷</div>
-                        <div style="font-size: 14px; color: var(--gray-700); margin-bottom: 4px;">Click to upload photo</div>
-                        <div style="font-size: 12px; color: var(--gray-700);">or drag and drop</div>
-                    </div>
+                    <input id="incident-staff" type="text" class="form-input" placeholder="Sarah Johnson, Michael Chen" required>
                 </div>
                 <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="checkbox" checked>
+                        <input id="incident-notify-parent" type="checkbox" checked>
                         <span class="form-label" style="margin: 0;">Send automatic notification to parent</span>
                     </label>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('new-incident')">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="closeModal('new-incident')">Save & Notify Parent</button>
+                    <button id="new-incident-btn" type="submit" class="btn btn-primary">Save & Notify Parent</button>
                 </div>
             </form>
         </div>
@@ -3907,9 +3899,17 @@
         }
         
         // INCIDENT REPORTING
-        async function loadIncidentList() {
+        let currentIncidentFilter = 'all';
+        
+        async function loadIncidentList(filter = 'all') {
             try {
-                const data = await apiRequest(`/facilities/${AppState.facility.id}/incidents`);
+                currentIncidentFilter = filter;
+                let url = `/facilities/${AppState.facility.id}/incidents`;
+                if (filter && filter !== 'all') {
+                    url += `?type=${filter}`;
+                }
+                
+                const data = await apiRequest(url);
                 const tbody = document.querySelector('#incidents .data-table tbody');
                 if (!tbody) return;
                 
@@ -3943,6 +3943,49 @@
                 console.error('Failed to load incident:', error);
                 showError('Failed to load incident details');
             }
+        }
+        
+        async function createIncident(event) {
+            event.preventDefault();
+            
+            const button = document.getElementById('new-incident-btn');
+            setLoading(button, true);
+            
+            const date = document.getElementById('incident-date').value;
+            const time = document.getElementById('incident-time').value;
+            const dateTime = new Date(`${date}T${time}`).toISOString();
+            
+            const incidentData = {
+                childName: document.getElementById('incident-child-name').value,
+                incidentType: document.getElementById('incident-type').value,
+                location: document.getElementById('incident-location').value,
+                description: document.getElementById('incident-description').value,
+                actionTaken: document.getElementById('incident-action').value,
+                reportedBy: document.getElementById('incident-staff').value,
+                dateTime,
+                parentNotified: document.getElementById('incident-notify-parent').checked
+            };
+            
+            try {
+                await apiRequest(`/facilities/${AppState.facility.id}/incidents`, {
+                    method: 'POST',
+                    body: JSON.stringify(incidentData)
+                });
+                
+                showSuccess('Incident logged successfully');
+                document.getElementById('new-incident-form').reset();
+                closeModal('new-incident');
+                await loadIncidentList(currentIncidentFilter);
+            } catch (error) {
+                console.error('Failed to create incident:', error);
+                showError(error.message || 'Failed to log incident');
+            } finally {
+                setLoading(button, false);
+            }
+        }
+        
+        function filterIncidents(type) {
+            loadIncidentList(type.toLowerCase());
         }
         
         // MEDICATION TRACKING
