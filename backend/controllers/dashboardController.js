@@ -17,7 +17,7 @@ async function getDashboard(req, res) {
 
     const today = new Date().toISOString().split('T')[0];
     const todayIncidents = incidents.filter(inc => 
-      inc.occurredAt.startsWith(today)
+      inc.dateTime && inc.dateTime.startsWith(today)
     );
 
     const completeRequirements = compliance.filter(c => c.status === 'complete').length;
@@ -68,7 +68,7 @@ async function getDashboard(req, res) {
         childName: inc.childName,
         type: inc.incidentType,
         description: inc.description,
-        occurredAt: inc.occurredAt,
+        occurredAt: inc.dateTime,
         parentNotified: inc.parentNotified
       })),
       upcomingExpirations,
