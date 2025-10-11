@@ -18,7 +18,12 @@ async function autoSeed() {
 
     console.log('🌱 Auto-seeding database...');
     
+    // Use fixed IDs for consistent auto-login across restarts
+    const fixedFacilityId = '00000000-0000-0000-0000-000000000001';
+    const fixedUserId = '00000000-0000-0000-0000-000000000002';
+    
     const facility = new Facility({
+      id: fixedFacilityId,
       name: 'Bright Futures Learning Center',
       address: {
         street: '123 Main Street',
@@ -33,6 +38,7 @@ async function autoSeed() {
     });
 
     const user = new User({
+      id: fixedUserId,
       email: 'director@brightfutures.com',
       name: 'Maria Rodriguez',
       role: 'owner',

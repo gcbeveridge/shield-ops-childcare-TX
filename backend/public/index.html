@@ -3254,19 +3254,25 @@
             }
             
             try {
+                console.log('API Request:', `${API_BASE_URL}${endpoint}`, options.method || 'GET');
                 const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                     ...options,
                     headers
                 });
                 
+                console.log('API Response status:', response.status, response.statusText);
+                
                 if (!response.ok) {
                     const error = await response.json().catch(() => ({ error: response.statusText }));
+                    console.error('API Error response:', error);
                     throw new Error(error.error || error.message || 'Request failed');
                 }
                 
-                return await response.json();
+                const data = await response.json();
+                console.log('API Response data:', data);
+                return data;
             } catch (error) {
-                console.error('API Request failed:', error);
+                console.error('API Request failed:', error.message || error);
                 throw error;
             }
         }
@@ -3453,6 +3459,45 @@
                 document.getElementById('facility-name').textContent = AppState.facility.name || 'My Facility';
                 document.getElementById('facility-location').textContent = AppState.facility.address?.city || 'Location';
                 
+                // Update dashboard stat cards with real data
+                const statCards = document.querySelectorAll('#dashboard .stat-card');
+                if (statCards.length >= 4 && data.complianceStatus) {
+                    // Compliance stat (index 1)
+                    const complianceCard = statCards[1];
+                    const complianceValue = complianceCard?.querySelector('.stat-value');
+                    const complianceDesc = complianceCard?.querySelectorAll('div')[3]; // 4th div
+                    if (complianceValue) complianceValue.textContent = `${data.complianceStatus.overallPercentage}%`;
+                    if (complianceDesc) complianceDesc.textContent = `${data.complianceStatus.pendingRequirements} items to address`;
+                    
+                    // Staff certification stat (index 2)
+                    const certExpiringSoon = data.upcomingExpirations?.filter(e => e.type === 'certification').length || 0;
+                    const staffCard = statCards[2];
+                    const staffValue = staffCard?.querySelector('.stat-value');
+                    const staffDesc = staffCard?.querySelectorAll('div')[3]; // 4th div
+                    if (staffValue) staffValue.textContent = `${data.facilityInfo.staffCount}/${data.facilityInfo.staffCount}`;
+                    if (staffDesc) staffDesc.textContent = `${certExpiringSoon} expiring soon`;
+                    
+                    // Checklist completion stat (index 3)
+                    if (data.todayStats) {
+                        const checklistCard = statCards[3];
+                        const checklistValue = checklistCard?.querySelector('.stat-value');
+                        if (checklistValue) checklistValue.textContent = `${data.todayStats.checklistCompletion}%`;
+                    }
+                }
+                
+                // Update compliance progress bar on licensing screen
+                const complianceCard = document.querySelector('#licensing .card');
+                if (complianceCard && data.complianceStatus) {
+                    const percentageDiv = complianceCard.querySelectorAll('div')[1]; // 2nd div
+                    const progressFill = complianceCard.querySelector('.progress-fill');
+                    const descText = complianceCard.querySelector('p');
+                    
+                    if (percentageDiv) percentageDiv.textContent = `${data.complianceStatus.overallPercentage}%`;
+                    if (progressFill) progressFill.style.width = `${data.complianceStatus.overallPercentage}%`;
+                    if (descText) descText.textContent = 
+                        `${data.complianceStatus.completeRequirements} of ${data.complianceStatus.totalRequirements} requirements complete`;
+                }
+                
             } catch (error) {
                 console.error('Failed to load dashboard:', error);
             }
@@ -3609,6 +3654,335 @@
                 }
             });
         });
+
+        // =============================================
+        // MODULE DATA LOADING FUNCTIONS
+        // =============================================
+        
+        // Enhanced showScreen function to load data when switching views
+        const originalShowScreen = showScreen;
+        showScreen = async function(screenId) {
+            originalShowScreen.call(this, screenId);
+            
+            // Load data for the selected screen
+            if (!AppState.facility) return;
+            
+            switch(screenId) {
+                case 'staff':
+                    await loadStaffList();
+                    break;
+                case 'incidents':
+                    await loadIncidentList();
+                    break;
+                case 'medication':
+                    await loadMedicationList();
+                    break;
+                case 'licensing':
+                    await loadComplianceList();
+                    break;
+                case 'checklist':
+                    await loadTodayChecklist();
+                    break;
+                case 'training':
+                    await loadTrainingModules();
+                    break;
+                case 'documents':
+                    await loadDocuments();
+                    break;
+            }
+        };
+        
+        // STAFF MANAGEMENT
+        async function loadStaffList() {
+            try {
+                const data = await apiRequest(`/facilities/${AppState.facility.id}/staff`);
+                const tbody = document.querySelector('#staff .data-table tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = data.staff.map(staff => `
+                    <tr>
+                        <td><strong>${staff.name}</strong></td>
+                        <td>${staff.role}</td>
+                        <td><span class="badge ${staff.certifications.cpr.valid ? 'badge-success' : 'badge-danger'}">${staff.certifications.cpr.valid ? 'Valid' : 'Expired'}</span></td>
+                        <td><span class="badge ${staff.certifications.firstAid.valid ? 'badge-success' : 'badge-danger'}">${staff.certifications.firstAid.valid ? 'Valid' : 'Expired'}</span></td>
+                        <td>${staff.certifications.backgroundCheck.status}</td>
+                        <td>
+                            <div class="progress-bar-sm">
+                                <div class="progress-fill" style="width: ${(staff.trainingHours.completed / staff.trainingHours.required * 100).toFixed(0)}%"></div>
+                            </div>
+                            <small>${staff.trainingHours.completed}/${staff.trainingHours.required} hours</small>
+                        </td>
+                        <td><button class="btn btn-sm btn-secondary" onclick="viewStaffDetails('${staff.id}')">View Details</button></td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load staff:', error);
+                showError('Failed to load staff list');
+            }
+        }
+        
+        async function viewStaffDetails(staffId) {
+            try {
+                const staff = await apiRequest(`/staff/${staffId}`);
+                // TODO: Show staff details in a modal or detail view
+                showSuccess(`Viewing details for ${staff.name}`);
+            } catch (error) {
+                console.error('Failed to load staff details:', error);
+                showError('Failed to load staff details');
+            }
+        }
+        
+        // INCIDENT REPORTING
+        async function loadIncidentList() {
+            try {
+                const data = await apiRequest(`/facilities/${AppState.facility.id}/incidents`);
+                const tbody = document.querySelector('#incidents .data-table tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = data.incidents.map(incident => {
+                    const date = new Date(incident.dateTime);
+                    const severityClass = incident.severity === 'critical' ? 'badge-danger' : 
+                                         incident.severity === 'moderate' ? 'badge-warning' : 'badge-info';
+                    return `
+                        <tr>
+                            <td>${date.toLocaleDateString()}</td>
+                            <td>${incident.childInfo.name}</td>
+                            <td><span class="badge ${incident.type === 'injury' ? 'badge-danger' : incident.type === 'illness' ? 'badge-warning' : 'badge-info'}">${incident.type.charAt(0).toUpperCase() + incident.type.slice(1)}</span></td>
+                            <td><span class="badge ${severityClass}">${incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)}</span></td>
+                            <td>${incident.description.substring(0, 50)}...</td>
+                            <td><span class="badge ${incident.parentSignature ? 'badge-success' : 'badge-warning'}">${incident.parentSignature ? 'Signed' : 'Pending'}</span></td>
+                            <td><button class="btn btn-sm btn-secondary" onclick="viewIncidentDetails('${incident.id}')">View</button></td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load incidents:', error);
+                showError('Failed to load incident list');
+            }
+        }
+        
+        async function viewIncidentDetails(incidentId) {
+            try {
+                const incident = await apiRequest(`/incidents/${incidentId}`);
+                showSuccess(`Viewing incident for ${incident.childInfo.name}`);
+            } catch (error) {
+                console.error('Failed to load incident:', error);
+                showError('Failed to load incident details');
+            }
+        }
+        
+        // MEDICATION TRACKING
+        async function loadMedicationList() {
+            try {
+                const data = await apiRequest(`/facilities/${AppState.facility.id}/medications`);
+                const tbody = document.querySelector('#medication .data-table tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = data.medications.map(med => {
+                    const endDate = new Date(med.endDate);
+                    return `
+                        <tr>
+                            <td>${med.childInfo.name}</td>
+                            <td><strong>${med.medicationName}</strong></td>
+                            <td>${med.dosage}</td>
+                            <td>${med.schedule}</td>
+                            <td>${endDate.toLocaleDateString()}</td>
+                            <td><span class="badge ${med.status === 'active' ? 'badge-success' : 'badge-secondary'}">${med.status.charAt(0).toUpperCase() + med.status.slice(1)}</span></td>
+                            <td><button class="btn btn-sm btn-primary" onclick="administerMedication('${med.id}')">Administer</button></td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load medications:', error);
+                showError('Failed to load medication list');
+            }
+        }
+        
+        async function administerMedication(medicationId) {
+            try {
+                // TODO: Show administration form with dual-staff verification
+                showSuccess('Medication administration form - Coming soon');
+            } catch (error) {
+                console.error('Failed to administer medication:', error);
+                showError('Failed to record medication administration');
+            }
+        }
+        
+        // COMPLIANCE MANAGEMENT  
+        async function loadComplianceList() {
+            try {
+                const data = await apiRequest(`/facilities/${AppState.facility.id}/compliance`);
+                const tbody = document.querySelector('#licensing .data-table tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = data.requirements.map(req => {
+                    const priorityClass = req.priority === 'High' ? 'badge-danger' : 
+                                         req.priority === 'Medium' ? 'badge-warning' : 'badge-info';
+                    return `
+                        <tr class="requirement-row" data-status="${req.status}">
+                            <td>${req.requirement}</td>
+                            <td><span class="badge ${priorityClass}">${req.priority}</span></td>
+                            <td>${req.frequency}</td>
+                            <td>${req.completedAt ? new Date(req.completedAt).toLocaleDateString() : 'Not completed'}</td>
+                            <td><span class="badge ${req.status === 'complete' ? 'badge-success' : 'badge-warning'}">${req.status === 'complete' ? 'Complete' : 'Pending'}</span></td>
+                            <td>
+                                ${req.status !== 'complete' ? 
+                                    `<button class="btn btn-sm btn-primary" onclick="markCompleteRequirement('${req.id}')">Mark Complete</button>` : 
+                                    `<button class="btn btn-sm btn-secondary" disabled>Completed</button>`
+                                }
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load compliance:', error);
+                showError('Failed to load compliance requirements');
+            }
+        }
+        
+        async function markCompleteRequirement(reqId) {
+            try {
+                await apiRequest(`/facilities/${AppState.facility.id}/compliance/${reqId}/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify({})
+                });
+                showSuccess('Requirement marked as complete');
+                await loadComplianceList();
+            } catch (error) {
+                console.error('Failed to mark requirement complete:', error);
+                showError('Failed to update requirement');
+            }
+        }
+        
+        // DAILY CHECKLIST
+        async function loadTodayChecklist() {
+            try {
+                const data = await apiRequest(`/facilities/${AppState.facility.id}/checklist/today`);
+                const container = document.querySelector('#checklist .checklist-items');
+                if (!container) return;
+                
+                const groupedTasks = {};
+                data.tasks.forEach(task => {
+                    if (!groupedTasks[task.category]) {
+                        groupedTasks[task.category] = [];
+                    }
+                    groupedTasks[task.category].push(task);
+                });
+                
+                container.innerHTML = Object.entries(groupedTasks).map(([category, tasks]) => `
+                    <div class="checklist-category">
+                        <h3>${category}</h3>
+                        ${tasks.map(task => `
+                            <div class="checklist-item ${task.completed ? 'completed' : ''}">
+                                <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                                       onchange="toggleChecklistTask('${task.id}')" 
+                                       ${task.completed ? 'disabled' : ''}>
+                                <div>
+                                    <strong>${task.task}</strong>
+                                    ${task.completedAt ? `<small>Completed at ${new Date(task.completedAt).toLocaleTimeString()}</small>` : ''}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load checklist:', error);
+                showError('Failed to load daily checklist');
+            }
+        }
+        
+        async function toggleChecklistTask(taskId) {
+            try {
+                await apiRequest(`/facilities/${AppState.facility.id}/checklist/today/tasks/${taskId}/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify({})
+                });
+                await loadTodayChecklist();
+            } catch (error) {
+                console.error('Failed to complete task:', error);
+                showError('Failed to update checklist');
+            }
+        }
+        
+        // TRAINING HUB
+        async function loadTrainingModules() {
+            try {
+                const data = await apiRequest(`/facilities/${AppState.facility.id}/training/modules`);
+                const container = document.querySelector('#training .training-modules');
+                if (!container) return;
+                
+                container.innerHTML = data.modules.map(module => {
+                    const completionRate = module.completedByStaff ? 
+                        (module.completedByStaff.length / (data.totalStaff || 1) * 100).toFixed(0) : 0;
+                    return `
+                        <div class="training-card">
+                            <h3>${module.title}</h3>
+                            <p>${module.description}</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${completionRate}%"></div>
+                            </div>
+                            <p><small>${completionRate}% of staff completed</small></p>
+                            <button class="btn btn-sm btn-primary" onclick="completeTraining('${module.id}')">Complete Training</button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load training modules:', error);
+                showError('Failed to load training modules');
+            }
+        }
+        
+        async function completeTraining(moduleId) {
+            try {
+                await apiRequest(`/training/${moduleId}/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify({ staffId: AppState.user.id })
+                });
+                showSuccess('Training module marked as complete');
+                await loadTrainingModules();
+            } catch (error) {
+                console.error('Failed to complete training:', error);
+                showError('Failed to complete training');
+            }
+        }
+        
+        // DOCUMENT VAULT
+        async function loadDocuments() {
+            try {
+                const data = await apiRequest(`/facilities/${AppState.facility.id}/documents`);
+                const tbody = document.querySelector('#documents .data-table tbody');
+                if (!tbody) return;
+                
+                tbody.innerHTML = data.documents.map(doc => {
+                    const expDate = doc.expirationDate ? new Date(doc.expirationDate) : null;
+                    const statusClass = doc.status === 'Current' ? 'badge-success' : 
+                                       doc.status === 'Expiring Soon' ? 'badge-warning' : 'badge-danger';
+                    return `
+                        <tr>
+                            <td>${doc.name}</td>
+                            <td>${doc.formNumber || '—'}</td>
+                            <td>${doc.category}</td>
+                            <td>${expDate ? expDate.toLocaleDateString() : 'No expiration'}</td>
+                            <td><span class="badge ${statusClass}">${doc.status || 'Current'}</span></td>
+                            <td><button class="btn btn-sm btn-secondary" onclick="downloadDocument('${doc.id}')">Download</button></td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Failed to load documents:', error);
+                showError('Failed to load documents');
+            }
+        }
+        
+        async function downloadDocument(docId) {
+            try {
+                const data = await apiRequest(`/documents/${docId}/download`);
+                window.open(data.downloadUrl, '_blank');
+            } catch (error) {
+                console.error('Failed to download document:', error);
+                showError('Failed to download document');
+            }
+        }
     </script>
 </body>
 </html>
