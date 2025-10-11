@@ -18,33 +18,17 @@ author = "agent"
 task = "workflow.run"
 args = "Server"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Backend API"
-
 [[workflows.workflow]]
 name = "Server"
 author = "agent"
 
-[workflows.workflow.metadata]
-outputType = "webview"
-
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python server.py"
+args = "cd backend && node server.js"
 waitForPort = 5000
 
-[[workflows.workflow]]
-name = "Backend API"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run backend"
-waitForPort = 3000
-
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [[ports]]
 localPort = 3000
@@ -55,7 +39,7 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 38795
+localPort = 39005
 externalPort = 3001
 
 [deployment]
