@@ -3262,26 +3262,26 @@
             <div class="modal-header">
                 <h2 class="modal-title">Add New Staff Member</h2>
             </div>
-            <form>
+            <form id="add-staff-form" onsubmit="addStaff(event)">
                 <div class="form-group">
                     <label class="form-label">Full Name</label>
-                    <input type="text" class="form-input" placeholder="John Doe" required>
+                    <input id="staff-name" type="text" class="form-input" placeholder="John Doe" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Role</label>
-                    <input type="text" class="form-input" placeholder="Teacher" required>
+                    <input id="staff-role" type="text" class="form-input" placeholder="Teacher" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-input" placeholder="john@example.com" required>
+                    <input id="staff-email" type="email" class="form-input" placeholder="john@example.com" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Hire Date</label>
-                    <input type="date" class="form-input" required>
+                    <input id="staff-hire-date" type="date" class="form-input" required>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('add-staff')">Cancel</button>
-                    <button type="submit" class="btn btn-primary" onclick="closeModal('add-staff')">Add Staff Member</button>
+                    <button id="add-staff-btn" type="submit" class="btn btn-primary">Add Staff Member</button>
                 </div>
             </form>
         </div>
@@ -3872,6 +3872,37 @@
             } catch (error) {
                 console.error('Failed to load staff details:', error);
                 showError('Failed to load staff details');
+            }
+        }
+        
+        async function addStaff(event) {
+            event.preventDefault();
+            
+            const button = document.getElementById('add-staff-btn');
+            setLoading(button, true);
+            
+            const staffData = {
+                name: document.getElementById('staff-name').value,
+                role: document.getElementById('staff-role').value,
+                email: document.getElementById('staff-email').value,
+                hireDate: document.getElementById('staff-hire-date').value
+            };
+            
+            try {
+                await apiRequest(`/facilities/${AppState.facility.id}/staff`, {
+                    method: 'POST',
+                    body: JSON.stringify(staffData)
+                });
+                
+                showSuccess('Staff member added successfully');
+                document.getElementById('add-staff-form').reset();
+                closeModal('add-staff');
+                await loadStaffList();
+            } catch (error) {
+                console.error('Failed to add staff:', error);
+                showError(error.message || 'Failed to add staff member');
+            } finally {
+                setLoading(button, false);
             }
         }
         
