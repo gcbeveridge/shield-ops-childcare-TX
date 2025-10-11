@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const autoSeed = require('./config/autoSeed');
 
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
@@ -66,10 +67,13 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n🚀 Shield Ops Backend Server Running!`);
   console.log(`📍 Port: ${PORT}`);
   console.log(`🌐 Health Check: http://localhost:${PORT}/api/health`);
+  
+  // Auto-seed database on startup
+  await autoSeed();
   console.log(`\n📚 Available Endpoints:`);
   console.log(`\n  🔐 Authentication:`);
   console.log(`   POST   /api/auth/signup`);
