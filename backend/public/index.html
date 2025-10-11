@@ -3989,13 +3989,31 @@
         }
         
         // MEDICATION TRACKING
-        async function loadMedicationList() {
+        let allMedications = [];
+        let currentMedicationFilter = 'active';
+        
+        async function loadMedicationList(filter = 'active') {
             try {
+                currentMedicationFilter = filter;
                 const data = await apiRequest(`/facilities/${AppState.facility.id}/medications`);
+                allMedications = data.medications;
+                
+                let filteredMeds = allMedications;
+                if (filter === 'active') {
+                    filteredMeds = allMedications.filter(med => med.status === 'active');
+                } else if (filter === 'expired') {
+                    filteredMeds = allMedications.filter(med => med.status === 'expired');
+                } else if (filter === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    filteredMeds = allMedications.filter(med => 
+                        med.schedule && med.schedule.toLowerCase().includes('daily')
+                    );
+                }
+                
                 const tbody = document.querySelector('#medication .data-table tbody');
                 if (!tbody) return;
                 
-                tbody.innerHTML = data.medications.map(med => {
+                tbody.innerHTML = filteredMeds.map(med => {
                     const endDate = new Date(med.endDate);
                     return `
                         <tr>
@@ -4013,6 +4031,10 @@
                 console.error('Failed to load medications:', error);
                 showError('Failed to load medication list');
             }
+        }
+        
+        function filterMedications(filter) {
+            loadMedicationList(filter);
         }
         
         async function administerMedication(medicationId) {
@@ -4164,13 +4186,26 @@
         }
         
         // DOCUMENT VAULT
-        async function loadDocuments() {
+        let allDocuments = [];
+        let currentDocumentFilter = 'all';
+        
+        async function loadDocuments(filter = 'all') {
             try {
+                currentDocumentFilter = filter;
                 const data = await apiRequest(`/facilities/${AppState.facility.id}/documents`);
+                allDocuments = data.documents;
+                
+                let filteredDocs = allDocuments;
+                if (filter && filter !== 'all') {
+                    filteredDocs = allDocuments.filter(doc => 
+                        doc.category.toLowerCase().replace(/\s+/g, '-') === filter.toLowerCase()
+                    );
+                }
+                
                 const tbody = document.querySelector('#documents .data-table tbody');
                 if (!tbody) return;
                 
-                tbody.innerHTML = data.documents.map(doc => {
+                tbody.innerHTML = filteredDocs.map(doc => {
                     const expDate = doc.expirationDate ? new Date(doc.expirationDate) : null;
                     const statusClass = doc.status === 'Current' ? 'badge-success' : 
                                        doc.status === 'Expiring Soon' ? 'badge-warning' : 'badge-danger';
@@ -4189,6 +4224,10 @@
                 console.error('Failed to load documents:', error);
                 showError('Failed to load documents');
             }
+        }
+        
+        function filterDocuments(category) {
+            loadDocuments(category);
         }
         
         async function downloadDocument(docId) {
