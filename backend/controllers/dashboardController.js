@@ -11,9 +11,9 @@ async function getDashboard(req, res) {
       return res.status(404).json({ error: 'Facility not found' });
     }
 
-    const staff = await db.getByPrefix(`staff:${facilityId}:`);
-    const incidents = await db.getByPrefix(`incidents:${facilityId}:`);
-    const compliance = await db.getByPrefix(`compliance:${facilityId}:`);
+    const staff = await db.getByPrefix(`staff:${facilityId}:`) || [];
+    const incidents = await db.getByPrefix(`incidents:${facilityId}:`) || [];
+    const compliance = await db.getByPrefix(`compliance:${facilityId}:`) || [];
 
     const today = new Date().toISOString().split('T')[0];
     const todayIncidents = incidents.filter(inc => 
