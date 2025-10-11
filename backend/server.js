@@ -28,9 +28,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from public folder
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -40,7 +37,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes - MUST come before static files
 app.use('/api/auth', authRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api', seedRoutes);
@@ -51,6 +48,9 @@ app.use('/api', complianceRoutes);
 app.use('/api', checklistRoutes);
 app.use('/api', trainingRoutes);
 app.use('/api', documentRoutes);
+
+// Serve static files from public folder - AFTER API routes
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Catch-all for non-API routes - serve index.html for SPA
 app.use((req, res, next) => {
