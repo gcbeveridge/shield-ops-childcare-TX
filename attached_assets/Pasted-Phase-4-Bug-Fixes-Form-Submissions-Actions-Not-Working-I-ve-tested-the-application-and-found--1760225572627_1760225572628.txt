@@ -1,0 +1,92 @@
+Phase 4 Bug Fixes - Form Submissions & Actions Not Working
+
+I've tested the application and found that data DISPLAY works perfectly, but form SUBMISSIONS and ACTION BUTTONS are not saving/updating data. Here are all the issues that need fixing:
+
+## 1. State Licensing - Mark Complete Not Saving
+**Issue:** Clicking the checkbox to mark "Annual Training - Directors" as complete doesn't save
+**Fix Needed:**
+- When checkbox is clicked, call PUT /api/facilities/:facilityId/compliance/:requirementId/complete
+- Update the UI immediately (optimistic update)
+- Show success message
+- Refresh the requirement list
+
+## 2. Staff Management - Add Staff Not Saving
+**Issue:** "+ Add Staff" modal opens and form is fillable, but clicking "Add Staff Member" closes modal without saving
+**Fix Needed:**
+- Form submit should call POST /api/facilities/:facilityId/staff
+- Send all form data: { name, email, role, hireDate }
+- On success: close modal, refresh staff table, show success message
+- On error: show error message, keep modal open
+
+## 3. Incident Reports - Multiple Issues
+**Issue A:** Sorting tabs (All/Injuries/Illness/Behavior) don't filter
+**Fix Needed:**
+- Clicking tabs should filter incidents by type
+- Update query parameter and re-fetch from backend with filter
+
+**Issue B:** "+ Log New Incident" doesn't save
+**Fix Needed:**
+- Form submit should call POST /api/facilities/:facilityId/incidents
+- Send: { childName, incidentType, description, occurredAt, reportedBy, actionTaken, parentNotified }
+- On success: close modal, refresh incidents table, show success message
+
+## 4. Document Vault - Multiple Issues
+**Issue A:** Category tabs don't filter documents
+**Fix Needed:**
+- Clicking tabs should filter documents by category
+- Client-side filtering is fine since all docs are loaded
+
+**Issue B:** "+ Upload Document" doesn't save
+**Fix Needed:**
+- Form submit should call POST /api/facilities/:facilityId/documents/upload
+- Use FormData to send file + metadata
+- On success: close modal, refresh documents table, show success message
+
+**Issue C:** Action buttons don't work ("Renew", "View", "Renew Now", "Set Reminder")
+**Fix Needed:**
+- "View" button: Open document in new tab using GET /api/documents/:documentId/download
+- "Renew" / "Renew Now": Open modal to upload new version with extended expiration
+- "Set Reminder": Show success message (reminder set for X days before expiration)
+
+## 5. Medication Tracking - Multiple Issues
+**Issue A:** "+ Add Medication Authorization" doesn't save
+**Fix Needed:**
+- Form submit should call POST /api/facilities/:facilityId/medications
+- Send all form data including parent authorization
+- On success: close modal, refresh medications table
+
+**Issue B:** Child list sorting tabs don't filter
+**Fix Needed:**
+- Tabs (Active/Today's Log/Expired/Food Allergies) should filter the medications list
+- Client-side filtering is fine
+
+**Issue C:** Action buttons don't work ("Log Dose", "Due in 15min", "View Plan")
+**Fix Needed:**
+- "Log Dose" button: Submit should call POST /api/medications/:medicationId/administer
+- Send: { administeredBy, verifiedBy, dosageGiven, administeredAt, notes }
+- On success: close modal, refresh medication table, update today's log
+- "View Plan": Open modal showing full medication details and administration schedule
+- "Due in 15min": Same as "Log Dose" but pre-fill current time
+
+## CRITICAL REQUIREMENTS:
+1. All form submissions must include proper error handling
+2. Show loading spinners during API calls
+3. Display success messages (green toast/alert) on successful saves
+4. Display error messages (red toast/alert) on failures
+5. Use optimistic UI updates where appropriate
+6. Validate form data before submission (required fields, valid dates, etc.)
+7. Clear form data after successful submission
+8. Keep modal open if submission fails so user can correct errors
+
+## SUCCESS CRITERIA:
+After these fixes, I should be able to:
+✅ Mark compliance requirements as complete and see them update
+✅ Add new staff members and see them in the table
+✅ Create incidents and see them in the list
+✅ Upload documents and see them in the vault
+✅ Add medication authorizations and see them in tracking
+✅ Log medication doses and see updated logs
+✅ Filter/sort all tables using the tabs
+✅ Click action buttons and see results
+
+Fix all these issues systematically, testing each one after completion.
