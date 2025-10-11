@@ -3830,11 +3830,12 @@
         // STAFF MANAGEMENT
         async function loadStaffList() {
             try {
-                const data = await apiRequest(`/facilities/${AppState.facility.id}/staff`);
+                const response = await apiRequest(`/facilities/${AppState.facility.id}/staff`);
                 const tbody = document.querySelector('#staff .data-table tbody');
                 if (!tbody) return;
                 
-                tbody.innerHTML = data.staff.map(staff => `
+                const staff = response.data || [];
+                tbody.innerHTML = staff.map(staff => `
                     <tr>
                         <td><strong>${staff.name}</strong></td>
                         <td>${staff.role}</td>
@@ -3909,11 +3910,12 @@
                     url += `?type=${filter}`;
                 }
                 
-                const data = await apiRequest(url);
+                const response = await apiRequest(url);
                 const tbody = document.querySelector('#incidents .data-table tbody');
                 if (!tbody) return;
                 
-                tbody.innerHTML = data.incidents.map(incident => {
+                const incidents = response.data || [];
+                tbody.innerHTML = incidents.map(incident => {
                     const date = new Date(incident.dateTime);
                     const severityClass = incident.severity === 'critical' ? 'badge-danger' : 
                                          incident.severity === 'moderate' ? 'badge-warning' : 'badge-info';
@@ -3956,11 +3958,14 @@
             const dateTime = new Date(`${date}T${time}`).toISOString();
             
             const incidentData = {
-                childName: document.getElementById('incident-child-name').value,
-                incidentType: document.getElementById('incident-type').value,
+                type: document.getElementById('incident-type').value,
+                severity: 'moderate',
+                childInfo: {
+                    name: document.getElementById('incident-child-name').value
+                },
                 location: document.getElementById('incident-location').value,
                 description: document.getElementById('incident-description').value,
-                actionTaken: document.getElementById('incident-action').value,
+                immediateActions: document.getElementById('incident-action').value,
                 reportedBy: document.getElementById('incident-staff').value,
                 dateTime,
                 parentNotified: document.getElementById('incident-notify-parent').checked
@@ -3995,8 +4000,8 @@
         async function loadMedicationList(filter = 'active') {
             try {
                 currentMedicationFilter = filter;
-                const data = await apiRequest(`/facilities/${AppState.facility.id}/medications`);
-                allMedications = data.medications;
+                const response = await apiRequest(`/facilities/${AppState.facility.id}/medications`);
+                allMedications = response.data || [];
                 
                 let filteredMeds = allMedications;
                 if (filter === 'active') {
@@ -4192,8 +4197,8 @@
         async function loadDocuments(filter = 'all') {
             try {
                 currentDocumentFilter = filter;
-                const data = await apiRequest(`/facilities/${AppState.facility.id}/documents`);
-                allDocuments = data.documents;
+                const response = await apiRequest(`/facilities/${AppState.facility.id}/documents`);
+                allDocuments = response.data || [];
                 
                 let filteredDocs = allDocuments;
                 if (filter && filter !== 'all') {
