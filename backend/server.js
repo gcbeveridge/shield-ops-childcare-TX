@@ -8,6 +8,9 @@ const staffRoutes = require('./routes/staff');
 const incidentRoutes = require('./routes/incidents');
 const medicationRoutes = require('./routes/medications');
 const complianceRoutes = require('./routes/compliance');
+const checklistRoutes = require('./routes/checklist');
+const trainingRoutes = require('./routes/training');
+const documentRoutes = require('./routes/documents');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -40,6 +43,9 @@ app.use('/api', staffRoutes);
 app.use('/api', incidentRoutes);
 app.use('/api', medicationRoutes);
 app.use('/api', complianceRoutes);
+app.use('/api', checklistRoutes);
+app.use('/api', trainingRoutes);
+app.use('/api', documentRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
@@ -80,7 +86,20 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n  ✅ Compliance Management:`);
   console.log(`   GET    /api/facilities/:id/compliance`);
   console.log(`   POST   /api/facilities/:id/compliance/:reqId/complete`);
+  console.log(`\n  📋 Daily Checklist:`);
+  console.log(`   GET    /api/facilities/:id/checklist/today`);
+  console.log(`   POST   /api/facilities/:id/checklist/today/tasks/:taskId/complete`);
+  console.log(`   GET    /api/facilities/:id/checklist/week`);
+  console.log(`\n  🎓 Training Hub:`);
+  console.log(`   GET    /api/facilities/:id/training/modules`);
+  console.log(`   POST   /api/training/:moduleId/complete`);
+  console.log(`   GET    /api/staff/:staffId/training`);
+  console.log(`\n  📄 Document Management:`);
+  console.log(`   GET    /api/facilities/:id/documents`);
+  console.log(`   POST   /api/facilities/:id/documents/upload`);
+  console.log(`   GET    /api/documents/:id`);
+  console.log(`   GET    /api/documents/:id/download`);
   console.log(`\n  🌱 Testing:`);
   console.log(`   POST   /api/seed - Seed database with test data`);
-  console.log(`\n✅ Phase 1 + Phase 2 Backend Ready!\n`);
+  console.log(`\n✅ Phase 1 + Phase 2 + Phase 3 Backend Ready!\n`);
 });
