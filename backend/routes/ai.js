@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../middleware/auth');
+const { authenticateToken } = require('../middleware/auth');
 const { askComplianceQuestion, analyzeIncidentCompliance, suggestTrainingTopics } = require('../services/aiService');
 const FacilityDB = require('../models/FacilityDB');
 
 // POST /api/ai/ask - Ask a compliance question
-router.post('/ai/ask', authenticate, async (req, res) => {
+router.post('/ai/ask', authenticateToken, async (req, res) => {
   try {
     const { question } = req.body;
 
@@ -43,7 +43,7 @@ router.post('/ai/ask', authenticate, async (req, res) => {
 });
 
 // POST /api/ai/analyze-incident - Analyze incident for compliance
-router.post('/ai/analyze-incident', authenticate, async (req, res) => {
+router.post('/ai/analyze-incident', authenticateToken, async (req, res) => {
   try {
     const { incident } = req.body;
 
@@ -70,7 +70,7 @@ router.post('/ai/analyze-incident', authenticate, async (req, res) => {
 });
 
 // POST /api/ai/training-suggestions - Get training suggestions
-router.post('/ai/training-suggestions', authenticate, async (req, res) => {
+router.post('/ai/training-suggestions', authenticateToken, async (req, res) => {
   try {
     const { staffRole, completedModules } = req.body;
 
