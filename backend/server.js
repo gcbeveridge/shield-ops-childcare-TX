@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const autoSeed = require('./config/autoSeed');
+const autoSeedDB = require('./config/autoSeedDB');
 
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
@@ -73,7 +73,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🌐 Health Check: http://localhost:${PORT}/api/health`);
   
   // Auto-seed database on startup
-  await autoSeed();
+  await autoSeedDB();
   console.log(`\n📚 Available Endpoints:`);
   console.log(`\n  🔐 Authentication:`);
   console.log(`   POST   /api/auth/signup`);
