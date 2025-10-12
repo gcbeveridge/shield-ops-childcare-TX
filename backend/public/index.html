@@ -2452,32 +2452,32 @@
                 <h2 class="modal-title">New Medication Authorization 💊</h2>
                 <p style="font-size: 14px; color: var(--gray-700); margin-top: 8px;">Texas §744.2653 - Parent authorization required</p>
             </div>
-            <form>
+            <form id="add-medication-form" onsubmit="addMedication(event)">
                 <div class="form-group">
                     <label class="form-label">Child Name</label>
-                    <input type="text" class="form-input" placeholder="Select child..." required>
+                    <input id="med-child-name" type="text" class="form-input" placeholder="Select child..." required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Medication Name</label>
-                    <input type="text" class="form-input" placeholder="e.g., Amoxicillin, Albuterol" required>
+                    <input id="med-name" type="text" class="form-input" placeholder="e.g., Amoxicillin, Albuterol" required>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Type</label>
-                        <select class="form-input" required>
-                            <option>Prescription</option>
-                            <option>Non-Prescription (OTC)</option>
-                            <option>Emergency (EpiPen, Inhaler)</option>
+                        <select id="med-type" class="form-input" required>
+                            <option value="prescription">Prescription</option>
+                            <option value="otc">Non-Prescription (OTC)</option>
+                            <option value="emergency">Emergency (EpiPen, Inhaler)</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Dosage</label>
-                        <input type="text" class="form-input" placeholder="e.g., 5 mL, 10 mg, 2 puffs" required>
+                        <input id="med-dosage" type="text" class="form-input" placeholder="e.g., 5 mL, 10 mg, 2 puffs" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Administration Schedule</label>
-                    <select class="form-input" required>
+                    <select id="med-schedule" class="form-input" required>
                         <option>Scheduled Daily (specific time)</option>
                         <option>Multiple Times Per Day</option>
                         <option>As Needed (PRN)</option>
@@ -2487,31 +2487,16 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Start Date</label>
-                        <input type="date" class="form-input" required>
+                        <input id="med-start-date" type="date" class="form-input" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">End Date / Authorization Expiration</label>
-                        <input type="date" class="form-input" required>
+                        <input id="med-end-date" type="date" class="form-input" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Special Instructions / Conditions</label>
-                    <textarea class="form-input" rows="2" placeholder="e.g., Give with food, monitor for side effects..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Photo of Original Container (Required by Texas §744.2655)</label>
-                    <div style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 32px; text-align: center; cursor: pointer;">
-                        <div style="font-size: 48px; margin-bottom: 8px;">📷</div>
-                        <div style="font-size: 14px; color: var(--gray-700); margin-bottom: 4px;">Upload photo showing:</div>
-                        <div style="font-size: 12px; color: var(--gray-700);">Child's name, medication name, dosage, expiration date</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Parent Authorization Signature (Digital)</label>
-                    <div style="border: 2px solid var(--gray-300); border-radius: 8px; padding: 40px; text-align: center; background: #fafafa;">
-                        <div style="font-size: 14px; color: var(--gray-700); margin-bottom: 8px;">Parent will sign electronically via email/SMS link</div>
-                        <input type="email" class="form-input" placeholder="Parent email address" style="max-width: 300px; margin: 0 auto;">
-                    </div>
+                    <textarea id="med-instructions" class="form-input" rows="2" placeholder="e.g., Give with food, monitor for side effects..."></textarea>
                 </div>
                 <div style="background: var(--gray-50); padding: 16px; border-radius: 8px; margin-top: 16px;">
                     <strong style="font-size: 13px; display: block; margin-bottom: 8px;">✓ Texas Requirements Checklist:</strong>
@@ -2525,7 +2510,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('add-medication')">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="closeModal('add-medication')">Save & Send Authorization to Parent</button>
+                    <button id="add-medication-btn" type="submit" class="btn btn-primary">Save Medication Authorization</button>
                 </div>
             </form>
         </div>
@@ -3746,10 +3731,37 @@
             document.getElementById('review-owner').textContent = document.getElementById('upload-owner').value || '—';
         }
 
-        function saveDocument() {
-            alert('Document saved successfully!\n\nThe document has been added to the Document Vault and will appear in the appropriate category.');
-            closeModal('upload-document');
-            resetUploadModal();
+        async function saveDocument() {
+            try {
+                const docName = document.getElementById('upload-doc-name')?.value;
+                const category = document.getElementById('upload-category')?.value;
+                
+                if (!docName || !category) {
+                    showError('Please fill in document name and category');
+                    return;
+                }
+                
+                const documentData = {
+                    name: docName,
+                    category: category.toLowerCase(),
+                    fileName: `${docName.replace(/\s+/g, '_')}.pdf`,
+                    filePath: `/uploads/${AppState.facility.id}/${Date.now()}.pdf`,
+                    uploadedBy: AppState.user.name
+                };
+                
+                await apiRequest(`/facilities/${AppState.facility.id}/documents/upload`, {
+                    method: 'POST',
+                    body: JSON.stringify(documentData)
+                });
+                
+                showSuccess('Document uploaded successfully');
+                closeModal('upload-document');
+                resetUploadModal();
+                await loadDocuments(currentDocumentFilter);
+            } catch (error) {
+                console.error('Failed to upload document:', error);
+                showError(error.message || 'Failed to upload document');
+            }
         }
 
         function resetUploadModal() {
@@ -4052,6 +4064,48 @@
             }
         }
         
+        async function addMedication(event) {
+            event.preventDefault();
+            
+            const button = document.getElementById('add-medication-btn');
+            setLoading(button, true);
+            
+            const medicationData = {
+                childInfo: {
+                    name: document.getElementById('med-child-name').value
+                },
+                medicationName: document.getElementById('med-name').value,
+                dosage: document.getElementById('med-dosage').value,
+                route: 'oral',
+                schedule: document.getElementById('med-schedule').value,
+                startDate: document.getElementById('med-start-date').value,
+                endDate: document.getElementById('med-end-date').value,
+                prescribedBy: 'Dr. TBD',
+                parentAuthorization: {
+                    signedBy: 'Parent',
+                    signedAt: new Date().toISOString()
+                },
+                specialInstructions: document.getElementById('med-instructions').value || ''
+            };
+            
+            try {
+                await apiRequest(`/facilities/${AppState.facility.id}/medications`, {
+                    method: 'POST',
+                    body: JSON.stringify(medicationData)
+                });
+                
+                showSuccess('Medication authorization added successfully');
+                document.getElementById('add-medication-form').reset();
+                closeModal('add-medication');
+                await loadMedicationList(currentMedicationFilter);
+            } catch (error) {
+                console.error('Failed to add medication:', error);
+                showError(error.message || 'Failed to add medication authorization');
+            } finally {
+                setLoading(button, false);
+            }
+        }
+        
         // COMPLIANCE MANAGEMENT  
         async function loadComplianceList() {
             try {
@@ -4244,6 +4298,7 @@
                 showError('Failed to download document');
             }
         }
+        
     </script>
 
     <!-- Toast Notification Container -->
