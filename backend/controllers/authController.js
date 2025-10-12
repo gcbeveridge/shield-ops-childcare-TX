@@ -1,7 +1,7 @@
-const db = require('../config/database');
-const User = require('../models/User');
-const Facility = require('../models/Facility');
+const UserDB = require('../models/UserDB');
+const FacilityDB = require('../models/FacilityDB');
 const { generateToken } = require('../middleware/auth');
+const { v4: uuidv4 } = require('uuid');
 
 async function signup(req, res) {
   try {
@@ -11,43 +11,38 @@ async function signup(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const existingUsers = await db.getByPrefix('users:') || [];
-    const userExists = existingUsers.some(u => u.email === email);
-
-    if (userExists) {
+    const existingUser = await UserDB.findByEmail(email);
+    if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    const facility = new Facility({
+    const facilityId = uuidv4();
+    const userId = uuidv4();
+
+    const facility = await FacilityDB.create({
+      id: facilityId,
       name: facilityName,
       address: facilityAddress,
       phone,
-      email
+      email,
+      ownerId: userId
     });
 
-    const user = new User({
+    const user = await UserDB.create({
+      id: userId,
       email,
+      password,
       name,
       role: 'owner',
       facilityId: facility.id
     });
 
-    await user.setPassword(password);
-
-    facility.ownerId = user.id;
-
-    await db.set(`facilities:${facility.id}`, facility.toJSON());
-    await db.set(`users:${user.id}`, {
-      ...user.toJSON(),
-      passwordHash: user.passwordHash
-    });
-
-    const token = generateToken(user);
+    const token = generateToken({ userId: user.id });
 
     res.status(201).json({
       token,
-      user: user.toJSON(),
-      facility: facility.toJSON()
+      user: UserDB.toJSON(user),
+      facility
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -63,27 +58,23 @@ async function login(req, res) {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    const users = await db.getByPrefix('users:') || [];
-    const user = users.find(u => u.email === email);
-
+    const user = await UserDB.findByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const userInstance = new User(user);
-    const validPassword = await userInstance.verifyPassword(password);
-
+    const validPassword = await UserDB.verifyPassword(user, password);
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const facility = await db.get(`facilities:${user.facilityId}`);
+    const facility = await FacilityDB.findById(user.facilityId);
 
-    const token = generateToken(user);
+    const token = generateToken({ userId: user.id });
 
     res.json({
       token,
-      user: userInstance.toJSON(),
+      user: UserDB.toJSON(user),
       facility
     });
   } catch (error) {
@@ -94,18 +85,16 @@ async function login(req, res) {
 
 async function getMe(req, res) {
   try {
-    const user = await db.get(`users:${req.user.userId}`);
+    const user = await UserDB.findById(req.user.userId);
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const facility = await db.get(`facilities:${user.facilityId}`);
-
-    const { passwordHash, ...safeUser } = user;
+    const facility = await FacilityDB.findById(user.facilityId);
 
     res.json({
-      user: safeUser,
+      user: UserDB.toJSON(user),
       facility
     });
   } catch (error) {
