@@ -13,6 +13,7 @@ const complianceRoutes = require('./routes/compliance');
 const checklistRoutes = require('./routes/checklist');
 const trainingRoutes = require('./routes/training');
 const documentRoutes = require('./routes/documents');
+const aiRoutes = require('./routes/ai');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -49,6 +50,7 @@ app.use('/api', complianceRoutes);
 app.use('/api', checklistRoutes);
 app.use('/api', trainingRoutes);
 app.use('/api', documentRoutes);
+app.use('/api', aiRoutes);
 
 // Serve static files from public folder - AFTER API routes
 app.use(express.static(path.join(__dirname, 'public')));
@@ -113,7 +115,11 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`   POST   /api/facilities/:id/documents/upload`);
   console.log(`   GET    /api/documents/:id`);
   console.log(`   GET    /api/documents/:id/download`);
+  console.log(`\n  🤖 Shield AI - Compliance Assistant:`);
+  console.log(`   POST   /api/ai/ask`);
+  console.log(`   POST   /api/ai/analyze-incident`);
+  console.log(`   POST   /api/ai/training-suggestions`);
   console.log(`\n  🌱 Testing:`);
   console.log(`   POST   /api/seed - Seed database with test data`);
-  console.log(`\n✅ Phase 1 + Phase 2 + Phase 3 Backend Ready!\n`);
+  console.log(`\n✅ Phase 1 + Phase 2 + Phase 3 + Shield AI Backend Ready!\n`);
 });
