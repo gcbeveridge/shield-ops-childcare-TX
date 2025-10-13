@@ -1,0 +1,597 @@
+Redesign Shield Ops Dashboard - Modern CAC-Style Interface
+
+GOAL: Transform the Shield Ops dashboard to match the modern, professional design from the CAC app while maintaining all existing functionality.
+
+## DESIGN REQUIREMENTS:
+
+### Color Palette:
+- Primary Navy: #1a2332 (sidebar background)
+- Bright Blue: #3b82f6 (hero cards, accents)
+- Critical Red: #ef4444 (urgent alerts)
+- Warning Orange: #f97316 (important alerts)  
+- Caution Yellow: #eab308 (upcoming items)
+- Success Green: #10b981 (positive metrics)
+- White: #ffffff (main background)
+- Light Gray: #f9fafb (card backgrounds)
+
+### Layout Structure:
+┌─────────────────────────────────────────────────────────┐
+│ HEADER: Logo + Facility Name + Weather Alert + User    │
+├──────────┬──────────────────────────────────────────────┤
+│ SIDEBAR  │ MAIN CONTENT                                 │
+│ (Navy)   │ (White background)                           │
+│          │                                              │
+│ All      │ Personalized Greeting                        │
+│ Current  │ Weather-Based Shield AI Widget               │
+│ Nav      │ Combined Safety Score + Streak Card          │
+│ Items    │ Attention Needed Alerts                      │
+│          │ Today's Priorities (3 cards)                 │
+│          │ Quick Action Buttons                         │
+│          │ Recent Activity                              │
+└──────────┴──────────────────────────────────────────────┘
+
+## STEP 1: Install Weather API Package
+```bash
+npm install axios
+STEP 2: Create Weather Service
+Create file: backend/services/weatherService.js
+javascriptconst axios = require('axios');
+
+// Using Open-Meteo (free, no API key required)
+async function getWeatherByZip(zipCode) {
+  try {
+    // First, geocode the zip code (US only for now)
+    const geoResponse = await axios.get(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${zipCode}&count=1&language=en&format=json`
+    );
+    
+    if (!geoResponse.data.results || geoResponse.data.results.length === 0) {
+      throw new Error('Location not found');
+    }
+    
+    const { latitude, longitude, name } = geoResponse.data.results[0];
+    
+    // Get weather data
+    const weatherResponse = await axios.get(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America/Chicago`
+    );
+    
+    const current = weatherResponse.data.current;
+    
+    // Weather codes: https://open-meteo.com/en/docs
+    const weatherConditions = {
+      0: 'Clear',
+      1: 'Mostly Clear', 2: 'Partly Cloudy', 3: 'Overcast',
+      45: 'Foggy', 48: 'Foggy',
+      51: 'Light Drizzle', 53: 'Drizzle', 55: 'Heavy Drizzle',
+      61: 'Light Rain', 63: 'Rain', 65: 'Heavy Rain',
+      71: 'Light Snow', 73: 'Snow', 75: 'Heavy Snow',
+      95: 'Thunderstorm', 96: 'Thunderstorm with Hail'
+    };
+    
+    const condition = weatherConditions[current.weather_code] || 'Unknown';
+    const temp = Math.round(current.temperature_2m);
+    const humidity = current.relative_humidity_2m;
+    const windSpeed = Math.round(current.wind_speed_10m);
+    
+    // Generate Shield AI recommendations
+    let alert = null;
+    let recommendation = null;
+    
+    if (temp >= 95) {
+      alert = { type: 'heat', severity: 'high', icon: '🌡️', title: 'High Heat Advisory' };
+      recommendation = 'Limit outdoor play to 15 minutes. Increase water breaks every 20 minutes. Ensure all play areas have shade. Monitor children for heat exhaustion signs.';
+    } else if (temp <= 32) {
+      alert = { type: 'cold', severity: 'high', icon: '❄️', title: 'Cold Weather Alert' };
+      recommendation = 'Limit outdoor exposure. Ensure children have appropriate winter clothing. Check for signs of frostbite. Warm indoor activities recommended.';
+    } else if (current.weather_code >= 61 && current.weather_code <= 65) {
+      alert = { type: 'rain', severity: 'medium', icon: '🌧️', title: 'Heavy Rain - Check Protocol' };
+      recommendation = 'Check entrance mats are in place. Verify wet floor signs are posted. Monitor for water accumulation. Indoor activities recommended.';
+    } else if (windSpeed >= 25) {
+      alert = { type: 'wind', severity: 'medium', icon: '💨', title: 'High Wind Advisory' };
+      recommendation = 'Inspect playground equipment. Secure outdoor items. Limit outdoor play. Check for falling branches or debris.';
+    } else if (current.weather_code >= 95) {
+      alert = { type: 'storm', severity: 'high', icon: '⛈️', title: 'Severe Weather Alert' };
+      recommendation = 'Keep all children indoors. Review emergency procedures. Ensure emergency supplies are accessible. Monitor weather updates.';
+    }
+    
+    return {
+      location: name,
+      temperature: temp,
+      condition,
+      humidity,
+      windSpeed,
+      alert,
+      recommendation,
+      icon: getWeatherIcon(current.weather_code)
+    };
+    
+  } catch (error) {
+    console.error('Weather service error:', error);
+    return null;
+  }
+}
+
+function getWeatherIcon(code) {
+  if (code === 0) return '☀️';
+  if (code <= 3) return '🌤️';
+  if (code >= 45 && code <= 48) return '🌫️';
+  if (code >= 51 && code <= 65) return '🌧️';
+  if (code >= 71 && code <= 75) return '🌨️';
+  if (code >= 95) return '⛈️';
+  return '☁️';
+}
+
+module.exports = { getWeatherByZip };
+STEP 3: Add Weather Endpoint
+In backend/routes/facilities.js, add:
+javascriptconst { getWeatherByZip } = require('../services/weatherService');
+
+// Add this new route
+router.get('/:facilityId/weather', authenticateToken, async (req, res) => {
+  try {
+    const { facilityId } = req.params;
+    
+    const facility = await supabase
+      .from('facilities')
+      .select('address')
+      .eq('id', facilityId)
+      .single();
+    
+    if (!facility.data) {
+      return res.status(404).json({ error: 'Facility not found' });
+    }
+    
+    const zipCode = facility.data.address.zip;
+    const weather = await getWeatherByZip(zipCode);
+    
+    res.json({
+      success: true,
+      weather
+    });
+    
+  } catch (error) {
+    console.error('Weather endpoint error:', error);
+    res.status(500).json({
+      error: true,
+      message: 'Failed to fetch weather data'
+    });
+  }
+});
+STEP 4: Update Dashboard Endpoint
+Update backend/controllers/facilityController.js getDashboardData to include priority alerts:
+javascriptexports.getDashboardData = async (req, res) => {
+  try {
+    const { facilityId } = req.params;
+    
+    // Fetch all data in parallel
+    const [facility, staff, incidents, documents] = await Promise.all([
+      supabase.from('facilities').select('*').eq('id', facilityId).single(),
+      supabase.from('staff').select('*').eq('facility_id', facilityId),
+      supabase.from('incidents').select('*').eq('facility_id', facilityId).order('occurred_at', { ascending: false }),
+      supabase.from('documents').select('*').eq('facility_id', facilityId)
+    ]);
+    
+    const staffList = staff.data || [];
+    const incidentsList = incidents.data || [];
+    const documentsList = documents.data || [];
+    
+    // Calculate priority alerts
+    const today = new Date();
+    
+    // Missing documents (required categories with no docs)
+    const requiredCategories = ['licenses', 'policies', 'certifications'];
+    const existingCategories = [...new Set(documentsList.map(d => d.category))];
+    const missingDocs = requiredCategories.filter(cat => !existingCategories.includes(cat));
+    
+    // Expired documents
+    const expiredDocs = documentsList.filter(doc => {
+      if (!doc.expiration_date) return false;
+      return new Date(doc.expiration_date) < today;
+    });
+    
+    // Missing signatures
+    const missingSignatures = incidentsList.filter(inc => 
+      inc.parent_notified && !inc.parent_signature
+    );
+    
+    // Expiring certifications (within 30 days)
+    const expiringCerts = [];
+    staffList.forEach(member => {
+      if (member.certifications) {
+        Object.entries(member.certifications).forEach(([type, cert]) => {
+          if (cert.expiresAt) {
+            const daysUntil = Math.floor((new Date(cert.expiresAt) - today) / (1000 * 60 * 60 * 24));
+            if (daysUntil <= 30 && daysUntil >= 0) {
+              expiringCerts.push({
+                staff: member.name,
+                type,
+                expiresAt: cert.expiresAt,
+                daysUntil
+              });
+            }
+          }
+        });
+      }
+    });
+    
+    // Calculate risk score (0-100, higher is better)
+    let riskScore = 100;
+    riskScore -= (missingDocs.length * 5);
+    riskScore -= (expiredDocs.length * 10);
+    riskScore -= (missingSignatures.length * 5);
+    riskScore -= (expiringCerts.length * 2);
+    riskScore = Math.max(0, Math.min(100, riskScore));
+    
+    // Days since last incident
+    const daysSinceIncident = incidentsList.length > 0 
+      ? Math.floor((today - new Date(incidentsList[0].occurred_at)) / (1000 * 60 * 60 * 24))
+      : 0;
+    
+    res.json({
+      success: true,
+      facilityInfo: {
+        name: facility.data?.name,
+        location: `${facility.data?.address.city}, ${facility.data?.address.state}`,
+        capacity: facility.data?.capacity,
+        currentEnrollment: facility.data?.currentEnrollment || 0,
+        staffCount: staffList.length
+      },
+      riskScore: {
+        score: riskScore,
+        rating: riskScore >= 90 ? 'Excellent' : riskScore >= 75 ? 'Good' : riskScore >= 60 ? 'Fair' : 'Needs Attention',
+        changeFromLastMonth: Math.floor(Math.random() * 10 - 2) // TODO: Calculate actual change
+      },
+      streak: {
+        days: daysSinceIncident,
+        nextGoal: daysSinceIncident >= 30 ? 60 : 30,
+        nextGoalName: daysSinceIncident >= 30 ? '60 Day Safety Star' : '30 Day Safety Star'
+      },
+      priorityAlerts: {
+        missingDocs: {
+          count: missingDocs.length,
+          items: missingDocs,
+          severity: 'high'
+        },
+        expiredDocs: {
+          count: expiredDocs.length,
+          items: expiredDocs.map(d => ({ title: d.title, expiredDate: d.expiration_date })),
+          severity: 'high'
+        },
+        missingSignatures: {
+          count: missingSignatures.length,
+          items: missingSignatures.map(i => ({ childName: i.child_name, incidentDate: i.occurred_at, id: i.id })),
+          severity: 'medium'
+        }
+      },
+      recentIncidents: incidentsList.slice(0, 5),
+      upcomingExpirations: expiringCerts.slice(0, 5)
+    });
+    
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({
+      error: true,
+      message: 'Failed to fetch dashboard data'
+    });
+  }
+};
+STEP 5: Redesign Frontend Dashboard
+Update the dashboard HTML in your index.html. Find the dashboard section and replace with:
+html<div id="dashboard-screen" class="screen">
+  <!-- Header -->
+  <div style="background: white; padding: 20px 32px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <h1 style="font-size: 24px; font-weight: 700; margin: 0; color: #111827;" id="dashboard-greeting">Welcome back!</h1>
+      <p style="font-size: 14px; color: #6b7280; margin: 4px 0 0 0;">Here's your facility status for today</p>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div id="weather-widget-placeholder"></div>
+      <div style="width: 40px; height: 40px; background: #e0e7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #4f46e5; cursor: pointer;">
+        SC
+      </div>
+    </div>
+  </div>
+  
+  <div style="padding: 32px;">
+    <!-- Weather Alert Widget -->
+    <div id="weather-alert-widget" style="display: none; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; color: white; cursor: pointer;" onclick="showWeatherDetails()">
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+        <span id="weather-icon" style="font-size: 32px;"></span>
+        <div style="flex: 1;">
+          <div style="font-size: 18px; font-weight: 700;" id="weather-title"></div>
+          <div style="font-size: 14px; opacity: 0.9;" id="weather-location"></div>
+        </div>
+        <div style="font-size: 36px; font-weight: 700;" id="weather-temp"></div>
+      </div>
+      <div style="font-size: 14px; opacity: 0.95; line-height: 1.5;" id="weather-recommendation"></div>
+    </div>
+    
+    <!-- Combined Safety Score + Streak -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; color: white; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="flex: 1;">
+          <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Overall Safety Performance</div>
+          <div style="display: flex; align-items: baseline; gap: 12px;">
+            <div style="font-size: 64px; font-weight: 700; line-height: 1;" id="risk-score-display">87</div>
+            <div style="font-size: 20px; font-weight: 600;" id="risk-rating-display">Excellent</div>
+          </div>
+          <div style="font-size: 14px; opacity: 0.9; margin-top: 8px;" id="risk-change-display">↑ 3 from last month</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 48px; font-weight: 700; line-height: 1; margin-bottom: 8px;" id="streak-days-display">15</div>
+          <div style="font-size: 14px; opacity: 0.9;">Days Incident-Free</div>
+          <div style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 16px; margin-top: 12px; font-size: 12px;">
+            ⭐ Next Goal: <span id="next-goal-display">30 Day Safety Star</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Attention Needed Section -->
+    <div id="attention-section" style="display: none; margin-bottom: 32px;">
+      <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px;">🔔 Attention Needed</h2>
+      <div id="attention-alerts-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+    
+    <!-- Today's Priorities -->
+    <div style="margin-bottom: 32px;">
+      <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px;">📅 Today's Priorities</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <!-- Missing Docs Card -->
+        <div id="priority-missing-docs" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); cursor: pointer;" onclick="showScreen('documents')">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+              ⚠️
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 12px; opacity: 0.9;">Critical</div>
+              <div style="font-size: 18px; font-weight: 700;">Missing Documents</div>
+            </div>
+          </div>
+          <div style="font-size: 14px; opacity: 0.95; margin-bottom: 16px;" id="missing-docs-description">Required facility documents not on file</div>
+          <div style="background: white; color: #ef4444; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+            Upload Now
+          </div>
+        </div>
+        
+        <!-- Expired Docs Card -->
+        <div id="priority-expired-docs" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); cursor: pointer;" onclick="showScreen('documents')">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+              📅
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 12px; opacity: 0.9;">Urgent</div>
+              <div style="font-size: 18px; font-weight: 700;">Expired Documents</div>
+            </div>
+          </div>
+          <div style="font-size: 14px; opacity: 0.95; margin-bottom: 16px;" id="expired-docs-description">Documents need renewal immediately</div>
+          <div style="background: white; color: #f97316; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+            Renew Now
+          </div>
+        </div>
+        
+        <!-- Missing Signatures Card -->
+        <div id="priority-signatures" style="background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); cursor: pointer;" onclick="showScreen('incidents')">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+              ✍️
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 12px; opacity: 0.9;">Pending</div>
+              <div style="font-size: 18px; font-weight: 700;">Missing Signatures</div>
+            </div>
+          </div>
+          <div style="font-size: 14px; opacity: 0.95; margin-bottom: 16px;" id="signatures-description">Incident reports awaiting parent signatures</div>
+          <div style="background: white; color: #eab308; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+            Get Signatures
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions (Keep Existing, Just Restyle) -->
+    <div style="margin-bottom: 32px;">
+      <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px;">⚡ Quick Actions</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;" id="quick-actions-container">
+        <!-- Quick action buttons will be inserted here by JavaScript -->
+      </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 18px; font-weight: 700; color: #111827;">Recent Activity</h2>
+        <a href="#" style="color: #3b82f6; text-decoration: none; font-size: 14px; font-weight: 600;">View All →</a>
+      </div>
+      <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px;" id="recent-activity-container">
+        <!-- Recent activity items will be inserted here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Dashboard JavaScript
+let dashboardData = null;
+let weatherData = null;
+
+async function loadDashboard() {
+  try {
+    // Load dashboard data
+    const response = await apiClient.get(`/facilities/${currentUser.facilityId}/dashboard`);
+    dashboardData = response.data;
+    
+    // Load weather data
+    try {
+      const weatherResponse = await apiClient.get(`/facilities/${currentUser.facilityId}/weather`);
+      weatherData = weatherResponse.data.weather;
+    } catch (error) {
+      console.log('Weather data unavailable:', error);
+    }
+    
+    renderDashboard();
+  } catch (error) {
+    console.error('Dashboard load error:', error);
+    showToast('Failed to load dashboard', 'error');
+  }
+}
+
+function renderDashboard() {
+  if (!dashboardData) return;
+  
+  // Update greeting
+  const hour = new Date().getHours();
+  let greeting = 'Good morning';
+  if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+  if (hour >= 17) greeting = 'Good evening';
+  document.getElementById('dashboard-greeting').textContent = `${greeting}, ${currentUser.name}!`;
+  
+  // Render weather widget
+  if (weatherData && weatherData.alert) {
+    const widget = document.getElementById('weather-alert-widget');
+    widget.style.display = 'block';
+    document.getElementById('weather-icon').textContent = weatherData.alert.icon;
+    document.getElementById('weather-title').textContent = weatherData.alert.title;
+    document.getElementById('weather-location').textContent = weatherData.location;
+    document.getElementById('weather-temp').textContent = `${weatherData.temperature}°F`;
+    document.getElementById('weather-recommendation').textContent = weatherData.recommendation;
+  }
+  
+  // Update risk score
+  document.getElementById('risk-score-display').textContent = dashboardData.riskScore.score;
+  document.getElementById('risk-rating-display').textContent = dashboardData.riskScore.rating;
+  document.getElementById('risk-change-display').textContent = 
+    `${dashboardData.riskScore.changeFromLastMonth >= 0 ? '↑' : '↓'} ${Math.abs(dashboardData.riskScore.changeFromLastMonth)} from last month`;
+  
+  // Update streak
+  document.getElementById('streak-days-display').textContent = dashboardData.streak.days;
+  document.getElementById('next-goal-display').textContent = dashboardData.streak.nextGoalName;
+  
+  // Update priority cards
+  updatePriorityCard('missing-docs', dashboardData.priorityAlerts.missingDocs);
+  updatePriorityCard('expired-docs', dashboardData.priorityAlerts.expiredDocs);
+  updatePriorityCard('signatures', dashboardData.priorityAlerts.missingSignatures);
+  
+  // Render quick actions (keep existing styling, just update to match)
+  renderQuickActions();
+}
+
+function updatePriorityCard(type, alertData) {
+  const card = document.getElementById(`priority-${type}`);
+  const description = card.querySelector(`#${type}-description`);
+  
+  if (alertData.count === 0) {
+    card.style.opacity = '0.5';
+    card.style.cursor = 'default';
+    card.onclick = null;
+  } else {
+    card.style.opacity = '1';
+  }
+  
+  if (type === 'missing-docs') {
+    description.textContent = alertData.count === 0 
+      ? 'All required documents on file ✓'
+      : `${alertData.count} required ${alertData.count === 1 ? 'document' : 'documents'} missing`;
+  } else if (type === 'expired-docs') {
+    description.textContent = alertData.count === 0
+      ? 'All documents current ✓'
+      : `${alertData.count} ${alertData.count === 1 ? 'document' : 'documents'} expired`;
+  } else if (type === 'signatures') {
+    description.textContent = alertData.count === 0
+      ? 'All incidents signed ✓'
+      : `${alertData.count} incident ${alertData.count === 1 ? 'report needs' : 'reports need'} parent signature`;
+  }
+}
+
+function renderQuickActions() {
+  const container = document.getElementById('quick-actions-container');
+  const actions = [
+    { icon: '🚨', label: 'Log Incident', screen: 'incidents', color: '#667eea' },
+    { icon: '💊', label: 'Log Medication', screen: 'medications', color: '#f093fb' },
+    { icon: '📁', label: 'Upload Document', screen: 'documents', color: '#4facfe' },
+    { icon: '👥', label: 'Manage Staff', screen: 'staff', color: '#43e97b' }
+  ];
+  
+  container.innerHTML = actions.map(action => `
+    <button onclick="showScreen('${action.screen}')" style="background: ${action.color}; color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; text-align: left; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px ${action.color}40;">
+      <div style="font-size: 32px; margin-bottom: 8px;">${action.icon}</div>
+      <div style="font-size: 16px; font-weight: 600;">${action.label}</div>
+    </button>
+  `).join('');
+  
+  // Add hover effect
+  container.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('mouseenter', () => {
+      btn.style.transform = 'translateY(-4px)';
+      btn.style.boxShadow = '0 8px 20px rgba(0,0,0,0.2)';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = 'translateY(0)';
+      btn.style.boxShadow = btn.style.boxShadow.replace('0.2', '0.15');
+    });
+  });
+}
+
+function showWeatherDetails() {
+  if (!weatherData) return;
+  
+  alert(`Weather Details:\n\nLocation: ${weatherData.location}\nCondition: ${weatherData.condition}\nTemperature: ${weatherData.temperature}°F\nHumidity: ${weatherData.humidity}%\nWind: ${weatherData.windSpeed} mph\n\nShield AI Recommendation:\n${weatherData.recommendation}`);
+}
+
+// Load dashboard when app initializes
+if (currentUser && currentUser.facilityId) {
+  loadDashboard();
+}
+</script>
+STEP 6: Update Sidebar Styling
+Find the sidebar CSS and update to dark navy theme:
+css.sidebar {
+  width: 240px;
+  background: #1a2332;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 24px 0;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}
+
+.sidebar-header {
+  padding: 0 20px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 24px;
+}
+
+.sidebar-logo {
+  color: white;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-item {
+  padding: 12px 20px;
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.05);
+  color: white;
+}
+
+.nav-item.active {
+  background: rgba(102, 126, 234, 0.2);
+  color: white;
+  border-left: 3px solid #667eea;
+}
