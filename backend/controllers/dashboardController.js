@@ -48,7 +48,7 @@ async function getDashboard(req, res) {
     staff.forEach(member => {
       if (member.certifications) {
         Object.entries(member.certifications).forEach(([type, cert]) => {
-          if (cert.expiresAt) {
+          if (cert && cert.expiresAt) {
             const daysUntil = Math.floor((new Date(cert.expiresAt) - today) / (1000 * 60 * 60 * 24));
             if (daysUntil <= 30 && daysUntil >= 0) {
               expiringCerts.push({
@@ -65,7 +65,7 @@ async function getDashboard(req, res) {
 
     const upcomingExpirations = [];
     staff.forEach(s => {
-      if (s.certifications.cpr.valid && s.certifications.cpr.expiresAt) {
+      if (s.certifications && s.certifications.cpr && s.certifications.cpr.valid && s.certifications.cpr.expiresAt) {
         const daysUntilExp = Math.floor(
           (new Date(s.certifications.cpr.expiresAt) - new Date()) / (1000 * 60 * 60 * 24)
         );

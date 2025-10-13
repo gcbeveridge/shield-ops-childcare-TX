@@ -34,7 +34,14 @@ The application is a single-page web application with a RESTful API.
 
 ### Key Features & Modules
 - **Authentication:** Login, sign-up, user profile, logout.
-- **Dashboard:** Risk score, licensing compliance, staff certification, training overview, quick module access.
+- **Dashboard (Modern CAC-Style Redesign):**
+    - **Weather Integration:** Real-time weather with contextual safety recommendations using Open-Meteo API (free, no API key). Alerts for heat, cold, rain, wind, storms with specific action items.
+    - **Safety Performance Card:** Combined risk score (0-100) + incident-free streak display with large visual numbers, gradients, and trend indicators.
+    - **Priority Alerts:** Today's Priorities with 3 actionable cards - Missing Documents (red), Expired Documents (orange), Missing Signatures (yellow). Cards disable when count = 0.
+    - **Risk Score Calculation:** Intelligent scoring based on missing docs (-5 each), expired docs (-10 each), missing signatures (-5 each), expiring certifications (-2 each).
+    - **Quick Actions:** 4 gradient action buttons for common tasks (Log Incident, Log Medication, Upload Document, Manage Staff).
+    - **Recent Activity:** Shows latest 3 incidents with child name, type, description, and date.
+    - **Weather Safety Recommendations:** Context-specific guidance for outdoor play, water breaks, equipment checks based on current conditions.
 - **Compliance Management:** State licensing requirements tracker, compliance status indicators, priority badges, audit report generation.
 - **Training Hub:** Monthly training modules, staff completion tracking, progress visualization, training history.
 - **Staff Management:** Staff roster, certifications (CPR/First Aid), background check status, training completion, expiration alerts.
@@ -64,3 +71,4 @@ The application is a single-page web application with a RESTful API.
 - **Database:** PostgreSQL (Neon)
 - **AI:** Anthropic Claude Sonnet 4 API
 - **File Upload:** Multer (Node.js middleware)
+- **Weather:** Open-Meteo API (free, no API key required) via Axios
