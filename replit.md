@@ -22,10 +22,15 @@ The application is a single-page web application with a RESTful API.
 - **File Uploads:** Multer configured for facility-specific folders, 10MB limit, supports PDF/images/Office docs.
 
 ### Database
-- **Technology:** PostgreSQL (Neon)
+- **Technology:** PostgreSQL (Neon) with Supabase migration support
 - **Schema:** 11 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents).
 - **Data Persistence:** Data persists across server restarts and page refreshes.
 - **Auto-seeding:** Database auto-populates on server startup with fixed UUIDs for consistent login.
+- **Supabase Migration:** Ready-to-use migration scripts and schema for moving to Supabase PostgreSQL.
+  - Configuration: `backend/config/supabase.js`
+  - Schema: `backend/config/schema-supabase.sql`
+  - Migration script: `backend/scripts/migrate-to-supabase.js`
+  - Run with: `npm run migrate:supabase`
 
 ### Key Features & Modules
 - **Authentication:** Login, sign-up, user profile, logout.
