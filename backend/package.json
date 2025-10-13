@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate:supabase": "node scripts/migrate-to-supabase.js"
+    "migrate:supabase": "node scripts/migrate-to-supabase.js",
+    "parse:manual": "node scripts/parse-texas-manual.js"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +13,8 @@
   "description": "",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.65.0",
+    "@supabase/supabase-js": "^2.47.10",
+    "pdf-parse": "^1.1.1",
     "pg": "^8.16.3"
   }
 }

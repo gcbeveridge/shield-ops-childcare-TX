@@ -1,0 +1,192 @@
+Parse Texas Child Care Manual and Upload to Supabase
+
+GOAL: Extract regulations from the Texas DFPS Minimum Standards PDF and upload them to Supabase in a structured format for Shield AI to use.
+
+## CONTEXT:
+- PDF file is located at: backend/data/texas-minimum-standards.pdf
+- Supabase tables are ready: regulation_sections, state_regulations, regulation_quick_refs
+- Need to parse PDF and extract individual regulation sections
+- Each section should include: code (§746.xxxx), title, category, full text
+
+## STEP 1: Install PDF Parser
+
+Install pdf-parse to read PDF files:
+```bash
+npm install pdf-parse
+STEP 2: Create PDF Parser Script
+Create file: backend/scripts/parse-texas-manual.js
+javascriptconst fs = require('fs');
+const pdf = require('pdf-parse');
+const supabase = require('../config/supabase');
+
+async function parseManual() {
+  console.log('📖 Reading Texas Minimum Standards PDF...\n');
+
+  try {
+    // Read PDF file
+    const dataBuffer = fs.readFileSync('./data/texas-minimum-standards.pdf');
+    const data = await pdf(dataBuffer);
+    
+    console.log(`📄 Pages: ${data.numpages}`);
+    console.log(`📝 Total text length: ${data.text.length} characters\n`);
+    
+    // Split text into sections based on section numbers (§746.xxxx)
+    const sectionPattern = /§\s*746\.(\d+)\s+([^\n]+)/g;
+    const sections = [];
+    let match;
+    
+    const text = data.text;
+    const matches = [...text.matchAll(sectionPattern)];
+    
+    console.log(`🔍 Found ${matches.length} regulation sections\n`);
+    
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i];
+      const nextMatch = matches[i + 1];
+      
+      const code = `§746.${match[1]}`;
+      const title = match[2].trim();
+      
+      // Extract text from this section to the next section
+      const startIndex = match.index;
+      const endIndex = nextMatch ? nextMatch.index : text.length;
+      const fullText = text.substring(startIndex, endIndex).trim();
+      
+      // Categorize by section number ranges
+      const sectionNum = parseInt(match[1]);
+      let category = 'General';
+      
+      if (sectionNum >= 1201 && sectionNum < 1400) category = 'Staff Requirements';
+      else if (sectionNum >= 1401 && sectionNum < 1700) category = 'Staff Training';
+      else if (sectionNum >= 1701 && sectionNum < 2100) category = 'Child/Staff Ratios';
+      else if (sectionNum >= 2101 && sectionNum < 2400) category = 'Health & Safety';
+      else if (sectionNum >= 2401 && sectionNum < 2700) category = 'Daily Operations';
+      else if (sectionNum >= 2651 && sectionNum < 2700) category = 'Medication Administration';
+      else if (sectionNum >= 2701 && sectionNum < 3000) category = 'Nutrition';
+      else if (sectionNum >= 3001 && sectionNum < 3500) category = 'Physical Environment';
+      else if (sectionNum >= 3701 && sectionNum < 4000) category = 'Incident Reporting';
+      
+      sections.push({
+        state_code: 'TX',
+        code_section: code,
+        title: title,
+        category: category,
+        full_text: fullText,
+        summary: fullText.substring(0, 200) + '...' // First 200 chars as summary
+      });
+      
+      console.log(`✅ ${code}: ${title} (${category})`);
+    }
+    
+    console.log(`\n📦 Uploading ${sections.length} sections to Supabase...\n`);
+    
+    // Upload to Supabase in batches of 50
+    const batchSize = 50;
+    let uploaded = 0;
+    let errors = 0;
+    
+    for (let i = 0; i < sections.length; i += batchSize) {
+      const batch = sections.slice(i, i + batchSize);
+      
+      const { data, error } = await supabase
+        .from('regulation_sections')
+        .upsert(batch, { onConflict: 'code_section' });
+      
+      if (error) {
+        console.error(`❌ Batch ${i / batchSize + 1} error:`, error.message);
+        errors += batch.length;
+      } else {
+        uploaded += batch.length;
+        console.log(`✅ Uploaded batch ${i / batchSize + 1} (${batch.length} sections)`);
+      }
+    }
+    
+    console.log(`\n📊 Upload Summary:`);
+    console.log(`   ✅ Success: ${uploaded}`);
+    console.log(`   ❌ Errors: ${errors}`);
+    console.log(`\n✅ Parse complete!`);
+    
+  } catch (error) {
+    console.error('❌ Error:', error.message);
+    process.exit(1);
+  }
+  
+  process.exit(0);
+}
+
+parseManual();
+STEP 3: Add NPM Script
+Add to package.json scripts section:
+json"parse:manual": "cd backend && node scripts/parse-texas-manual.js"
+STEP 4: Update Shield AI to Use Database
+Update backend/services/aiService.js to query regulations from database instead of hardcoded text:
+javascriptconst supabase = require('../config/supabase');
+
+async function getRelevantRegulations(query) {
+  // Search for relevant regulations based on query
+  const { data, error } = await supabase
+    .from('regulation_sections')
+    .select('*')
+    .or(`title.ilike.%${query}%,full_text.ilike.%${query}%`)
+    .eq('state_code', 'TX')
+    .limit(5);
+  
+  if (error) {
+    console.error('Regulation search error:', error);
+    return [];
+  }
+  
+  return data || [];
+}
+
+exports.askQuestion = async (req, res) => {
+  try {
+    const { question, facilityId } = req.body;
+    
+    // Search database for relevant regulations
+    const regulations = await getRelevantRegulations(question);
+    
+    // Build context from database results
+    const regulationContext = regulations.map(reg => 
+      `${reg.code_section} - ${reg.title}\n${reg.full_text}`
+    ).join('\n\n---\n\n');
+    
+    const systemPrompt = `You are an expert on Texas child care licensing regulations (DFPS Chapter 746).
+
+Here are the relevant Texas regulations for this question:
+
+${regulationContext}
+
+Based on these regulations, provide a comprehensive answer that includes:
+1. The relevant Texas regulations with specific code citations
+2. Plain English explanation
+3. Practical guidance
+4. Any required actions or next steps
+
+Format your response with clear sections and use the actual regulation text provided above.`;
+    
+    const userPrompt = `Question: ${question}`;
+    
+    // Call Claude API with database context
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 2000,
+      temperature: 0,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    });
+    
+    res.json({
+      success: true,
+      answer: message.content[0].text,
+      sources: regulations.map(r => ({ code: r.code_section, title: r.title }))
+    });
+    
+  } catch (error) {
+    console.error('Shield AI Error:', error);
+    res.status(500).json({
+      error: true,
+      message: 'Failed to get AI response'
+    });
+  }
+};
