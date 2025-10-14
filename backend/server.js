@@ -83,6 +83,7 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`   GET    /api/auth/me`);
   console.log(`\n  📊 Dashboard:`);
   console.log(`   GET    /api/facilities/:id/dashboard`);
+  console.log(`   GET    /api/facilities/:id/weather`);
   console.log(`\n  👥 Staff Management:`);
   console.log(`   GET    /api/facilities/:id/staff`);
   console.log(`   POST   /api/facilities/:id/staff`);

@@ -3664,14 +3664,25 @@
                 const weatherResponse = await apiRequest(`/facilities/${AppState.facility.id}/weather`);
                 const weather = weatherResponse.data.weather;
                 
-                if (weather && weather.alert) {
+                if (weather) {
                     const widget = document.getElementById('weather-alert-widget');
                     widget.style.display = 'block';
-                    document.getElementById('weather-icon').textContent = weather.alert.icon;
-                    document.getElementById('weather-title').textContent = weather.alert.title;
+                    
+                    // Show alert icon and title if there's an alert, otherwise show weather icon and condition
+                    if (weather.alert) {
+                        document.getElementById('weather-icon').textContent = weather.alert.icon;
+                        document.getElementById('weather-title').textContent = weather.alert.title;
+                        document.getElementById('weather-recommendation').textContent = weather.recommendation;
+                        widget.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'; // Red gradient for alerts
+                    } else {
+                        document.getElementById('weather-icon').textContent = weather.icon;
+                        document.getElementById('weather-title').textContent = `${weather.condition} Conditions`;
+                        document.getElementById('weather-recommendation').textContent = `Great day for outdoor activities! Temperature: ${weather.temperature}°F, Humidity: ${weather.humidity}%`;
+                        widget.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; // Blue gradient for normal weather
+                    }
+                    
                     document.getElementById('weather-location').textContent = weather.location;
                     document.getElementById('weather-temp').textContent = `${weather.temperature}°F`;
-                    document.getElementById('weather-recommendation').textContent = weather.recommendation;
                 }
             } catch (error) {
                 console.log('Weather data unavailable:', error);
