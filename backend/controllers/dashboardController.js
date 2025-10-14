@@ -1,20 +1,30 @@
-const db = require('../config/database');
+const pool = require('../config/db');
 const { TEXAS_COMPLIANCE_REQUIREMENTS } = require('../config/constants');
 
 async function getDashboard(req, res) {
   try {
     const { facilityId } = req.params;
 
-    const facility = await db.get(`facilities:${facilityId}`);
+    // Get facility from PostgreSQL
+    const facilityResult = await pool.query('SELECT * FROM facilities WHERE id = $1', [facilityId]);
+    const facility = facilityResult.rows[0];
 
     if (!facility) {
       return res.status(404).json({ error: 'Facility not found' });
     }
 
-    const staff = await db.getByPrefix(`staff:${facilityId}:`) || [];
-    const incidents = await db.getByPrefix(`incident:${facilityId}:`) || [];
-    const compliance = await db.getByPrefix(`compliance:${facilityId}:`) || [];
-    const documents = await db.getByPrefix(`document:${facilityId}:`) || [];
+    // Get related data from PostgreSQL
+    const staffResult = await pool.query('SELECT * FROM staff WHERE facility_id = $1', [facilityId]);
+    const staff = staffResult.rows;
+    
+    const incidentsResult = await pool.query('SELECT * FROM incidents WHERE facility_id = $1', [facilityId]);
+    const incidents = incidentsResult.rows;
+    
+    const complianceResult = await pool.query('SELECT * FROM compliance_items WHERE facility_id = $1', [facilityId]);
+    const compliance = complianceResult.rows;
+    
+    const documentsResult = await pool.query('SELECT * FROM documents WHERE facility_id = $1', [facilityId]);
+    const documents = documentsResult.rows;
 
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];

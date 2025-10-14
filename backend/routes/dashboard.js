@@ -3,7 +3,7 @@ const router = express.Router();
 const { getDashboard } = require('../controllers/dashboardController');
 const { authenticateToken } = require('../middleware/auth');
 const { getWeatherByZip } = require('../services/weatherService');
-const db = require('../config/database');
+const pool = require('../config/db');
 
 router.get('/facilities/:facilityId/dashboard', authenticateToken, getDashboard);
 
@@ -11,7 +11,8 @@ router.get('/facilities/:facilityId/weather', authenticateToken, async (req, res
   try {
     const { facilityId } = req.params;
     
-    const facility = await db.get(`facilities:${facilityId}`);
+    const facilityResult = await pool.query('SELECT * FROM facilities WHERE id = $1', [facilityId]);
+    const facility = facilityResult.rows[0];
     
     if (!facility) {
       return res.status(404).json({ error: 'Facility not found' });
