@@ -3670,9 +3670,18 @@
                 console.log('Weather response:', weatherResponse);
                 const weather = weatherResponse.data.weather;
                 
+                console.log('Weather data received:', weather);
                 if (weather) {
                     const widget = document.getElementById('weather-alert-widget');
+                    console.log('Weather widget element:', widget);
+                    
+                    if (!widget) {
+                        console.error('Weather widget element not found!');
+                        return;
+                    }
+                    
                     widget.style.display = 'block';
+                    console.log('Widget display set to block');
                     
                     // Show alert icon and title if there's an alert, otherwise show weather icon and condition
                     if (weather.alert) {
@@ -3689,6 +3698,9 @@
                     
                     document.getElementById('weather-location').textContent = weather.location;
                     document.getElementById('weather-temp').textContent = `${weather.temperature}°F`;
+                    console.log('Weather widget updated successfully');
+                } else {
+                    console.log('No weather data received');
                 }
             } catch (error) {
                 console.log('Weather data unavailable:', error);
