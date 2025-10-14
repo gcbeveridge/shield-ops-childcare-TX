@@ -4055,8 +4055,11 @@
             try {
                 const data = await apiRequest(`/facilities/${AppState.facility.id}/dashboard`);
                 
-                document.getElementById('facility-name').textContent = AppState.facility.name || 'My Facility';
-                document.getElementById('facility-location').textContent = AppState.facility.address?.city || 'Location';
+                // Safely update elements if they exist
+                const facilityNameEl = document.getElementById('facility-name');
+                const facilityLocationEl = document.getElementById('facility-location');
+                if (facilityNameEl) facilityNameEl.textContent = AppState.facility.name || 'My Facility';
+                if (facilityLocationEl) facilityLocationEl.textContent = AppState.facility.address?.city || 'Location';
                 
                 // Load enhanced dashboard data
                 await loadDashboardData();
