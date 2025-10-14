@@ -3658,10 +3658,16 @@
         }
 
         async function loadWeatherData() {
-            if (!AppState.facility) return;
+            console.log('loadWeatherData called, AppState.facility:', AppState.facility);
+            if (!AppState.facility) {
+                console.log('No facility in AppState, exiting loadWeatherData');
+                return;
+            }
             
             try {
+                console.log('Fetching weather for facility:', AppState.facility.id);
                 const weatherResponse = await apiRequest(`/facilities/${AppState.facility.id}/weather`);
+                console.log('Weather response:', weatherResponse);
                 const weather = weatherResponse.data.weather;
                 
                 if (weather) {
