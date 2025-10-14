@@ -71,4 +71,6 @@ The application is a single-page web application with a RESTful API.
 - **Database:** PostgreSQL (Neon)
 - **AI:** Anthropic Claude Sonnet 4 API
 - **File Upload:** Multer (Node.js middleware)
-- **Weather:** Open-Meteo API (free, no API key required) via Axios
+- **Weather:** 
+  - Zippopotam API (free zip code geocoding, no API key required)
+  - Open-Meteo API (free weather data, no API key required)

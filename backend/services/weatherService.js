@@ -3,16 +3,19 @@ const axios = require('axios');
 // Using Open-Meteo (free, no API key required)
 async function getWeatherByZip(zipCode) {
   try {
-    // First, geocode the zip code (US only for now)
+    // Use free ZipCode API to get lat/lon from zip code
     const geoResponse = await axios.get(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${zipCode}&count=1&language=en&format=json`
+      `https://api.zippopotam.us/us/${zipCode}`
     );
     
-    if (!geoResponse.data.results || geoResponse.data.results.length === 0) {
-      throw new Error('Location not found');
+    if (!geoResponse.data || !geoResponse.data.places || geoResponse.data.places.length === 0) {
+      throw new Error('Location not found for zip code: ' + zipCode);
     }
     
-    const { latitude, longitude, name } = geoResponse.data.results[0];
+    const place = geoResponse.data.places[0];
+    const latitude = parseFloat(place.latitude);
+    const longitude = parseFloat(place.longitude);
+    const name = `${place['place name']}, ${place['state abbreviation']}`;
     
     // Get weather data
     const weatherResponse = await axios.get(
