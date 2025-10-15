@@ -3668,7 +3668,7 @@
                 console.log('Fetching weather for facility:', AppState.facility.id);
                 const weatherResponse = await apiRequest(`/facilities/${AppState.facility.id}/weather`);
                 console.log('Weather response:', weatherResponse);
-                const weather = weatherResponse.data.weather;
+                const weather = weatherResponse.weather;
                 
                 console.log('Weather data received:', weather);
                 if (weather) {
