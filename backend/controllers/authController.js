@@ -1,5 +1,5 @@
-const UserDB = require('../models/UserDB');
-const FacilityDB = require('../models/FacilityDB');
+const supabase = require('../config/supabase');
+const bcrypt = require('bcryptjs');
 const { generateToken } = require('../middleware/auth');
 const { v4: uuidv4 } = require('uuid');
 
@@ -11,7 +11,13 @@ async function signup(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const existingUser = await UserDB.findByEmail(email);
+    // Check if user already exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
     if (existingUser) {
       return res.status(400).json({ error: 'Email already registered' });
     }
@@ -19,30 +25,59 @@ async function signup(req, res) {
     const facilityId = uuidv4();
     const userId = uuidv4();
 
-    const facility = await FacilityDB.create({
-      id: facilityId,
-      name: facilityName,
-      address: facilityAddress,
-      phone,
-      email,
-      ownerId: userId
-    });
+    // Create facility
+    const { data: facility, error: facilityError } = await supabase
+      .from('facilities')
+      .insert({
+        id: facilityId,
+        name: facilityName,
+        address: facilityAddress,
+        phone,
+        email,
+        owner_id: userId
+      })
+      .select()
+      .single();
 
-    const user = await UserDB.create({
-      id: userId,
-      email,
-      password,
-      name,
-      role: 'owner',
-      facilityId: facility.id
-    });
+    if (facilityError) throw facilityError;
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Create user
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .insert({
+        id: userId,
+        email,
+        password_hash: passwordHash,
+        name,
+        role: 'owner',
+        facility_id: facility.id
+      })
+      .select()
+      .single();
+
+    if (userError) throw userError;
 
     const token = generateToken({ userId: user.id });
 
     res.status(201).json({
       token,
-      user: UserDB.toJSON(user),
-      facility
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        facilityId: user.facility_id
+      },
+      facility: {
+        id: facility.id,
+        name: facility.name,
+        address: facility.address,
+        phone: facility.phone,
+        email: facility.email
+      }
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -54,28 +89,68 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
 
+    console.log('Login attempt:', { email });
+
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password required' });
     }
 
-    const user = await UserDB.findByEmail(email);
-    if (!user) {
+    // Find user by email
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (userError || !user) {
+      console.log('User not found:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const validPassword = await UserDB.verifyPassword(user, password);
+    console.log('User found:', user.email);
+
+    // Verify password
+    const validPassword = await bcrypt.compare(password, user.password_hash);
     if (!validPassword) {
+      console.log('Invalid password for:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const facility = await FacilityDB.findById(user.facilityId);
+    console.log('Password valid, fetching facility...');
+
+    // Get facility
+    const { data: facility, error: facilityError } = await supabase
+      .from('facilities')
+      .select('*')
+      .eq('id', user.facility_id)
+      .single();
+
+    if (facilityError) {
+      console.error('Facility fetch error:', facilityError);
+    }
 
     const token = generateToken({ userId: user.id });
 
+    console.log('Login successful for:', email);
+
     res.json({
       token,
-      user: UserDB.toJSON(user),
-      facility
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        facilityId: user.facility_id
+      },
+      facility: facility ? {
+        id: facility.id,
+        name: facility.name,
+        address: facility.address,
+        phone: facility.phone,
+        email: facility.email,
+        licenseNumber: facility.license_number,
+        capacity: facility.capacity
+      } : null
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -85,17 +160,39 @@ async function login(req, res) {
 
 async function getMe(req, res) {
   try {
-    const user = await UserDB.findById(req.user.userId);
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', req.user.userId)
+      .single();
 
-    if (!user) {
+    if (userError || !user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const facility = await FacilityDB.findById(user.facilityId);
+    const { data: facility } = await supabase
+      .from('facilities')
+      .select('*')
+      .eq('id', user.facility_id)
+      .single();
 
     res.json({
-      user: UserDB.toJSON(user),
-      facility
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        facilityId: user.facility_id
+      },
+      facility: facility ? {
+        id: facility.id,
+        name: facility.name,
+        address: facility.address,
+        phone: facility.phone,
+        email: facility.email,
+        licenseNumber: facility.license_number,
+        capacity: facility.capacity
+      } : null
     });
   } catch (error) {
     console.error('Get me error:', error);

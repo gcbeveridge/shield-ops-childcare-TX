@@ -1,3 +1,6 @@
+// Load environment variables first
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -73,9 +76,16 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`\n🚀 Shield Ops Backend Server Running!`);
   console.log(`📍 Port: ${PORT}`);
   console.log(`🌐 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`✅ Using Supabase database (auto-seed disabled)`);
   
-  // Auto-seed database on startup
-  await autoSeedDB();
+  // Auto-seed disabled - using Supabase directly
+  // Database setup is handled via backend/scripts/setup-supabase.js
+  // try {
+  //   await autoSeedDB();
+  // } catch (error) {
+  //   console.error('⚠️  Auto-seed skipped due to database connection issue');
+  //   console.error('   Server will continue running, but database may need manual setup');
+  // }
   console.log(`\n📚 Available Endpoints:`);
   console.log(`\n  🔐 Authentication:`);
   console.log(`   POST   /api/auth/signup`);

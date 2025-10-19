@@ -526,6 +526,7 @@
             margin-bottom: 28px;
             border: 1px solid var(--gray-100);
             transition: all var(--transition-base);
+            overflow-x: auto; /* Enable horizontal scroll for tables on mobile */
         }
 
         .card:hover {
@@ -1068,9 +1069,529 @@
         .quick-action-btn:active {
             transform: translateY(-2px);
         }
+
+        /* =============================================
+           LOADING STATES & SKELETONS
+           ============================================= */
+        
+        /* Enhanced Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        
+        .spinner-large {
+            width: 40px;
+            height: 40px;
+            border-width: 4px;
+        }
+        
+        .spinner-primary {
+            border-color: rgba(102, 126, 234, 0.3);
+            border-top-color: var(--primary);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            border-radius: 12px;
+        }
+        
+        .loading-overlay-dark {
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Skeleton Screen Styles */
+        .skeleton {
+            background: linear-gradient(
+                90deg,
+                #f0f0f0 0%,
+                #f8f8f8 50%,
+                #f0f0f0 100%
+            );
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s ease-in-out infinite;
+            border-radius: 4px;
+        }
+        
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+        
+        .skeleton-text-lg {
+            height: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .skeleton-circle {
+            border-radius: 50%;
+        }
+        
+        .skeleton-button {
+            height: 36px;
+            width: 100px;
+            border-radius: 8px;
+        }
+        
+        /* Table Skeleton */
+        .skeleton-table {
+            width: 100%;
+        }
+        
+        .skeleton-table-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .skeleton-table-cell {
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        /* Card Skeleton */
+        .skeleton-card {
+            padding: 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .skeleton-header {
+            height: 24px;
+            width: 60%;
+            margin-bottom: 16px;
+        }
+        
+        .skeleton-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .skeleton-metric {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .skeleton-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+        }
+        
+        .skeleton-value {
+            flex: 1;
+        }
+        
+        .skeleton-label {
+            height: 14px;
+            width: 80%;
+            margin-bottom: 8px;
+        }
+        
+        .skeleton-number {
+            height: 28px;
+            width: 40%;
+        }
+        
+        /* Pulse Animation */
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        /* Loading Dots */
+        .loading-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: loading-dots 1.4s infinite ease-in-out both;
+        }
+        
+        .loading-dots span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+        
+        .loading-dots span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+        
+        @keyframes loading-dots {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        /* Progress Bar Loading */
+        .loading-bar {
+            position: relative;
+            height: 4px;
+            background: var(--gray-200);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 30%;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: loading-bar 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes loading-bar {
+            0% {
+                left: -30%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        /* =============================================
+           MOBILE RESPONSIVE STYLES
+           ============================================= */
+        
+        /* Tablet breakpoint (768px and below) */
+        @media screen and (max-width: 768px) {
+            /* Sidebar - Hamburger Menu */
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                transition: left 0.3s ease;
+                z-index: 1000;
+            }
+            
+            .sidebar.mobile-open {
+                left: 0;
+            }
+            
+            /* Mobile overlay */
+            .mobile-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+            
+            .mobile-overlay.active {
+                display: block;
+            }
+            
+            /* Hamburger button */
+            .hamburger {
+                display: block;
+                position: fixed;
+                top: 16px;
+                left: 16px;
+                z-index: 1001;
+                background: var(--primary);
+                border: none;
+                border-radius: 8px;
+                padding: 12px;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            .hamburger span {
+                display: block;
+                width: 24px;
+                height: 2px;
+                background: white;
+                margin: 5px 0;
+                transition: 0.3s;
+            }
+            
+            /* Main content - Full width */
+            .main-content {
+                margin-left: 0;
+                padding: 20px 16px;
+            }
+            
+            /* Page header - Smaller */
+            .page-header {
+                margin-bottom: 20px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .page-subtitle {
+                font-size: 13px;
+            }
+            
+            /* Cards - Full width with less padding */
+            .card {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .card-title {
+                font-size: 16px;
+            }
+            
+            /* Stats Grid - 2 columns */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 16px;
+            }
+            
+            .stat-value {
+                font-size: 28px;
+            }
+            
+            .stat-label {
+                font-size: 11px;
+            }
+            
+            /* Quick Actions - 2 columns */
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            /* Tables - Responsive */
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .table {
+                min-width: 600px;
+                font-size: 13px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 10px 8px;
+            }
+            
+            /* Tabs - Scrollable */
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+                gap: 8px;
+                padding-bottom: 4px;
+            }
+            
+            .tab {
+                font-size: 13px;
+                padding: 8px 16px;
+                flex-shrink: 0;
+            }
+            
+            /* Forms - Full width inputs */
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-input,
+            .form-select {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            /* Modal - Full width */
+            .modal-content {
+                width: 95%;
+                max-width: 95%;
+                margin: 20px auto;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            
+            .modal-header {
+                padding: 16px;
+            }
+            
+            .modal-title {
+                font-size: 18px;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
+            }
+            
+            /* Buttons - Full width on mobile */
+            .btn-small,
+            .btn-primary-small {
+                font-size: 13px;
+                padding: 8px 14px;
+            }
+            
+            /* Training Grid - 2 columns */
+            .training-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .training-card {
+                padding: 14px;
+            }
+            
+            .training-month {
+                font-size: 11px;
+            }
+            
+            .training-title {
+                font-size: 13px;
+            }
+            
+            /* Toast notifications - Full width */
+            .toast {
+                left: 16px;
+                right: 16px;
+                max-width: calc(100% - 32px);
+            }
+        }
+        
+        /* Mobile breakpoint (480px and below) */
+        @media screen and (max-width: 480px) {
+            /* Stats Grid - 1 column */
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Quick Actions - 1 column */
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Training Grid - 1 column */
+            .training-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Page title smaller */
+            .page-title {
+                font-size: 20px;
+            }
+            
+            /* Compact badges */
+            .badge {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+            
+            /* Smaller buttons */
+            .btn {
+                font-size: 13px;
+                padding: 10px 16px;
+            }
+            
+            .btn-sm {
+                font-size: 11px;
+                padding: 5px 10px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .sidebar,
+            .hamburger,
+            .mobile-overlay,
+            .btn,
+            .modal,
+            .toast {
+                display: none !important;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .card {
+                break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Mobile Hamburger Menu Button -->
+    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" style="display: none;">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+    
     <!-- Login Screen -->
     <div id="login-screen" class="auth-container">
         <div class="auth-card">
@@ -1606,16 +2127,19 @@
                         <button class="btn-small btn-primary-small" onclick="openModal('add-staff')">+ Add Staff</button>
                     </div>
 
-                    <table class="table">
+                    <table class="table data-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Role</th>
-                                <th>Hire Date</th>
                                 <th>CPR</th>
                                 <th>First Aid</th>
-                                <th>Background Check</th>
+                                <th>CDA</th>
+                                <th>Teaching Cert</th>
+                                <th>Food Handler</th>
+                                <th>Background</th>
                                 <th>Training</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1702,55 +2226,29 @@
 
                 <div class="card">
                     <div class="tabs">
-                        <button class="tab active">All Incidents (8)</button>
-                        <button class="tab">Injuries (5)</button>
-                        <button class="tab">Illness (2)</button>
-                        <button class="tab">Behavior (1)</button>
+                        <button class="tab active" onclick="filterIncidents('all')">All Incidents</button>
+                        <button class="tab" onclick="filterIncidents('injury')">Injuries</button>
+                        <button class="tab" onclick="filterIncidents('illness')">Illness</button>
+                        <button class="tab" onclick="filterIncidents('behavior')">Behavior</button>
                     </div>
 
-                    <table class="table">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Date/Time</th>
                                 <th>Child</th>
                                 <th>Type</th>
+                                <th>Severity</th>
                                 <th>Description</th>
-                                <th>Staff</th>
-                                <th>Parent Notified</th>
-                                <th>Status</th>
+                                <th>Parent Signature</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Oct 15, 2025<br><small>2:45 PM</small></td>
-                                <td><strong>Emma S.</strong></td>
-                                <td><span class="badge badge-high">Injury</span></td>
-                                <td>Minor scrape on knee from playground fall</td>
-                                <td>Sarah Johnson</td>
-                                <td><span class="badge badge-complete">✓ Notified</span></td>
-                                <td><span class="badge badge-complete">Signed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Oct 14, 2025<br><small>11:20 AM</small></td>
-                                <td><strong>Liam M.</strong></td>
-                                <td><span class="badge badge-medium">Illness</span></td>
-                                <td>Fever 101°F, sent home</td>
-                                <td>Michael Chen</td>
-                                <td><span class="badge badge-complete">✓ Notified</span></td>
-                                <td><span class="badge badge-complete">Signed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Oct 12, 2025<br><small>3:10 PM</small></td>
-                                <td><strong>Olivia K.</strong></td>
-                                <td><span class="badge badge-high">Injury</span></td>
-                                <td>Bump on forehead from table corner</td>
-                                <td>Emily Rodriguez</td>
-                                <td><span class="badge badge-complete">✓ Notified</span></td>
-                                <td><span class="badge badge-complete">Signed</span></td>
-                            </tr>
-                            <tr>
-                                <td>Oct 10, 2025<br><small>9:30 AM</small></td>
-                                <td><strong>Noah B.</strong></td>
+                            <!-- Populated by loadIncidentList() -->
+                        </tbody>
+                    </table>
+                </div>
                                 <td><span class="badge badge-low">Behavior</span></td>
                                 <td>Conflict with peer, redirected successfully</td>
                                 <td>David Martinez</td>
@@ -2106,39 +2604,35 @@
 
                 <div class="card">
                     <div class="tabs">
-                        <button class="tab active">All Documents (94)</button>
-                        <button class="tab">Licensing & Permits</button>
-                        <button class="tab">Staff Records (45)</button>
-                        <button class="tab">Children (26)</button>
-                        <button class="tab">Health & Safety</button>
-                        <button class="tab">Facility & Inspections (15)</button>
-                        <button class="tab">Insurance (8)</button>
+                        <button class="tab active" onclick="filterDocuments('all')">All Documents</button>
+                        <button class="tab" onclick="filterDocuments('licenses')">Licensing & Permits</button>
+                        <button class="tab" onclick="filterDocuments('staff')">Staff Records</button>
+                        <button class="tab" onclick="filterDocuments('children')">Children</button>
+                        <button class="tab" onclick="filterDocuments('health')">Health & Safety</button>
+                        <button class="tab" onclick="filterDocuments('inspections')">Facility & Inspections</button>
+                        <button class="tab" onclick="filterDocuments('insurance')">Insurance</button>
                     </div>
 
                     <div style="margin-bottom: 20px;">
-                        <input type="text" class="form-input" placeholder="🔍 Search documents..." style="max-width: 400px;">
+                        <input type="text" id="document-search" class="form-input" placeholder="🔍 Search documents..." style="max-width: 400px;" onkeyup="searchDocuments()">
                     </div>
 
-                    <table class="table">
+                    <table class="data-table">
                         <thead>
                             <tr>
                                 <th>Document Name</th>
-                                <th style="width: 70px;">Form #</th>
                                 <th>Category</th>
                                 <th>Owner/Subject</th>
-                                <th>Issue Date</th>
                                 <th>Expiration Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><strong>CPR Certification</strong></td>
-                                <td>2971</td>
-                                <td>Staff Records</td>
-                                <td>Emily Rodriguez</td>
-                                <td>Nov 15, 2023</td>
+                            <!-- Populated by loadDocumentList() -->
+                        </tbody>
+                    </table>
+                </div>
                                 <td>Nov 15, 2025</td>
                                 <td>
                                     <span class="badge" style="background: #fee2e2; color: #991b1b;">Exp 12 days</span>
@@ -2381,10 +2875,10 @@
 
                 <div class="card">
                     <div class="tabs">
-                        <button class="tab active">Active Medications (12)</button>
-                        <button class="tab">Today's Log (3)</button>
-                        <button class="tab">Expired Authorizations (2)</button>
-                        <button class="tab">Food Allergies (5)</button>
+                        <button class="tab active" onclick="filterMedications('active')">Active Medications (12)</button>
+                        <button class="tab" onclick="filterMedications('today')">Today's Log (3)</button>
+                        <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (2)</button>
+                        <button class="tab" onclick="filterMedications('allergies')">Food Allergies (5)</button>
                     </div>
 
                     <table class="table">
@@ -2784,7 +3278,7 @@
                     </div>
                     <div class="form-group">
                         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                            <input type="checkbox" id="upload-no-exp">
+                            <input type="checkbox" id="upload-no-exp" onchange="toggleExpirationDate()">
                             <span class="form-label" style="margin: 0;">No expiration date</span>
                         </label>
                     </div>
@@ -2811,20 +3305,30 @@
                 <div id="upload-step-3" class="upload-step" style="display: none;">
                     <div class="form-group">
                         <label class="form-label">Upload File</label>
-                        <div style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 48px; text-align: center; cursor: pointer; transition: all var(--transition-base);" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--gray-300)'">
+                        <input type="file" id="upload-file-input" accept=".pdf,.jpg,.jpeg,.png,.docx,.doc" style="display: none;" onchange="handleFileSelect(event)">
+                        <div id="upload-dropzone" style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 48px; text-align: center; cursor: pointer; transition: all var(--transition-base);" onclick="document.getElementById('upload-file-input').click()" ondragover="handleDragOver(event)" ondrop="handleFileDrop(event)" ondragleave="handleDragLeave(event)">
                             <div style="font-size: 48px; margin-bottom: 12px;">📄</div>
                             <div style="font-size: 14px; color: var(--gray-900); margin-bottom: 4px; font-weight: 600;">Click to upload or drag & drop</div>
                             <div style="font-size: 12px; color: var(--gray-600);">PDF, JPG, PNG, DOCX (Max 10MB)</div>
                         </div>
                     </div>
-                    <div id="upload-preview" style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                    <div id="upload-preview" style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px; border: 1px solid var(--gray-200);">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="font-size: 32px;">📄</div>
+                            <div id="file-icon" style="font-size: 32px;">📄</div>
                             <div style="flex: 1;">
-                                <div style="font-size: 14px; font-weight: 600; color: var(--gray-900);">filename.pdf</div>
-                                <div style="font-size: 12px; color: var(--gray-600);">2.5 MB</div>
+                                <div id="file-name" style="font-size: 14px; font-weight: 600; color: var(--gray-900);">filename.pdf</div>
+                                <div id="file-size" style="font-size: 12px; color: var(--gray-600);">2.5 MB</div>
                             </div>
-                            <button type="button" style="padding: 4px 8px; font-size: 12px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer;">Remove</button>
+                            <button type="button" onclick="removeSelectedFile()" style="padding: 6px 12px; font-size: 12px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Remove</button>
+                        </div>
+                        <div id="upload-progress-container" style="display: none; margin-top: 12px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                                <span style="color: var(--gray-700);">Uploading...</span>
+                                <span id="upload-percentage" style="color: var(--primary); font-weight: 600;">0%</span>
+                            </div>
+                            <div style="width: 100%; height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden;">
+                                <div id="upload-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--success)); transition: width 0.3s;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3376,9 +3880,319 @@
                     <label class="form-label">Hire Date</label>
                     <input id="staff-hire-date" type="date" class="form-input" required>
                 </div>
+                
+                <!-- Certification Section -->
+                <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--gray-200);">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--gray-800);">📋 Certifications & Credentials</h3>
+                    
+                    <!-- CDA Credential -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="staff-has-cda" onchange="toggleCertificationFields('cda')">
+                            Child Development Associate (CDA) Credential
+                        </label>
+                        <div id="cda-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                            <div class="form-group">
+                                <label class="form-label">CDA Number</label>
+                                <input id="staff-cda-number" type="text" class="form-input" placeholder="CDA12345678">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CDA Expiration Date</label>
+                                <input id="staff-cda-expiration" type="date" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Teaching Certificate -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="staff-has-teaching-cert" onchange="toggleCertificationFields('teaching')">
+                            Texas Teaching Certificate
+                        </label>
+                        <div id="teaching-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                            <div class="form-group">
+                                <label class="form-label">Certificate Number</label>
+                                <input id="staff-teaching-number" type="text" class="form-input" placeholder="12345678">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Certificate Type</label>
+                                <select id="staff-teaching-type" class="form-input">
+                                    <option value="">Select type...</option>
+                                    <option value="standard">Standard</option>
+                                    <option value="provisional">Provisional</option>
+                                    <option value="probationary">Probationary</option>
+                                    <option value="emergency">Emergency</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Expiration Date</label>
+                                <input id="staff-teaching-expiration" type="date" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Food Handler Certificate -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="staff-has-food-handler" onchange="toggleCertificationFields('food')">
+                            Texas Food Handler Certificate
+                        </label>
+                        <div id="food-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                            <div class="form-group">
+                                <label class="form-label">Certificate Number</label>
+                                <input id="staff-food-number" type="text" class="form-input" placeholder="FH123456">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Expiration Date</label>
+                                <input id="staff-food-expiration" type="date" class="form-input">
+                            </div>
+                            <small class="form-help">Texas requires food handler certification for staff preparing meals (renewal every 2 years)</small>
+                        </div>
+                    </div>
+                    
+                    <!-- CPR/First Aid -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" id="staff-has-cpr" onchange="toggleCertificationFields('cpr')">
+                            CPR & First Aid Certification
+                        </label>
+                        <div id="cpr-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                            <div class="form-group">
+                                <label class="form-label">Certification Type</label>
+                                <select id="staff-cpr-type" class="form-input">
+                                    <option value="">Select type...</option>
+                                    <option value="pediatric">Pediatric CPR/First Aid</option>
+                                    <option value="infant">Infant CPR</option>
+                                    <option value="adult-child">Adult & Child CPR</option>
+                                    <option value="comprehensive">Comprehensive (All Ages)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Certification Provider</label>
+                                <input id="staff-cpr-provider" type="text" class="form-input" placeholder="American Red Cross, AHA, etc.">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Expiration Date</label>
+                                <input id="staff-cpr-expiration" type="date" class="form-input">
+                            </div>
+                            <small class="form-help">Texas requires at least one staff with current certification on premises at all times</small>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('add-staff')">Cancel</button>
                     <button id="add-staff-btn" type="submit" class="btn btn-primary">Add Staff Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Staff Details Modal -->
+    <div id="staff-details" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Staff Member Details</h2>
+            </div>
+            <div id="staff-details-content" style="padding: 20px 0;">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('staff-details')">Close</button>
+                <button type="button" class="btn btn-primary" onclick="editStaffFromDetails()">Edit</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteStaff()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Staff Modal -->
+    <div id="edit-staff" class="modal">
+        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Staff Member</h2>
+            </div>
+            <form id="edit-staff-form" onsubmit="updateStaff(event)">
+                <input type="hidden" id="edit-staff-id">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input id="edit-staff-name" type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <input id="edit-staff-role" type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input id="edit-staff-email" type="email" class="form-input" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-staff')">Cancel</button>
+                    <button id="update-staff-btn" type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Incident Details Modal -->
+    <div id="incident-details" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Incident Report Details</h2>
+            </div>
+            <div id="incident-details-content" style="padding: 20px 0;">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('incident-details')">Close</button>
+                <button type="button" class="btn btn-primary" onclick="printIncidentReport()">Print Report</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteIncident()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medication Details Modal -->
+    <div id="medication-details" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Medication Authorization Details</h2>
+            </div>
+            <div id="medication-details-content" style="padding: 20px 0;">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('medication-details')">Close</button>
+                <button type="button" class="btn btn-primary" onclick="administerFromDetails()">Administer Now</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteMedication()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medication Administration Modal -->
+    <div id="administer-medication" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Administer Medication</h2>
+                <p style="font-size: 14px; color: var(--danger); margin-top: 8px;">⚠️ Dual-Staff Verification Required per Texas §744.2651</p>
+            </div>
+            <form id="administer-medication-form" onsubmit="recordMedicationAdministration(event)">
+                <input type="hidden" id="admin-med-id">
+                
+                <div id="admin-med-info" style="background: var(--gray-50); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                    <!-- Medication info populated dynamically -->
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Administered By (First Staff Member)</label>
+                    <input id="admin-by-staff1" type="text" class="form-input" placeholder="Your name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Verified By (Second Staff Member) *Required*</label>
+                    <input id="admin-by-staff2" type="text" class="form-input" placeholder="Witness staff name" required>
+                    <small class="form-help">Texas law requires two staff members for medication verification</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Dosage Given</label>
+                    <input id="admin-dosage-given" type="text" class="form-input" placeholder="e.g., 5 mL" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Time Administered</label>
+                    <input id="admin-time" type="time" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Notes (optional)</label>
+                    <textarea id="admin-notes" class="form-input" rows="3" placeholder="Any observations or notes..."></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('administer-medication')">Cancel</button>
+                    <button id="admin-medication-btn" type="submit" class="btn btn-primary">Record Administration</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Document Details Modal -->
+    <div id="document-details" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Document Details</h2>
+            </div>
+            <div id="document-details-content" style="padding: 20px 0;">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('document-details')">Close</button>
+                <button type="button" class="btn btn-primary" onclick="downloadDocumentFromDetails()">Download</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteDocument()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-confirm" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">⚠️ Confirm Deletion</h2>
+            </div>
+            <div style="padding: 20px 0;">
+                <p id="delete-confirm-message" style="font-size: 16px; color: var(--gray-800); margin-bottom: 20px;"></p>
+                <div style="background: #fee; padding: 16px; border-radius: 8px; border-left: 4px solid var(--danger);">
+                    <strong style="color: var(--danger);">Warning:</strong>
+                    <p style="margin-top: 8px; font-size: 14px; color: var(--gray-700);">This action cannot be undone. All associated data will be permanently deleted.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('delete-confirm')">Cancel</button>
+                <button id="confirm-delete-btn" type="button" class="btn btn-danger" onclick="executeDelete()">Yes, Delete Permanently</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Completion Modal -->
+    <div id="complete-training" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📚 Complete Training Module</h2>
+            </div>
+            <form id="training-completion-form" onsubmit="submitTrainingCompletion(event)">
+                <div style="padding: 0 20px 20px 20px;">
+                    <div style="background: var(--primary-50); padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary);">
+                        <h3 id="training-module-title" style="font-size: 16px; font-weight: 600; margin-bottom: 8px;"></h3>
+                        <p id="training-module-description" style="font-size: 14px; color: var(--gray-700);"></p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="training-staff-select">Select Staff Member *</label>
+                        <select id="training-staff-select" class="form-input" required>
+                            <option value="">-- Choose a staff member --</option>
+                        </select>
+                        <small class="form-hint">Select the staff member who completed this training module</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="training-completion-date">Completion Date *</label>
+                        <input id="training-completion-date" type="date" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="training-hours">Training Hours *</label>
+                        <input id="training-hours" type="number" class="form-input" min="0.5" max="24" step="0.5" placeholder="e.g., 2.5" required>
+                        <small class="form-hint">How many hours did this training take?</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="training-notes">Notes (optional)</label>
+                        <textarea id="training-notes" class="form-input" rows="3" placeholder="Additional notes about the training..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('complete-training')">Cancel</button>
+                    <button id="submit-training-btn" type="submit" class="btn btn-primary">Mark as Complete</button>
                 </div>
             </form>
         </div>
@@ -3514,11 +4328,280 @@
             if (loading) {
                 button.disabled = true;
                 button.dataset.originalText = button.textContent;
-                button.textContent = 'Loading...';
+                button.innerHTML = '<span class="spinner"></span> Loading...';
+                button.style.opacity = '0.7';
             } else {
                 button.disabled = false;
-                button.textContent = button.dataset.originalText || button.textContent;
+                button.innerHTML = button.dataset.originalText || button.textContent;
+                button.style.opacity = '1';
             }
+        }
+        
+        // =============================================
+        // SKELETON SCREEN UTILITIES
+        // =============================================
+        
+        function showTableSkeleton(tableSelector, rows = 5, columns = 6) {
+            const tbody = document.querySelector(`${tableSelector} tbody`);
+            if (!tbody) return;
+            
+            let skeletonHTML = '';
+            for (let i = 0; i < rows; i++) {
+                skeletonHTML += '<tr>';
+                for (let j = 0; j < columns; j++) {
+                    skeletonHTML += '<td><div class="skeleton skeleton-text"></div></td>';
+                }
+                skeletonHTML += '</tr>';
+            }
+            
+            tbody.innerHTML = skeletonHTML;
+        }
+        
+        function showCardSkeleton(cardSelector) {
+            const card = document.querySelector(cardSelector);
+            if (!card) return;
+            
+            const skeletonHTML = `
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-header"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton skeleton-text" style="width: 90%;"></div>
+                        <div class="skeleton skeleton-text" style="width: 75%;"></div>
+                        <div class="skeleton skeleton-text" style="width: 85%;"></div>
+                        <div class="skeleton skeleton-text" style="width: 60%;"></div>
+                    </div>
+                </div>
+            `;
+            
+            card.innerHTML = skeletonHTML;
+        }
+        
+        function showMetricsSkeleton(containerSelector) {
+            const container = document.querySelector(containerSelector);
+            if (!container) return;
+            
+            const skeletonHTML = `
+                <div class="skeleton-metric">
+                    <div class="skeleton skeleton-icon"></div>
+                    <div class="skeleton-value">
+                        <div class="skeleton skeleton-label"></div>
+                        <div class="skeleton skeleton-number"></div>
+                    </div>
+                </div>
+                <div class="skeleton-metric">
+                    <div class="skeleton skeleton-icon"></div>
+                    <div class="skeleton-value">
+                        <div class="skeleton skeleton-label"></div>
+                        <div class="skeleton skeleton-number"></div>
+                    </div>
+                </div>
+                <div class="skeleton-metric">
+                    <div class="skeleton skeleton-icon"></div>
+                    <div class="skeleton-value">
+                        <div class="skeleton skeleton-label"></div>
+                        <div class="skeleton skeleton-number"></div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = skeletonHTML;
+        }
+        
+        function showLoadingOverlay(containerSelector, message = 'Loading...') {
+            const container = document.querySelector(containerSelector);
+            if (!container) return;
+            
+            // Make container position relative if not already
+            const currentPosition = window.getComputedStyle(container).position;
+            if (currentPosition === 'static') {
+                container.style.position = 'relative';
+            }
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div style="text-align: center;">
+                    <div class="spinner spinner-large spinner-primary"></div>
+                    <p style="margin-top: 16px; font-size: 14px; color: var(--gray-700);">${message}</p>
+                </div>
+            `;
+            overlay.id = 'temp-loading-overlay';
+            
+            container.appendChild(overlay);
+        }
+        
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('temp-loading-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        // =============================================
+        // MOBILE MENU UTILITIES
+        // =============================================
+        
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            const hamburger = document.getElementById('hamburger');
+            
+            if (sidebar && overlay) {
+                const isOpen = sidebar.classList.contains('mobile-open');
+                
+                if (isOpen) {
+                    sidebar.classList.remove('mobile-open');
+                    overlay.classList.remove('active');
+                } else {
+                    sidebar.classList.add('mobile-open');
+                    overlay.classList.add('active');
+                }
+            }
+        }
+        
+        function closeMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            
+            if (sidebar && overlay) {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('active');
+            }
+        }
+        
+        // Close mobile menu when screen is clicked or link is selected
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show hamburger on mobile
+            const updateHamburgerVisibility = () => {
+                const hamburger = document.getElementById('hamburger');
+                if (hamburger) {
+                    hamburger.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+                }
+                
+                // Close menu if screen resized to desktop
+                if (window.innerWidth > 768) {
+                    closeMobileMenu();
+                }
+            };
+            
+            updateHamburgerVisibility();
+            window.addEventListener('resize', updateHamburgerVisibility);
+            
+            // Close menu when nav item clicked
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+        });
+
+        // =============================================
+        // TABLE SORTING UTILITY
+        // =============================================
+        
+        let currentSortColumn = null;
+        let currentSortDirection = 'asc';
+        
+        function makeSortable(tableSelector) {
+            const table = document.querySelector(tableSelector);
+            if (!table) return;
+            
+            const headers = table.querySelectorAll('thead th');
+            headers.forEach((header, index) => {
+                // Skip if header already has sorting
+                if (header.classList.contains('sortable')) return;
+                
+                header.classList.add('sortable');
+                header.style.cursor = 'pointer';
+                header.style.userSelect = 'none';
+                header.style.position = 'relative';
+                header.style.paddingRight = '24px';
+                
+                // Add sort indicator
+                const indicator = document.createElement('span');
+                indicator.className = 'sort-indicator';
+                indicator.innerHTML = '↕';
+                indicator.style.position = 'absolute';
+                indicator.style.right = '8px';
+                indicator.style.opacity = '0.3';
+                indicator.style.fontSize = '12px';
+                header.appendChild(indicator);
+                
+                header.addEventListener('click', () => sortTable(table, index, header));
+            });
+        }
+        
+        function sortTable(table, columnIndex, header) {
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Determine sort direction
+            const isCurrentColumn = currentSortColumn === columnIndex;
+            const direction = isCurrentColumn && currentSortDirection === 'asc' ? 'desc' : 'asc';
+            
+            // Clear all indicators
+            table.querySelectorAll('.sort-indicator').forEach(ind => {
+                ind.innerHTML = '↕';
+                ind.style.opacity = '0.3';
+            });
+            
+            // Update current sort
+            currentSortColumn = columnIndex;
+            currentSortDirection = direction;
+            
+            // Update indicator
+            const indicator = header.querySelector('.sort-indicator');
+            if (indicator) {
+                indicator.innerHTML = direction === 'asc' ? '↑' : '↓';
+                indicator.style.opacity = '1';
+                indicator.style.color = 'var(--primary)';
+            }
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                const cellA = a.cells[columnIndex];
+                const cellB = b.cells[columnIndex];
+                
+                if (!cellA || !cellB) return 0;
+                
+                // Get text content, strip HTML tags and badges
+                let aText = cellA.textContent.trim();
+                let bText = cellB.textContent.trim();
+                
+                // Try to parse as number
+                const aNum = parseFloat(aText.replace(/[^0-9.-]/g, ''));
+                const bNum = parseFloat(bText.replace(/[^0-9.-]/g, ''));
+                
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return direction === 'asc' ? aNum - bNum : bNum - aNum;
+                }
+                
+                // Try to parse as date
+                const aDate = new Date(aText);
+                const bDate = new Date(bText);
+                
+                if (aDate.toString() !== 'Invalid Date' && bDate.toString() !== 'Invalid Date') {
+                    return direction === 'asc' ? aDate - bDate : bDate - aDate;
+                }
+                
+                // String comparison
+                const comparison = aText.localeCompare(bText);
+                return direction === 'asc' ? comparison : -comparison;
+            });
+            
+            // Re-append rows in sorted order
+            rows.forEach(row => tbody.appendChild(row));
+            
+            // Add subtle animation
+            tbody.style.opacity = '0.7';
+            setTimeout(() => {
+                tbody.style.opacity = '1';
+            }, 100);
         }
 
         // =============================================
@@ -4155,8 +5238,171 @@
 
         // Upload Document Multi-Step Functions
         let currentUploadStep = 1;
+        let selectedFile = null;
+        
+        // Toggle expiration date field
+        function toggleExpirationDate() {
+            const checkbox = document.getElementById('upload-no-exp');
+            const expDateInput = document.getElementById('upload-exp-date');
+            
+            if (checkbox.checked) {
+                expDateInput.disabled = true;
+                expDateInput.value = '';
+                expDateInput.style.opacity = '0.5';
+                expDateInput.style.cursor = 'not-allowed';
+            } else {
+                expDateInput.disabled = false;
+                expDateInput.style.opacity = '1';
+                expDateInput.style.cursor = 'text';
+            }
+        }
+        
+        // File handling functions
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                validateAndShowFile(file);
+            }
+        }
+        
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropzone = document.getElementById('upload-dropzone');
+            dropzone.style.borderColor = 'var(--primary)';
+            dropzone.style.background = 'var(--gray-50)';
+        }
+        
+        function handleDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropzone = document.getElementById('upload-dropzone');
+            dropzone.style.borderColor = 'var(--gray-300)';
+            dropzone.style.background = 'transparent';
+        }
+        
+        function handleFileDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const dropzone = document.getElementById('upload-dropzone');
+            dropzone.style.borderColor = 'var(--gray-300)';
+            dropzone.style.background = 'transparent';
+            
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                validateAndShowFile(file);
+            }
+        }
+        
+        function validateAndShowFile(file) {
+            // Validate file type
+            const allowedTypes = [
+                'application/pdf',
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/msword'
+            ];
+            
+            const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png', '.docx', '.doc'];
+            const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            
+            if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+                showError('Invalid file type. Please upload PDF, JPG, PNG, or DOCX files only.');
+                return;
+            }
+            
+            // Validate file size (10MB max)
+            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (file.size > maxSize) {
+                showError('File size exceeds 10MB limit. Please choose a smaller file.');
+                return;
+            }
+            
+            // Store file and show preview
+            selectedFile = file;
+            showFilePreview(file);
+        }
+        
+        function showFilePreview(file) {
+            // Get file icon based on type
+            let icon = '📄';
+            if (file.type.includes('pdf')) icon = '📕';
+            else if (file.type.includes('image')) icon = '🖼️';
+            else if (file.type.includes('word')) icon = '📘';
+            
+            // Format file size
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+            const sizeDisplay = sizeInMB > 1 ? `${sizeInMB} MB` : `${(file.size / 1024).toFixed(0)} KB`;
+            
+            // Update preview UI
+            document.getElementById('file-icon').textContent = icon;
+            document.getElementById('file-name').textContent = file.name;
+            document.getElementById('file-size').textContent = sizeDisplay;
+            
+            // Show preview, hide dropzone
+            document.getElementById('upload-dropzone').style.display = 'none';
+            document.getElementById('upload-preview').style.display = 'block';
+            
+            console.log('File selected:', file.name, sizeDisplay);
+        }
+        
+        function removeSelectedFile() {
+            selectedFile = null;
+            document.getElementById('upload-file-input').value = '';
+            document.getElementById('upload-dropzone').style.display = 'block';
+            document.getElementById('upload-preview').style.display = 'none';
+            document.getElementById('upload-progress-container').style.display = 'none';
+            console.log('File removed');
+        }
 
         function nextUploadStep() {
+            // Validate current step before proceeding
+            if (currentUploadStep === 1) {
+                const docName = document.getElementById('upload-doc-name').value.trim();
+                const formNumber = document.getElementById('upload-form-number').value;
+                const category = document.getElementById('upload-category').value;
+                const violation = document.getElementById('upload-violation').value;
+                
+                if (!docName || !formNumber || !category || !violation) {
+                    showError('Please fill in all required fields before continuing');
+                    return;
+                }
+            } else if (currentUploadStep === 2) {
+                const issueDate = document.getElementById('upload-issue-date').value;
+                const noExp = document.getElementById('upload-no-exp').checked;
+                const expDate = document.getElementById('upload-exp-date').value;
+                const associated = document.getElementById('upload-associated').value;
+                const owner = document.getElementById('upload-owner').value.trim();
+                
+                if (!issueDate || !associated || !owner) {
+                    showError('Please fill in all required fields before continuing');
+                    return;
+                }
+                
+                if (!noExp && !expDate) {
+                    showError('Please select an expiration date or check "No expiration date"');
+                    return;
+                }
+                
+                // Validate dates
+                const issue = new Date(issueDate);
+                if (expDate) {
+                    const exp = new Date(expDate);
+                    if (exp <= issue) {
+                        showError('Expiration date must be after issue date');
+                        return;
+                    }
+                }
+            } else if (currentUploadStep === 3) {
+                if (!selectedFile) {
+                    showError('Please select a file to upload');
+                    return;
+                }
+            }
+            
             if (currentUploadStep < 4) {
                 document.getElementById('upload-step-' + currentUploadStep).style.display = 'none';
                 document.getElementById('step-indicator-' + currentUploadStep).style.background = 'var(--gray-200)';
@@ -4221,43 +5467,85 @@
         }
 
         async function saveDocument() {
+            // Validate facility and user
+            if (!AppState.facility || !AppState.facility.id) {
+                showError('Please log in first to upload documents');
+                return;
+            }
+            
+            if (!selectedFile) {
+                showError('No file selected');
+                return;
+            }
+            
+            const button = document.getElementById('upload-save-btn');
+            setLoading(button, true);
+            
             try {
-                const docName = document.getElementById('upload-doc-name')?.value;
-                const category = document.getElementById('upload-category')?.value;
+                // Collect form data
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('name', document.getElementById('upload-doc-name').value.trim());
+                formData.append('formNumber', document.getElementById('upload-form-number').value);
+                formData.append('category', document.getElementById('upload-category').value);
+                formData.append('violationWeight', document.getElementById('upload-violation').value);
+                formData.append('issueDate', document.getElementById('upload-issue-date').value);
+                formData.append('expirationDate', document.getElementById('upload-exp-date').value || null);
+                formData.append('associated', document.getElementById('upload-associated').value);
+                formData.append('owner', document.getElementById('upload-owner').value.trim());
+                formData.append('facilityId', AppState.facility.id);
+                formData.append('uploadedBy', AppState.user?.name || 'Unknown');
                 
-                if (!docName || !category) {
-                    showError('Please fill in document name and category');
-                    return;
-                }
+                console.log('Uploading document with form data');
                 
-                const documentData = {
-                    name: docName,
-                    category: category.toLowerCase(),
-                    fileName: `${docName.replace(/\s+/g, '_')}.pdf`,
-                    filePath: `/uploads/${AppState.facility.id}/${Date.now()}.pdf`,
-                    uploadedBy: AppState.user.name
-                };
+                // Show upload progress
+                document.getElementById('upload-progress-container').style.display = 'block';
+                simulateUploadProgress();
                 
-                await apiRequest(`/facilities/${AppState.facility.id}/documents/upload`, {
-                    method: 'POST',
-                    body: JSON.stringify(documentData)
-                });
+                // Upload using apiUpload (handles FormData)
+                const response = await apiUpload(`/facilities/${AppState.facility.id}/documents/upload`, formData);
                 
-                showSuccess('Document uploaded successfully');
+                console.log('Document uploaded successfully:', response);
+                showSuccess('✓ Document uploaded successfully!');
                 closeModal('upload-document');
                 resetUploadModal();
                 await loadDocuments(currentDocumentFilter);
             } catch (error) {
                 console.error('Failed to upload document:', error);
-                showError(error.message || 'Failed to upload document');
+                showError(error.message || 'Failed to upload document. Please try again.');
+            } finally {
+                setLoading(button, false);
             }
+        }
+        
+        function simulateUploadProgress() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                }
+                document.getElementById('upload-progress-bar').style.width = progress + '%';
+                document.getElementById('upload-percentage').textContent = Math.round(progress) + '%';
+            }, 200);
         }
 
         function resetUploadModal() {
             currentUploadStep = 1;
+            selectedFile = null;
+            
+            // Reset form
+            document.getElementById('upload-file-input').value = '';
+            document.getElementById('upload-dropzone').style.display = 'block';
+            document.getElementById('upload-preview').style.display = 'none';
+            document.getElementById('upload-progress-container').style.display = 'none';
+            
+            // Reset steps
             document.querySelectorAll('.upload-step').forEach(step => step.style.display = 'none');
             document.getElementById('upload-step-1').style.display = 'block';
             
+            // Reset step indicators
             for (let i = 1; i <= 4; i++) {
                 if (i === 1) {
                     document.getElementById('step-indicator-' + i).style.background = 'var(--primary)';
@@ -4268,6 +5556,7 @@
                 }
             }
             
+            // Reset buttons
             document.getElementById('upload-prev-btn').style.display = 'none';
             document.getElementById('upload-next-btn').style.display = 'inline-block';
             document.getElementById('upload-save-btn').style.display = 'none';
@@ -4329,72 +5618,405 @@
         };
         
         // STAFF MANAGEMENT
+        function toggleCertificationFields(type) {
+            const checkbox = document.getElementById(`staff-has-${type}`);
+            const fields = document.getElementById(`${type}-fields`);
+            
+            if (checkbox && fields) {
+                fields.style.display = checkbox.checked ? 'block' : 'none';
+                
+                // Clear fields if unchecked
+                if (!checkbox.checked) {
+                    const inputs = fields.querySelectorAll('input, select');
+                    inputs.forEach(input => {
+                        if (input.type !== 'checkbox') {
+                            input.value = '';
+                        }
+                    });
+                }
+            }
+        }
+        
         async function loadStaffList() {
             try {
+                // Show skeleton while loading
+                showTableSkeleton('#staff .table', 5, 10);
+                
                 const response = await apiRequest(`/facilities/${AppState.facility.id}/staff`);
                 const tbody = document.querySelector('#staff .data-table tbody');
                 if (!tbody) return;
                 
                 const staff = response.data || [];
-                tbody.innerHTML = staff.map(staff => `
+                tbody.innerHTML = staff.map(staff => {
+                    // Helper function to get certification badge with expiration
+                    const getCertBadge = (cert) => {
+                        if (!cert || !cert.expiresAt) return '<span class="badge badge-secondary">N/A</span>';
+                        const expDate = new Date(cert.expiresAt);
+                        const today = new Date();
+                        const daysUntilExpiry = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysUntilExpiry < 0) {
+                            return '<span class="badge badge-danger">Expired</span>';
+                        } else if (daysUntilExpiry <= 30) {
+                            return `<span class="badge" style="background: #fef3c7; color: #92400e;">Exp ${expDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>`;
+                        } else {
+                            return '<span class="badge badge-success">Valid</span>';
+                        }
+                    };
+                    
+                    return `
                     <tr>
                         <td><strong>${staff.name}</strong></td>
                         <td>${staff.role}</td>
-                        <td><span class="badge ${staff.certifications.cpr.valid ? 'badge-success' : 'badge-danger'}">${staff.certifications.cpr.valid ? 'Valid' : 'Expired'}</span></td>
-                        <td><span class="badge ${staff.certifications.firstAid.valid ? 'badge-success' : 'badge-danger'}">${staff.certifications.firstAid.valid ? 'Valid' : 'Expired'}</span></td>
-                        <td>${staff.certifications.backgroundCheck.status}</td>
+                        <td>${getCertBadge(staff.certifications?.cpr)}</td>
+                        <td>${getCertBadge(staff.certifications?.firstAid)}</td>
+                        <td>${getCertBadge(staff.certifications?.cda)}</td>
+                        <td>${getCertBadge(staff.certifications?.teachingCertificate)}</td>
+                        <td>${getCertBadge(staff.certifications?.foodHandler)}</td>
+                        <td><span class="badge ${staff.certifications?.backgroundCheck?.status === 'Clear' ? 'badge-success' : 'badge-warning'}">${staff.certifications?.backgroundCheck?.status || 'Pending'}</span></td>
                         <td>
                             <div class="progress-bar-sm">
                                 <div class="progress-fill" style="width: ${(staff.trainingHours.completed / staff.trainingHours.required * 100).toFixed(0)}%"></div>
                             </div>
                             <small>${staff.trainingHours.completed}/${staff.trainingHours.required} hours</small>
                         </td>
-                        <td><button class="btn btn-sm btn-secondary" onclick="viewStaffDetails('${staff.id}')">View Details</button></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="viewStaffDetails('${staff.id}')" style="margin-right: 4px;">View</button>
+                            <button class="btn btn-sm btn-primary" onclick="editStaffFromId('${staff.id}')" style="margin-right: 4px;">Edit</button>
+                        </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
+                
+                // Make table sortable
+                makeSortable('#staff .table');
             } catch (error) {
                 console.error('Failed to load staff:', error);
                 showError('Failed to load staff list');
+                // Clear skeleton on error
+                const tbody = document.querySelector('#staff .data-table tbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: var(--gray-600);">Failed to load staff. Please try again.</td></tr>';
+            }
+        }
+        
+        let currentStaffData = null;
+        
+        async function editStaffFromId(staffId) {
+            // Load staff data and open edit modal
+            try {
+                const response = await apiRequest(`/staff/${staffId}`);
+                currentStaffData = response.data || response;
+                editStaffFromDetails();
+            } catch (error) {
+                console.error('Failed to load staff for editing:', error);
+                showError('Failed to load staff details');
             }
         }
         
         async function viewStaffDetails(staffId) {
             try {
-                const staff = await apiRequest(`/staff/${staffId}`);
-                // TODO: Show staff details in a modal or detail view
-                showSuccess(`Viewing details for ${staff.name}`);
+                const response = await apiRequest(`/staff/${staffId}`);
+                currentStaffData = response.data || response;
+                
+                const staff = currentStaffData;
+                const hireDate = new Date(staff.hireDate).toLocaleDateString();
+                
+                // Build certifications section - Helper function
+                const renderCert = (name, cert) => {
+                    if (!cert || !cert.expiresAt) {
+                        return `
+                            <div style="padding: 12px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--gray-400);">
+                                <strong style="font-size: 14px;">${name}</strong>
+                                <div style="margin-top: 8px;">
+                                    <span class="badge badge-secondary">Not Set</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    const expDate = new Date(cert.expiresAt);
+                    const today = new Date();
+                    const daysUntilExpiry = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    let badge, color;
+                    if (daysUntilExpiry < 0) {
+                        badge = 'Expired';
+                        color = 'var(--danger)';
+                    } else if (daysUntilExpiry <= 30) {
+                        badge = `Exp ${expDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+                        color = 'var(--warning)';
+                    } else {
+                        badge = 'Valid';
+                        color = 'var(--success)';
+                    }
+                    
+                    return `
+                        <div style="padding: 12px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid ${color};">
+                            <strong style="font-size: 14px;">${name}</strong>
+                            <div style="margin-top: 8px;">
+                                <span class="badge" style="background: ${color}; color: white;">${badge}</span>
+                                <p style="font-size: 13px; color: var(--gray-700); margin-top: 4px;">Expires: ${expDate.toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    `;
+                };
+                
+                let certsHTML = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">';
+                
+                // Required Certifications
+                certsHTML += renderCert('CPR Certification', staff.certifications?.cpr);
+                certsHTML += renderCert('First Aid', staff.certifications?.firstAid);
+                
+                // Professional Certifications
+                certsHTML += renderCert('CDA Credential', staff.certifications?.cda);
+                certsHTML += renderCert('Teaching Certificate', staff.certifications?.teachingCertificate);
+                certsHTML += renderCert('Food Handler', staff.certifications?.foodHandler);
+                
+                // Background Check (special handling)
+                const bgStatus = staff.certifications?.backgroundCheck?.status || 'Pending';
+                const bgColor = bgStatus === 'Clear' ? 'var(--success)' : bgStatus === 'Pending' ? 'var(--warning)' : 'var(--danger)';
+                certsHTML += `
+                    <div style="padding: 12px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid ${bgColor};">
+                        <strong style="font-size: 14px;">Background Check</strong>
+                        <div style="margin-top: 8px;">
+                            <span class="badge" style="background: ${bgColor}; color: white;">${bgStatus}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // TB Screening (special handling)
+                const tbStatus = staff.certifications?.tuberculosisScreening?.status || 'Pending';
+                const tbColor = tbStatus === 'Complete' ? 'var(--success)' : 'var(--warning)';
+                certsHTML += `
+                    <div style="padding: 12px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid ${tbColor};">
+                        <strong style="font-size: 14px;">TB Screening</strong>
+                        <div style="margin-top: 8px;">
+                            <span class="badge" style="background: ${tbColor}; color: white;">${tbStatus}</span>
+                        </div>
+                    </div>
+                `;
+                certsHTML += '</div>';
+                
+                // Training hours
+                const trainingPercent = Math.round((staff.trainingHours.completed / staff.trainingHours.required) * 100);
+                
+                const content = `
+                    <div style="padding: 0 24px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Full Name</label>
+                                <p style="font-size: 16px; font-weight: 600; margin-top: 4px;">${staff.name}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Role</label>
+                                <p style="font-size: 16px; font-weight: 600; margin-top: 4px;">${staff.role}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Email</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${staff.email}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Hire Date</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${hireDate}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--gray-200); padding-top: 20px; margin-bottom: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📋 Certifications</h3>
+                            ${certsHTML}
+                        </div>
+                        
+                        <div style="border-top: 1px solid var(--gray-200); padding-top: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📚 Training Hours (${staff.trainingHours.year || new Date().getFullYear()})</h3>
+                            <div style="background: var(--gray-50); padding: 16px; border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span style="font-size: 14px; font-weight: 600;">Progress</span>
+                                    <span style="font-size: 14px; font-weight: 600;">${staff.trainingHours.completed}/${staff.trainingHours.required} hours (${trainingPercent}%)</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${trainingPercent}%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('staff-details-content').innerHTML = content;
+                openModal('staff-details');
             } catch (error) {
                 console.error('Failed to load staff details:', error);
                 showError('Failed to load staff details');
             }
         }
         
+        function editStaffFromDetails() {
+            if (!currentStaffData) return;
+            
+            document.getElementById('edit-staff-id').value = currentStaffData.id;
+            document.getElementById('edit-staff-name').value = currentStaffData.name;
+            document.getElementById('edit-staff-role').value = currentStaffData.role;
+            document.getElementById('edit-staff-email').value = currentStaffData.email;
+            
+            closeModal('staff-details');
+            openModal('edit-staff');
+        }
+        
+        async function updateStaff(event) {
+            event.preventDefault();
+            
+            const staffId = document.getElementById('edit-staff-id').value;
+            const button = document.getElementById('update-staff-btn');
+            setLoading(button, true);
+            
+            const updatedData = {
+                name: document.getElementById('edit-staff-name').value.trim(),
+                role: document.getElementById('edit-staff-role').value.trim(),
+                email: document.getElementById('edit-staff-email').value.trim()
+            };
+            
+            try {
+                await apiRequest(`/staff/${staffId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(updatedData)
+                });
+                
+                showSuccess('Staff member updated successfully!');
+                closeModal('edit-staff');
+                await loadStaffList();
+            } catch (error) {
+                console.error('Failed to update staff:', error);
+                showError('Failed to update staff member');
+            } finally {
+                setLoading(button, false);
+            }
+        }
+        
+        let deleteContext = null;
+        
+        function confirmDeleteStaff() {
+            if (!currentStaffData) return;
+            
+            deleteContext = {
+                type: 'staff',
+                id: currentStaffData.id,
+                name: currentStaffData.name
+            };
+            
+            document.getElementById('delete-confirm-message').textContent = 
+                `Are you sure you want to delete ${currentStaffData.name} from your staff?`;
+            
+            closeModal('staff-details');
+            openModal('delete-confirm');
+        }
+        
+        async function executeDelete() {
+            if (!deleteContext) return;
+            
+            const button = document.getElementById('confirm-delete-btn');
+            setLoading(button, true);
+            
+            try {
+                const endpoint = `/${deleteContext.type}/${deleteContext.id}`;
+                await apiRequest(endpoint, { method: 'DELETE' });
+                
+                showSuccess(`${deleteContext.type.charAt(0).toUpperCase() + deleteContext.type.slice(1)} deleted successfully!`);
+                closeModal('delete-confirm');
+                
+                // Reload appropriate list
+                if (deleteContext.type === 'staff') await loadStaffList();
+                else if (deleteContext.type === 'incidents') await loadIncidentList();
+                else if (deleteContext.type === 'medications') await loadMedicationList();
+                else if (deleteContext.type === 'documents') await loadDocuments();
+                
+                deleteContext = null;
+            } catch (error) {
+                console.error('Failed to delete:', error);
+                showError(`Failed to delete ${deleteContext.type}`);
+            } finally {
+                setLoading(button, false);
+            }
+        }
+        
         async function addStaff(event) {
             event.preventDefault();
+            
+            // Validate facility is loaded
+            if (!AppState.facility || !AppState.facility.id) {
+                showError('Please log in first to add staff members');
+                return;
+            }
             
             const button = document.getElementById('add-staff-btn');
             setLoading(button, true);
             
+            // Validate form fields
+            const name = document.getElementById('staff-name').value.trim();
+            const role = document.getElementById('staff-role').value.trim();
+            const email = document.getElementById('staff-email').value.trim();
+            const hireDate = document.getElementById('staff-hire-date').value;
+            
+            if (!name || !role || !email || !hireDate) {
+                showError('Please fill in all required fields');
+                setLoading(button, false);
+                return;
+            }
+            
             const staffData = {
-                name: document.getElementById('staff-name').value,
-                role: document.getElementById('staff-role').value,
-                email: document.getElementById('staff-email').value,
-                hireDate: document.getElementById('staff-hire-date').value
+                name,
+                role,
+                email,
+                hireDate,
+                certifications: {
+                    cda: {
+                        has: document.getElementById('staff-has-cda').checked,
+                        number: document.getElementById('staff-cda-number').value.trim(),
+                        expirationDate: document.getElementById('staff-cda-expiration').value
+                    },
+                    teachingCertificate: {
+                        has: document.getElementById('staff-has-teaching-cert').checked,
+                        number: document.getElementById('staff-teaching-number').value.trim(),
+                        type: document.getElementById('staff-teaching-type').value,
+                        expirationDate: document.getElementById('staff-teaching-expiration').value
+                    },
+                    foodHandler: {
+                        has: document.getElementById('staff-has-food-handler').checked,
+                        number: document.getElementById('staff-food-number').value.trim(),
+                        expirationDate: document.getElementById('staff-food-expiration').value
+                    },
+                    cprFirstAid: {
+                        has: document.getElementById('staff-has-cpr').checked,
+                        type: document.getElementById('staff-cpr-type').value,
+                        provider: document.getElementById('staff-cpr-provider').value.trim(),
+                        expirationDate: document.getElementById('staff-cpr-expiration').value
+                    }
+                }
             };
             
+            console.log('Adding staff with data:', staffData);
+            
             try {
-                await apiRequest(`/facilities/${AppState.facility.id}/staff`, {
+                const response = await apiRequest(`/facilities/${AppState.facility.id}/staff`, {
                     method: 'POST',
                     body: JSON.stringify(staffData)
                 });
                 
-                showSuccess('Staff member added successfully');
+                console.log('Staff added successfully:', response);
+                showSuccess('✓ Staff member added successfully!');
                 document.getElementById('add-staff-form').reset();
+                
+                // Reset certification checkboxes and hide fields
+                ['cda', 'teaching', 'food', 'cpr'].forEach(type => {
+                    const checkbox = document.getElementById(`staff-has-${type}`);
+                    const fields = document.getElementById(`${type}-fields`);
+                    if (checkbox) checkbox.checked = false;
+                    if (fields) fields.style.display = 'none';
+                });
+                
                 closeModal('add-staff');
                 await loadStaffList();
             } catch (error) {
                 console.error('Failed to add staff:', error);
-                showError(error.message || 'Failed to add staff member');
+                showError(error.message || 'Failed to add staff member. Please try again.');
             } finally {
                 setLoading(button, false);
             }
@@ -4405,6 +6027,9 @@
         
         async function loadIncidentList(filter = 'all') {
             try {
+                // Show skeleton while loading
+                showTableSkeleton('#incidents .table', 5, 7);
+                
                 currentIncidentFilter = filter;
                 let url = `/facilities/${AppState.facility.id}/incidents`;
                 if (filter && filter !== 'all') {
@@ -4432,65 +6057,279 @@
                         </tr>
                     `;
                 }).join('');
+                
+                // Make table sortable
+                makeSortable('#incidents .table');
             } catch (error) {
                 console.error('Failed to load incidents:', error);
                 showError('Failed to load incident list');
+                const tbody = document.querySelector('#incidents .data-table tbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-600);">Failed to load incidents. Please try again.</td></tr>';
             }
         }
         
+        let currentIncidentData = null;
+        
         async function viewIncidentDetails(incidentId) {
             try {
-                const incident = await apiRequest(`/incidents/${incidentId}`);
-                showSuccess(`Viewing incident for ${incident.childInfo.name}`);
+                const response = await apiRequest(`/incidents/${incidentId}`);
+                currentIncidentData = response.data || response;
+                
+                const incident = currentIncidentData;
+                const dateTime = new Date(incident.dateTime);
+                const formattedDate = dateTime.toLocaleDateString();
+                const formattedTime = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                const severityColor = incident.severity === 'critical' ? 'var(--danger)' : 
+                                     incident.severity === 'moderate' ? 'var(--warning)' : 'var(--info)';
+                
+                const content = `
+                    <div style="padding: 0 24px;">
+                        <!-- Header Info -->
+                        <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(251, 146, 60, 0.1)); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">${incident.childInfo.name}</h3>
+                                    <p style="font-size: 14px; color: var(--gray-700);">${formattedDate} at ${formattedTime}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="badge ${incident.type === 'injury' ? 'badge-danger' : incident.type === 'illness' ? 'badge-warning' : 'badge-info'}" style="font-size: 14px; padding: 6px 12px;">
+                                        ${incident.type.charAt(0).toUpperCase() + incident.type.slice(1)}
+                                    </span>
+                                    <br>
+                                    <span class="badge badge-secondary" style="font-size: 13px; padding: 4px 10px; margin-top: 6px; display: inline-block;">
+                                        ${incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)} Severity
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Incident Details -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Location</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${incident.location || '—'}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Reported By</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${incident.reportedBy || '—'}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Description</label>
+                            <p style="font-size: 15px; line-height: 1.6; margin-top: 8px; padding: 12px; background: var(--gray-50); border-radius: 8px;">${incident.description}</p>
+                        </div>
+                        
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Immediate Action Taken</label>
+                            <p style="font-size: 15px; line-height: 1.6; margin-top: 8px; padding: 12px; background: var(--gray-50); border-radius: 8px;">${incident.immediateActions || 'None specified'}</p>
+                        </div>
+                        
+                        <!-- Parent Notification -->
+                        <div style="border-top: 1px solid var(--gray-200); padding-top: 20px; margin-bottom: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">👥 Parent Notification</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                <div style="padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <strong style="font-size: 14px;">Parent Notified</strong>
+                                    <div style="margin-top: 8px;">
+                                        <span class="badge ${incident.parentNotified ? 'badge-success' : 'badge-warning'}">
+                                            ${incident.parentNotified ? 'Yes' : 'Pending'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <strong style="font-size: 14px;">Parent Signature</strong>
+                                    <div style="margin-top: 8px;">
+                                        <span class="badge ${incident.parentSignature ? 'badge-success' : 'badge-warning'}">
+                                            ${incident.parentSignature ? 'Signed' : 'Pending'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${incident.photos && incident.photos.length > 0 ? `
+                        <div style="border-top: 1px solid var(--gray-200); padding-top: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📷 Photos</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;">
+                                ${incident.photos.map(photo => `<img src="${photo}" style="width: 100%; border-radius: 8px; cursor: pointer;" onclick="window.open('${photo}', '_blank')">`).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                document.getElementById('incident-details-content').innerHTML = content;
+                openModal('incident-details');
             } catch (error) {
                 console.error('Failed to load incident:', error);
                 showError('Failed to load incident details');
             }
         }
         
+        function printIncidentReport() {
+            if (!currentIncidentData) return;
+            
+            // Create printable version
+            const printWindow = window.open('', '_blank');
+            const dateTime = new Date(currentIncidentData.dateTime);
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Incident Report - ${currentIncidentData.childInfo.name}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 40px; }
+                            h1 { color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
+                            .section { margin: 20px 0; }
+                            .label { font-weight: 600; color: #6b7280; text-transform: uppercase; font-size: 12px; }
+                            .value { font-size: 16px; margin-top: 4px; }
+                            .signature-line { border-top: 1px solid #000; width: 300px; margin-top: 40px; padding-top: 8px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Incident Report</h1>
+                        <div class="section">
+                            <div class="label">Child Name</div>
+                            <div class="value">${currentIncidentData.childInfo.name}</div>
+                        </div>
+                        <div class="section">
+                            <div class="label">Date & Time</div>
+                            <div class="value">${dateTime.toLocaleString()}</div>
+                        </div>
+                        <div class="section">
+                            <div class="label">Type</div>
+                            <div class="value">${currentIncidentData.type}</div>
+                        </div>
+                        <div class="section">
+                            <div class="label">Description</div>
+                            <div class="value">${currentIncidentData.description}</div>
+                        </div>
+                        <div class="section">
+                            <div class="label">Immediate Action Taken</div>
+                            <div class="value">${currentIncidentData.immediateActions || 'None'}</div>
+                        </div>
+                        <div class="section">
+                            <div class="label">Reported By</div>
+                            <div class="value">${currentIncidentData.reportedBy}</div>
+                        </div>
+                        <div class="signature-line">
+                            Parent/Guardian Signature
+                        </div>
+                        <div class="signature-line">
+                            Date
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        function confirmDeleteIncident() {
+            if (!currentIncidentData) return;
+            
+            deleteContext = {
+                type: 'incidents',
+                id: currentIncidentData.id,
+                name: `incident for ${currentIncidentData.childInfo.name}`
+            };
+            
+            document.getElementById('delete-confirm-message').textContent = 
+                `Are you sure you want to delete this incident report for ${currentIncidentData.childInfo.name}?`;
+            
+            closeModal('incident-details');
+            openModal('delete-confirm');
+        }
+        
         async function createIncident(event) {
             event.preventDefault();
+            
+            // Validate facility is loaded
+            if (!AppState.facility || !AppState.facility.id) {
+                showError('Please log in first to log incidents');
+                return;
+            }
             
             const button = document.getElementById('new-incident-btn');
             setLoading(button, true);
             
+            // Validate and gather form data
             const date = document.getElementById('incident-date').value;
             const time = document.getElementById('incident-time').value;
+            const type = document.getElementById('incident-type').value;
+            const childName = document.getElementById('incident-child-name').value.trim();
+            const location = document.getElementById('incident-location').value.trim();
+            const description = document.getElementById('incident-description').value.trim();
+            const action = document.getElementById('incident-action').value.trim();
+            const staff = document.getElementById('incident-staff').value.trim();
+            const notifyParent = document.getElementById('incident-notify-parent').checked;
+            
+            // Validation
+            if (!date || !time) {
+                showError('Please specify date and time of incident');
+                setLoading(button, false);
+                return;
+            }
+            
+            if (!childName || !description || !staff) {
+                showError('Please fill in all required fields');
+                setLoading(button, false);
+                return;
+            }
+            
             const dateTime = new Date(`${date}T${time}`).toISOString();
             
             const incidentData = {
-                type: document.getElementById('incident-type').value,
+                type,
                 severity: 'moderate',
                 childInfo: {
-                    name: document.getElementById('incident-child-name').value
+                    name: childName
                 },
-                location: document.getElementById('incident-location').value,
-                description: document.getElementById('incident-description').value,
-                immediateActions: document.getElementById('incident-action').value,
-                reportedBy: document.getElementById('incident-staff').value,
+                location,
+                description,
+                immediateActions: action,
+                reportedBy: staff,
                 dateTime,
-                parentNotified: document.getElementById('incident-notify-parent').checked
+                parentNotified: notifyParent
             };
             
+            console.log('Creating incident with data:', incidentData);
+            
             try {
-                await apiRequest(`/facilities/${AppState.facility.id}/incidents`, {
+                const response = await apiRequest(`/facilities/${AppState.facility.id}/incidents`, {
                     method: 'POST',
                     body: JSON.stringify(incidentData)
                 });
                 
-                showSuccess('Incident logged successfully');
+                console.log('Incident created successfully:', response);
+                showSuccess('✓ Incident logged successfully!');
                 document.getElementById('new-incident-form').reset();
                 closeModal('new-incident');
                 await loadIncidentList(currentIncidentFilter);
             } catch (error) {
                 console.error('Failed to create incident:', error);
-                showError(error.message || 'Failed to log incident');
+                showError(error.message || 'Failed to log incident. Please try again.');
             } finally {
                 setLoading(button, false);
             }
         }
         
         function filterIncidents(type) {
+            console.log('Filtering incidents by type:', type);
+            
+            // Update active tab styling
+            const tabs = document.querySelectorAll('#incidents .tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(type) || 
+                    (type === 'all' && tab.textContent.toLowerCase().includes('all'))) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Load filtered incidents
             loadIncidentList(type.toLowerCase());
         }
         
@@ -4500,6 +6339,9 @@
         
         async function loadMedicationList(filter = 'active') {
             try {
+                // Show skeleton while loading
+                showTableSkeleton('#medication .table', 5, 7);
+                
                 currentMedicationFilter = filter;
                 const response = await apiRequest(`/facilities/${AppState.facility.id}/medications`);
                 allMedications = response.data || [];
@@ -4529,67 +6371,356 @@
                             <td>${med.schedule}</td>
                             <td>${endDate.toLocaleDateString()}</td>
                             <td><span class="badge ${med.status === 'active' ? 'badge-success' : 'badge-secondary'}">${med.status.charAt(0).toUpperCase() + med.status.slice(1)}</span></td>
-                            <td><button class="btn btn-sm btn-primary" onclick="administerMedication('${med.id}')">Administer</button></td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="viewMedicationDetails('${med.id}')" style="margin-right: 4px;">View</button>
+                                <button class="btn btn-sm btn-primary" onclick="administerMedication('${med.id}')">Administer</button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
+                
+                // Make table sortable
+                makeSortable('#medication .table');
             } catch (error) {
                 console.error('Failed to load medications:', error);
                 showError('Failed to load medication list');
+                const tbody = document.querySelector('#medication .data-table tbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-600);">Failed to load medications. Please try again.</td></tr>';
             }
         }
         
         function filterMedications(filter) {
+            console.log('Filtering medications by:', filter);
+            
+            // Update active tab styling
+            const tabs = document.querySelectorAll('#medication .tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                const tabText = tab.textContent.toLowerCase();
+                if ((filter === 'active' && tabText.includes('active')) ||
+                    (filter === 'today' && tabText.includes('today')) ||
+                    (filter === 'expired' && tabText.includes('expired')) ||
+                    (filter === 'allergies' && tabText.includes('allergies'))) {
+                    tab.classList.add('active');
+                }
+            });
+            
             loadMedicationList(filter);
         }
         
+        let currentMedicationData = null;
+        
         async function administerMedication(medicationId) {
             try {
-                // TODO: Show administration form with dual-staff verification
-                showSuccess('Medication administration form - Coming soon');
+                const response = await apiRequest(`/medications/${medicationId}`);
+                currentMedicationData = response.data || response;
+                
+                const med = currentMedicationData;
+                const now = new Date();
+                const currentTime = now.toTimeString().slice(0, 5);
+                
+                // Populate medication info in the modal
+                document.getElementById('admin-med-id').value = medicationId;
+                document.getElementById('admin-dosage-given').value = med.dosage;
+                document.getElementById('admin-time').value = currentTime;
+                
+                const medInfo = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="font-size: 12px; color: var(--gray-600);">Child</label>
+                            <p style="font-size: 15px; font-weight: 600; margin-top: 4px;">${med.childInfo.name}</p>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--gray-600);">Medication</label>
+                            <p style="font-size: 15px; font-weight: 600; margin-top: 4px;">${med.medicationName}</p>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--gray-600);">Prescribed Dosage</label>
+                            <p style="font-size: 15px; margin-top: 4px;">${med.dosage}</p>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--gray-600);">Schedule</label>
+                            <p style="font-size: 15px; margin-top: 4px;">${med.schedule}</p>
+                        </div>
+                    </div>
+                    ${med.instructions ? `
+                        <div style="margin-top: 12px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                            <strong style="font-size: 13px;">Special Instructions:</strong>
+                            <p style="font-size: 13px; margin-top: 4px;">${med.instructions}</p>
+                        </div>
+                    ` : ''}
+                `;
+                
+                document.getElementById('admin-med-info').innerHTML = medInfo;
+                openModal('administer-medication');
+                
+                // Clear previous entries
+                document.getElementById('admin-by-staff1').value = '';
+                document.getElementById('admin-by-staff2').value = '';
+                document.getElementById('admin-notes').value = '';
             } catch (error) {
-                console.error('Failed to administer medication:', error);
-                showError('Failed to record medication administration');
+                console.error('Failed to load medication:', error);
+                showError('Failed to load medication details');
             }
+        }
+        
+        async function recordMedicationAdministration(event) {
+            event.preventDefault();
+            
+            const medicationId = document.getElementById('admin-med-id').value;
+            const button = document.getElementById('admin-medication-btn');
+            setLoading(button, true);
+            
+            const administeredBy = document.getElementById('admin-by-staff1').value.trim();
+            const verifiedBy = document.getElementById('admin-by-staff2').value.trim();
+            const dosageGiven = document.getElementById('admin-dosage-given').value.trim();
+            const timeGiven = document.getElementById('admin-time').value;
+            const notes = document.getElementById('admin-notes').value.trim();
+            
+            // Validation
+            if (!administeredBy || !verifiedBy) {
+                showError('Both staff members must be specified for dual verification');
+                setLoading(button, false);
+                return;
+            }
+            
+            if (administeredBy.toLowerCase() === verifiedBy.toLowerCase()) {
+                showError('Two different staff members are required for verification');
+                setLoading(button, false);
+                return;
+            }
+            
+            const administrationData = {
+                administeredBy,
+                verifiedBy,
+                dosageGiven,
+                administeredAt: new Date(`${new Date().toISOString().split('T')[0]}T${timeGiven}`).toISOString(),
+                notes
+            };
+            
+            try {
+                await apiRequest(`/medications/${medicationId}/administer`, {
+                    method: 'POST',
+                    body: JSON.stringify(administrationData)
+                });
+                
+                showSuccess('Medication administration recorded successfully!');
+                closeModal('administer-medication');
+                await loadMedicationList(currentMedicationFilter);
+            } catch (error) {
+                console.error('Failed to record medication:', error);
+                showError('Failed to record medication administration');
+            } finally {
+                setLoading(button, false);
+            }
+        }
+        
+        async function viewMedicationDetails(medicationId) {
+            try {
+                const response = await apiRequest(`/medications/${medicationId}`);
+                currentMedicationData = response.data || response;
+                
+                const med = currentMedicationData;
+                const startDate = new Date(med.startDate).toLocaleDateString();
+                const endDate = new Date(med.endDate).toLocaleDateString();
+                
+                let administrationLogHTML = '';
+                if (med.administrationLog && med.administrationLog.length > 0) {
+                    administrationLogHTML = `
+                        <div style="border-top: 1px solid var(--gray-200); padding-top: 20px; margin-top: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📋 Administration Log</h3>
+                            <div style="max-height: 250px; overflow-y: auto;">
+                                ${med.administrationLog.slice(0, 10).map(log => {
+                                    const logDate = new Date(log.administeredAt);
+                                    return `
+                                        <div style="padding: 12px; background: var(--gray-50); border-radius: 8px; margin-bottom: 8px;">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                                <strong style="font-size: 14px;">${logDate.toLocaleDateString()} ${logDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
+                                                <span style="font-size: 14px; color: var(--gray-700);">${log.dosageGiven}</span>
+                                            </div>
+                                            <div style="font-size: 13px; color: var(--gray-700);">
+                                                <div>👨‍⚕️ Administered by: ${log.administeredBy}</div>
+                                                <div>✓ Verified by: ${log.verifiedBy}</div>
+                                                ${log.notes ? `<div style="margin-top: 4px; font-style: italic;">Note: ${log.notes}</div>` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                const content = `
+                    <div style="padding: 0 24px;">
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1)); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">${med.medicationName}</h3>
+                            <p style="font-size: 14px; color: var(--gray-700);">For: ${med.childInfo.name}</p>
+                        </div>
+                        
+                        <!-- Details Grid -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Dosage</label>
+                                <p style="font-size: 16px; font-weight: 600; margin-top: 4px;">${med.dosage}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Schedule</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${med.schedule}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Start Date</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${startDate}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">End Date</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${endDate}</p>
+                            </div>
+                        </div>
+                        
+                        ${med.instructions ? `
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Special Instructions</label>
+                            <p style="font-size: 15px; line-height: 1.6; margin-top: 8px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">${med.instructions}</p>
+                        </div>
+                        ` : ''}
+                        
+                        <!-- Authorization Status -->
+                        <div style="margin-bottom: 24px;">
+                            <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Authorization Status</label>
+                            <div style="margin-top: 8px; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                <span class="badge ${med.status === 'active' ? 'badge-success' : 'badge-secondary'}">
+                                    ${med.status.charAt(0).toUpperCase() + med.status.slice(1)}
+                                </span>
+                                ${med.parentAuthorization ? `
+                                    <div style="margin-top: 8px; font-size: 13px; color: var(--gray-700);">
+                                        ✓ Parent authorization received
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        ${administrationLogHTML}
+                    </div>
+                `;
+                
+                document.getElementById('medication-details-content').innerHTML = content;
+                openModal('medication-details');
+            } catch (error) {
+                console.error('Failed to load medication details:', error);
+                showError('Failed to load medication details');
+            }
+        }
+        
+        function administerFromDetails() {
+            if (!currentMedicationData) return;
+            closeModal('medication-details');
+            administerMedication(currentMedicationData.id);
+        }
+        
+        function confirmDeleteMedication() {
+            if (!currentMedicationData) return;
+            
+            deleteContext = {
+                type: 'medications',
+                id: currentMedicationData.id,
+                name: `${currentMedicationData.medicationName} for ${currentMedicationData.childInfo.name}`
+            };
+            
+            document.getElementById('delete-confirm-message').textContent = 
+                `Are you sure you want to delete the medication authorization for ${currentMedicationData.medicationName}?`;
+            
+            closeModal('medication-details');
+            openModal('delete-confirm');
         }
         
         async function addMedication(event) {
             event.preventDefault();
             
+            // Validate facility is loaded
+            if (!AppState.facility || !AppState.facility.id) {
+                showError('Please log in first to add medication authorizations');
+                return;
+            }
+            
             const button = document.getElementById('add-medication-btn');
             setLoading(button, true);
             
+            // Gather and validate form data
+            const childName = document.getElementById('med-child-name').value.trim();
+            const medicationName = document.getElementById('med-name').value.trim();
+            const dosage = document.getElementById('med-dosage').value.trim();
+            const schedule = document.getElementById('med-schedule').value.trim();
+            const startDate = document.getElementById('med-start-date').value;
+            const endDate = document.getElementById('med-end-date').value;
+            const instructions = document.getElementById('med-instructions').value.trim();
+            
+            // Validation
+            if (!childName || !medicationName || !dosage || !schedule) {
+                showError('Please fill in all required fields');
+                setLoading(button, false);
+                return;
+            }
+            
+            if (!startDate || !endDate) {
+                showError('Please specify start and end dates');
+                setLoading(button, false);
+                return;
+            }
+            
+            // Validate date range
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            if (end <= start) {
+                showError('End date must be after start date');
+                setLoading(button, false);
+                return;
+            }
+            
+            // Check if end date is more than 1 year (Texas requirement)
+            const oneYearFromStart = new Date(start);
+            oneYearFromStart.setFullYear(oneYearFromStart.getFullYear() + 1);
+            if (end > oneYearFromStart) {
+                showError('Medication authorization cannot exceed 1 year per Texas §746.2653');
+                setLoading(button, false);
+                return;
+            }
+            
             const medicationData = {
                 childInfo: {
-                    name: document.getElementById('med-child-name').value
+                    name: childName
                 },
-                medicationName: document.getElementById('med-name').value,
-                dosage: document.getElementById('med-dosage').value,
+                medicationName,
+                dosage,
                 route: 'oral',
-                schedule: document.getElementById('med-schedule').value,
-                startDate: document.getElementById('med-start-date').value,
-                endDate: document.getElementById('med-end-date').value,
-                prescribedBy: 'Dr. TBD',
+                schedule,
+                startDate,
+                endDate,
+                prescribedBy: 'Dr. TBD', // TODO: Add doctor field to form
                 parentAuthorization: {
                     signedBy: 'Parent',
                     signedAt: new Date().toISOString()
                 },
-                specialInstructions: document.getElementById('med-instructions').value || ''
+                specialInstructions: instructions
             };
             
+            console.log('Adding medication with data:', medicationData);
+            
             try {
-                await apiRequest(`/facilities/${AppState.facility.id}/medications`, {
+                const response = await apiRequest(`/facilities/${AppState.facility.id}/medications`, {
                     method: 'POST',
                     body: JSON.stringify(medicationData)
                 });
                 
-                showSuccess('Medication authorization added successfully');
+                console.log('Medication added successfully:', response);
+                showSuccess('✓ Medication authorization added successfully!');
                 document.getElementById('add-medication-form').reset();
                 closeModal('add-medication');
                 await loadMedicationList(currentMedicationFilter);
             } catch (error) {
                 console.error('Failed to add medication:', error);
-                showError(error.message || 'Failed to add medication authorization');
+                showError(error.message || 'Failed to add medication authorization. Please try again.');
             } finally {
                 setLoading(button, false);
             }
@@ -4719,17 +6850,84 @@
             }
         }
         
+        let currentTrainingModuleId = null;
+        
         async function completeTraining(moduleId) {
             try {
-                await apiRequest(`/training/${moduleId}/complete`, {
-                    method: 'POST',
-                    body: JSON.stringify({ staffId: AppState.user.id })
+                // Store the module ID
+                currentTrainingModuleId = moduleId;
+                
+                // Load staff list for the dropdown
+                const response = await apiRequest(`/facilities/${AppState.facility.id}/staff`);
+                const staffList = response.data || [];
+                
+                const select = document.getElementById('training-staff-select');
+                select.innerHTML = '<option value="">-- Choose a staff member --</option>';
+                staffList.forEach(staff => {
+                    select.innerHTML += `<option value="${staff.id}">${staff.name} - ${staff.role}</option>`;
                 });
-                showSuccess('Training module marked as complete');
+                
+                // Load module details to show in the modal
+                const moduleResponse = await apiRequest(`/training/${moduleId}`);
+                const module = moduleResponse.data || moduleResponse;
+                
+                document.getElementById('training-module-title').textContent = module.title || 'Training Module';
+                document.getElementById('training-module-description').textContent = module.description || '';
+                
+                // Set default date to today
+                document.getElementById('training-completion-date').valueAsDate = new Date();
+                
+                // Clear previous values
+                document.getElementById('training-hours').value = '';
+                document.getElementById('training-notes').value = '';
+                
+                // Open the modal
+                openModal('complete-training');
+            } catch (error) {
+                console.error('Failed to open training completion form:', error);
+                showError('Failed to load training details');
+            }
+        }
+        
+        async function submitTrainingCompletion(event) {
+            event.preventDefault();
+            
+            const staffId = document.getElementById('training-staff-select').value;
+            const completionDate = document.getElementById('training-completion-date').value;
+            const hours = parseFloat(document.getElementById('training-hours').value);
+            const notes = document.getElementById('training-notes').value;
+            
+            if (!staffId || !completionDate || !hours) {
+                showError('Please fill in all required fields');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-training-btn');
+            const originalText = submitBtn.textContent;
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner spinner-small"></span> Submitting...';
+                
+                await apiRequest(`/training/${currentTrainingModuleId}/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        staffId,
+                        completionDate,
+                        hours,
+                        notes
+                    })
+                });
+                
+                showSuccess('Training completion recorded successfully');
+                closeModal('complete-training');
                 await loadTrainingModules();
             } catch (error) {
-                console.error('Failed to complete training:', error);
-                showError('Failed to complete training');
+                console.error('Failed to record training completion:', error);
+                showError('Failed to record training completion');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
             }
         }
         
@@ -4739,6 +6937,9 @@
         
         async function loadDocuments(filter = 'all') {
             try {
+                // Show skeleton while loading
+                showTableSkeleton('#documents .table', 5, 6);
+                
                 currentDocumentFilter = filter;
                 const response = await apiRequest(`/facilities/${AppState.facility.id}/documents`);
                 allDocuments = response.data || [];
@@ -4764,18 +6965,210 @@
                             <td>${doc.category}</td>
                             <td>${expDate ? expDate.toLocaleDateString() : 'No expiration'}</td>
                             <td><span class="badge ${statusClass}">${doc.status || 'Current'}</span></td>
-                            <td><button class="btn btn-sm btn-secondary" onclick="downloadDocument('${doc.id}')">Download</button></td>
+                            <td>
+                                <button class="btn btn-sm btn-secondary" onclick="viewDocument('${doc.id}')" style="margin-right: 4px;">View</button>
+                                <button class="btn btn-sm btn-primary" onclick="downloadDocument('${doc.id}')">Download</button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
+                
+                // Make table sortable
+                makeSortable('#documents .table');
             } catch (error) {
                 console.error('Failed to load documents:', error);
                 showError('Failed to load documents');
+                const tbody = document.querySelector('#documents .data-table tbody');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--gray-600);">Failed to load documents. Please try again.</td></tr>';
             }
         }
         
         function filterDocuments(category) {
+            console.log('Filtering documents by category:', category);
+            
+            // Update active tab styling
+            const tabs = document.querySelectorAll('#documents .tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(category) || 
+                    (category === 'all' && tab.textContent.toLowerCase().includes('all'))) {
+                    tab.classList.add('active');
+                }
+            });
+            
             loadDocuments(category);
+        }
+        
+        function searchDocuments() {
+            const searchTerm = document.getElementById('document-search').value.toLowerCase();
+            console.log('Searching documents for:', searchTerm);
+            
+            const tbody = document.querySelector('#documents .data-table tbody');
+            if (!tbody) return;
+            
+            let filteredDocs = allDocuments;
+            
+            // Apply category filter
+            if (currentDocumentFilter && currentDocumentFilter !== 'all') {
+                filteredDocs = filteredDocs.filter(doc => 
+                    doc.category.toLowerCase().replace(/\s+/g, '-') === currentDocumentFilter.toLowerCase()
+                );
+            }
+            
+            // Apply search filter
+            if (searchTerm) {
+                filteredDocs = filteredDocs.filter(doc => 
+                    doc.name.toLowerCase().includes(searchTerm) ||
+                    doc.category.toLowerCase().includes(searchTerm) ||
+                    (doc.owner && doc.owner.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Re-render table
+            tbody.innerHTML = filteredDocs.map(doc => {
+                const expDate = doc.expirationDate ? new Date(doc.expirationDate) : null;
+                const statusClass = doc.status === 'Current' ? 'badge-success' : 
+                                   doc.status === 'Expiring Soon' ? 'badge-warning' : 'badge-danger';
+                return `
+                    <tr>
+                        <td><strong>${doc.name}</strong></td>
+                        <td>${doc.category}</td>
+                        <td>${doc.owner || '—'}</td>
+                        <td>${expDate ? expDate.toLocaleDateString() : 'No expiration'}</td>
+                        <td><span class="badge ${statusClass}">${doc.status || 'Current'}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="viewDocument('${doc.id}')" style="margin-right: 4px;">View</button>
+                            <button class="btn btn-sm btn-primary" onclick="downloadDocument('${doc.id}')">Download</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            if (filteredDocs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--gray-500);">No documents found matching your search</td></tr>';
+            }
+        }
+        
+        let currentDocumentData = null;
+        
+        async function viewDocument(docId) {
+            try {
+                const response = await apiRequest(`/documents/${docId}`);
+                currentDocumentData = response.data || response;
+                
+                const doc = currentDocumentData;
+                const uploadedDate = new Date(doc.uploadedAt).toLocaleDateString();
+                const expDate = doc.expirationDate ? new Date(doc.expirationDate).toLocaleDateString() : 'No expiration';
+                const issueDate = doc.issueDate ? new Date(doc.issueDate).toLocaleDateString() : '—';
+                
+                const statusColor = doc.status === 'Current' ? 'var(--success)' : 
+                                   doc.status === 'Expiring Soon' ? 'var(--warning)' : 'var(--danger)';
+                
+                const content = `
+                    <div style="padding: 0 24px;">
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">${doc.name}</h3>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span class="badge badge-secondary">${doc.category}</span>
+                                ${doc.formNumber ? `<span class="badge badge-info">Form ${doc.formNumber}</span>` : ''}
+                                <span class="badge ${doc.status === 'Current' ? 'badge-success' : doc.status === 'Expiring Soon' ? 'badge-warning' : 'badge-danger'}">
+                                    ${doc.status || 'Current'}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Document Details Grid -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+                            ${doc.owner ? `
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Owner/Associated With</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${doc.owner}</p>
+                            </div>
+                            ` : ''}
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Uploaded By</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${doc.uploadedBy || '—'}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Upload Date</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${uploadedDate}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Issue Date</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${issueDate}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Expiration Date</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${expDate}</p>
+                            </div>
+                            <div>
+                                <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">File Type</label>
+                                <p style="font-size: 16px; margin-top: 4px;">${doc.fileType || 'PDF'}</p>
+                            </div>
+                        </div>
+                        
+                        ${doc.violation ? `
+                        <div style="margin-bottom: 24px; padding: 12px; background: #fee; border-left: 4px solid var(--danger); border-radius: 4px;">
+                            <strong style="font-size: 13px; color: var(--danger);">Related Violation:</strong>
+                            <p style="font-size: 14px; margin-top: 4px; color: var(--gray-800);">${doc.violation}</p>
+                        </div>
+                        ` : ''}
+                        
+                        <!-- File Preview (if available) -->
+                        <div style="border-top: 1px solid var(--gray-200); padding-top: 20px;">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📄 Document Preview</h3>
+                            ${doc.fileType && doc.fileType.toLowerCase().includes('pdf') ? `
+                                <div style="background: var(--gray-100); padding: 40px; text-align: center; border-radius: 8px;">
+                                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.4; margin-bottom: 12px;">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="9" y1="15" x2="15" y2="15"/>
+                                        <line x1="9" y1="11" x2="13" y2="11"/>
+                                    </svg>
+                                    <p style="font-size: 14px; color: var(--gray-600);">PDF Document - Click download to view</p>
+                                </div>
+                            ` : `
+                                <div style="background: var(--gray-100); padding: 40px; text-align: center; border-radius: 8px;">
+                                    <p style="font-size: 14px; color: var(--gray-600);">Preview not available - Click download to view file</p>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('document-details-content').innerHTML = content;
+                openModal('document-details');
+            } catch (error) {
+                console.error('Failed to load document details:', error);
+                showError('Failed to load document details');
+            }
+        }
+        
+        function downloadDocumentFromDetails() {
+            if (!currentDocumentData) return;
+            downloadDocument(currentDocumentData.id);
+        }
+        
+        async function renewDocument(docId) {
+            // TODO: Implement document renewal (upload new version)
+            showSuccess('Document renewal feature - Coming soon. Upload a new version with updated expiration date.');
+        }
+        
+        function confirmDeleteDocument() {
+            if (!currentDocumentData) return;
+            
+            deleteContext = {
+                type: 'documents',
+                id: currentDocumentData.id,
+                name: currentDocumentData.name
+            };
+            
+            document.getElementById('delete-confirm-message').textContent = 
+                `Are you sure you want to delete "${currentDocumentData.name}"?`;
+            
+            closeModal('document-details');
+            openModal('delete-confirm');
         }
         
         async function downloadDocument(docId) {
