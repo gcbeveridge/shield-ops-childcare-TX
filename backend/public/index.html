@@ -1670,6 +1670,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -1776,17 +1777,26 @@
         /* ============================================= */
 
         /* Smooth transitions for all interactive elements */
-        .btn, .btn-small, .tab, .card, .modal-content, .badge, .form-input, .form-select {
+        .btn,
+        .btn-small,
+        .tab,
+        .card,
+        .modal-content,
+        .badge,
+        .form-input,
+        .form-select {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Enhanced button hover effects */
-        .btn:hover:not(:disabled), .btn-small:hover:not(:disabled) {
+        .btn:hover:not(:disabled),
+        .btn-small:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
         }
 
-        .btn:active:not(:disabled), .btn-small:active:not(:disabled) {
+        .btn:active:not(:disabled),
+        .btn-small:active:not(:disabled) {
             transform: translateY(0);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -1812,6 +1822,7 @@
                 opacity: 0;
                 backdrop-filter: blur(0px);
             }
+
             to {
                 opacity: 1;
                 backdrop-filter: blur(8px);
@@ -1827,6 +1838,7 @@
                 opacity: 0;
                 transform: translateY(40px) scale(0.95);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -1835,9 +1847,12 @@
 
         /* Pulse animation for alerts */
         @keyframes pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 opacity: 1;
             }
+
             50% {
                 opacity: 0.8;
             }
@@ -1857,6 +1872,7 @@
                 opacity: 0;
                 transform: translateX(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -1868,6 +1884,7 @@
             0% {
                 background-position: -1000px 0;
             }
+
             100% {
                 background-position: 1000px 0;
             }
@@ -1885,9 +1902,11 @@
                 transform: scale(0);
                 opacity: 0;
             }
+
             50% {
                 transform: scale(1.2);
             }
+
             100% {
                 transform: scale(1);
                 opacity: 1;
@@ -1906,6 +1925,7 @@
                 transform: scaleX(0);
                 transform-origin: left;
             }
+
             100% {
                 transform: scaleX(1);
                 transform-origin: left;
@@ -1913,8 +1933,8 @@
         }
 
         /* Focus ring for accessibility */
-        .btn:focus-visible, 
-        .form-input:focus-visible, 
+        .btn:focus-visible,
+        .form-input:focus-visible,
         .tab:focus-visible {
             outline: 3px solid rgba(102, 126, 234, 0.5);
             outline-offset: 2px;
@@ -1926,7 +1946,8 @@
         }
 
         /* Better form input focus */
-        .form-input:focus, .form-select:focus {
+        .form-input:focus,
+        .form-select:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             transform: translateY(-1px);
@@ -1938,6 +1959,7 @@
                 transform: translateY(-100%);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -1983,14 +2005,29 @@
             animation-fill-mode: both;
         }
 
-        .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
-        .table tbody tr:nth-child(2) { animation-delay: 0.1s; }
-        .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
-        .table tbody tr:nth-child(4) { animation-delay: 0.2s; }
-        .table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+        .table tbody tr:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .table tbody tr:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .table tbody tr:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .table tbody tr:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .table tbody tr:nth-child(5) {
+            animation-delay: 0.25s;
+        }
 
         /* Improved disabled state */
-        .btn:disabled, .btn-small:disabled {
+        .btn:disabled,
+        .btn-small:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none !important;
@@ -3448,7 +3485,8 @@
                         <button class="btn-small btn-secondary-small" onclick="openModal('import-medication-csv')">
                             📤 Import CSV
                         </button>
-                        <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add Medication
+                        <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add
+                            Medication
                             Authorization</button>
                     </div>
                 </div>
@@ -3523,12 +3561,16 @@
 
             <div class="card">
                 <div class="tabs">
-                    <button class="tab active" onclick="filterMedications('active')">Active Medications (<span id="med-count-active">0</span>)</button>
+                    <button class="tab active" onclick="filterMedications('active')">Active Medications (<span
+                            id="med-count-active">0</span>)</button>
                     <button class="tab" onclick="showDailySchedule()">📅 Today's Schedule</button>
-                    <button class="tab" onclick="filterMedications('today')">Today's Log (<span id="med-count-today">0</span>)</button>
+                    <button class="tab" onclick="filterMedications('today')">Today's Log (<span
+                            id="med-count-today">0</span>)</button>
                     <button class="tab" onclick="showAdministrationHistory()">📊 Administration History</button>
-                    <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (<span id="med-count-expired">0</span>)</button>
-                    <button class="tab" onclick="filterMedications('allergies')">Food Allergies (<span id="med-count-allergies">0</span>)</button>
+                    <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (<span
+                            id="med-count-expired">0</span>)</button>
+                    <button class="tab" onclick="filterMedications('allergies')">Food Allergies (<span
+                            id="med-count-allergies">0</span>)</button>
                 </div>
 
                 <!-- Daily Schedule View -->
@@ -3537,7 +3579,8 @@
                         <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
                             📅 Medication Schedule for <span id="schedule-date"></span>
                         </h3>
-                        <p style="font-size: 14px; color: var(--gray-600);">All scheduled doses for today with real-time status</p>
+                        <p style="font-size: 14px; color: var(--gray-600);">All scheduled doses for today with real-time
+                            status</p>
                     </div>
 
                     <div id="schedule-timeline" style="margin-top: 24px;">
@@ -3557,12 +3600,14 @@
 
                 <!-- Administration History View -->
                 <div id="administration-history-view" style="display: none;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <div>
                             <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
                                 📊 Administration History
                             </h3>
-                            <p style="font-size: 14px; color: var(--gray-600);">Complete medication log with dual-staff verification records</p>
+                            <p style="font-size: 14px; color: var(--gray-600);">Complete medication log with dual-staff
+                                verification records</p>
                         </div>
                         <div style="display: flex; gap: 8px;">
                             <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('csv')">
@@ -3575,10 +3620,14 @@
                     </div>
 
                     <!-- Filters -->
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
                         <div>
-                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Date Range</label>
-                            <select id="history-date-range" class="form-input" onchange="filterHistoryByDate()" style="font-size: 13px; padding: 8px;">
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Date
+                                Range</label>
+                            <select id="history-date-range" class="form-input" onchange="filterHistoryByDate()"
+                                style="font-size: 13px; padding: 8px;">
                                 <option value="today">Today</option>
                                 <option value="week" selected>This Week</option>
                                 <option value="month">This Month</option>
@@ -3586,8 +3635,10 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Child</label>
-                            <select id="history-child-filter" class="form-input" onchange="filterHistory()" style="font-size: 13px; padding: 8px;">
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Child</label>
+                            <select id="history-child-filter" class="form-input" onchange="filterHistory()"
+                                style="font-size: 13px; padding: 8px;">
                                 <option value="all">All Children</option>
                                 <option value="emma">Emma S.</option>
                                 <option value="liam">Liam M.</option>
@@ -3595,14 +3646,19 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Medication</label>
-                            <select id="history-med-filter" class="form-input" onchange="filterHistory()" style="font-size: 13px; padding: 8px;">
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Medication</label>
+                            <select id="history-med-filter" class="form-input" onchange="filterHistory()"
+                                style="font-size: 13px; padding: 8px;">
                                 <option value="all">All Medications</option>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Staff Member</label>
-                            <select id="history-staff-filter" class="form-input" onchange="filterHistory()" style="font-size: 13px; padding: 8px;">
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Staff
+                                Member</label>
+                            <select id="history-staff-filter" class="form-input" onchange="filterHistory()"
+                                style="font-size: 13px; padding: 8px;">
                                 <option value="all">All Staff</option>
                             </select>
                         </div>
@@ -3626,209 +3682,213 @@
 
                 <!-- Medication List Table -->
                 <div id="medication-list-table">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Child Name</th>
-                            <th>Medication</th>
-                            <th>Dosage</th>
-                            <th>Schedule</th>
-                            <th>Authorization</th>
-                            <th>Container Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="medications-table-body">
-                        <tr>
-                            <td><strong>Emma S.</strong></td>
-                            <td>Albuterol Inhaler<br><small>For asthma</small></td>
-                            <td>2 puffs</td>
-                            <td>As needed<br><small>Max 4x/day</small></td>
-                            <td><span class="badge badge-complete">Valid until Mar 2026</span></td>
-                            <td><span class="badge badge-complete">✓ Original, labeled</span></td>
-                            <td><button class="btn-small"
-                                    style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;"
-                                    onclick="openModal('administer-medication')">Log Dose</button></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Liam M.</strong></td>
-                            <td>Amoxicillin<br><small>Antibiotic</small></td>
-                            <td>5 mL</td>
-                            <td>12:00 PM daily<br><small>7 days remaining</small></td>
-                            <td><span class="badge badge-complete">Valid until Oct 2025</span></td>
-                            <td><span class="badge badge-complete">✓ Original, refrigerated</span></td>
-                            <td><button class="btn-small"
-                                    style="padding: 4px 12px; font-size: 12px; background: var(--warning); color: white; border: none; border-radius: 4px; cursor: pointer;"
-                                    onclick="openModal('administer-medication')">Due in 15 min</button></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Olivia K.</strong></td>
-                            <td>EpiPen Jr<br><small>Food allergy emergency</small></td>
-                            <td>0.15 mg</td>
-                            <td>Emergency only<br><small>Severe peanut allergy</small></td>
-                            <td><span class="badge badge-complete">Valid until Jun 2026</span></td>
-                            <td><span class="badge badge-complete">✓ Original, temp-controlled</span></td>
-                            <td><button class="btn-small"
-                                    style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View
-                                    Plan</button></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Noah B.</strong></td>
-                            <td>Methylphenidate<br><small>ADHD medication</small></td>
-                            <td>10 mg</td>
-                            <td>11:00 AM daily</td>
-                            <td><span class="badge badge-complete">Valid until Dec 2025</span></td>
-                            <td><span class="badge badge-complete">✓ Original, locked</span></td>
-                            <td><button class="btn-small"
-                                    style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
-                                    Given 11:05 AM</button></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Sophia L.</strong></td>
-                            <td>Children's Tylenol<br><small>Fever/pain relief</small></td>
-                            <td>10 mL (160mg)</td>
-                            <td>As needed<br><small>Parent permission required</small></td>
-                            <td><span class="badge badge-complete">Valid until Aug 2026</span></td>
-                            <td><span class="badge badge-complete">✓ Original, labeled</span></td>
-                            <td><button class="btn-small"
-                                    style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">Log
-                                    Dose</button></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Jackson P.</strong></td>
-                            <td>Omeprazole<br><small>Acid reflux</small></td>
-                            <td>10 mg</td>
-                            <td>9:00 AM daily</td>
-                            <td><span class="badge" style="background: #fef3c7; color: #92400e;">Expires Dec 15,
-                                    2025</span></td>
-                            <td><span class="badge badge-complete">✓ Original, labeled</span></td>
-                            <td><button class="btn-small"
-                                    style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
-                                    Given 9:05 AM</button></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Ava W.</strong></td>
-                            <td>Zyrtec<br><small>Seasonal allergies</small></td>
-                            <td>5 mg</td>
-                            <td>8:00 AM daily</td>
-                            <td><span class="badge badge-complete">Valid until May 2026</span></td>
-                            <td><span class="badge badge-complete">✓ Original, labeled</span></td>
-                            <td><button class="btn-small"
-                                    style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
-                                    Given 8:10 AM</button></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Child Name</th>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Schedule</th>
+                                <th>Authorization</th>
+                                <th>Container Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medications-table-body">
+                            <tr>
+                                <td><strong>Emma S.</strong></td>
+                                <td>Albuterol Inhaler<br><small>For asthma</small></td>
+                                <td>2 puffs</td>
+                                <td>As needed<br><small>Max 4x/day</small></td>
+                                <td><span class="badge badge-complete">Valid until Mar 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;"
+                                        onclick="openModal('administer-medication')">Log Dose</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Liam M.</strong></td>
+                                <td>Amoxicillin<br><small>Antibiotic</small></td>
+                                <td>5 mL</td>
+                                <td>12:00 PM daily<br><small>7 days remaining</small></td>
+                                <td><span class="badge badge-complete">Valid until Oct 2025</span></td>
+                                <td><span class="badge badge-complete">✓ Original, refrigerated</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--warning); color: white; border: none; border-radius: 4px; cursor: pointer;"
+                                        onclick="openModal('administer-medication')">Due in 15 min</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Olivia K.</strong></td>
+                                <td>EpiPen Jr<br><small>Food allergy emergency</small></td>
+                                <td>0.15 mg</td>
+                                <td>Emergency only<br><small>Severe peanut allergy</small></td>
+                                <td><span class="badge badge-complete">Valid until Jun 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, temp-controlled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View
+                                        Plan</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Noah B.</strong></td>
+                                <td>Methylphenidate<br><small>ADHD medication</small></td>
+                                <td>10 mg</td>
+                                <td>11:00 AM daily</td>
+                                <td><span class="badge badge-complete">Valid until Dec 2025</span></td>
+                                <td><span class="badge badge-complete">✓ Original, locked</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
+                                        Given 11:05 AM</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sophia L.</strong></td>
+                                <td>Children's Tylenol<br><small>Fever/pain relief</small></td>
+                                <td>10 mL (160mg)</td>
+                                <td>As needed<br><small>Parent permission required</small></td>
+                                <td><span class="badge badge-complete">Valid until Aug 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">Log
+                                        Dose</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jackson P.</strong></td>
+                                <td>Omeprazole<br><small>Acid reflux</small></td>
+                                <td>10 mg</td>
+                                <td>9:00 AM daily</td>
+                                <td><span class="badge" style="background: #fef3c7; color: #92400e;">Expires Dec 15,
+                                        2025</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
+                                        Given 9:05 AM</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ava W.</strong></td>
+                                <td>Zyrtec<br><small>Seasonal allergies</small></td>
+                                <td>5 mg</td>
+                                <td>8:00 AM daily</td>
+                                <td><span class="badge badge-complete">Valid until May 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
+                                        Given 8:10 AM</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="card">
-                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">📋 Today's Administration Log -
-                    October 3, 2025</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Time</th>
-                            <th>Child</th>
-                            <th>Medication</th>
-                            <th>Dosage Given</th>
-                            <th>Administered By</th>
-                            <th>Witnessed By</th>
-                            <th>Photo Verification</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>11:05 AM</strong></td>
-                            <td>Noah B.</td>
-                            <td>Methylphenidate 10mg</td>
-                            <td>1 tablet (10mg)</td>
-                            <td>Sarah Johnson</td>
-                            <td>Michael Chen</td>
-                            <td><span class="badge badge-complete">✓ Container photo</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>9:05 AM</strong></td>
-                            <td>Jackson P.</td>
-                            <td>Omeprazole 10mg</td>
-                            <td>1 capsule (10mg)</td>
-                            <td>Emily Rodriguez</td>
-                            <td>Sarah Johnson</td>
-                            <td><span class="badge badge-complete">✓ Container photo</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>8:10 AM</strong></td>
-                            <td>Ava W.</td>
-                            <td>Zyrtec 5mg</td>
-                            <td>1 tablet (5mg)</td>
-                            <td>Sarah Johnson</td>
-                            <td>Lisa Thompson</td>
-                            <td><span class="badge badge-complete">✓ Container photo</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <div class="card">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">📋 Today's Administration Log -
+                        October 3, 2025</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Child</th>
+                                <th>Medication</th>
+                                <th>Dosage Given</th>
+                                <th>Administered By</th>
+                                <th>Witnessed By</th>
+                                <th>Photo Verification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>11:05 AM</strong></td>
+                                <td>Noah B.</td>
+                                <td>Methylphenidate 10mg</td>
+                                <td>1 tablet (10mg)</td>
+                                <td>Sarah Johnson</td>
+                                <td>Michael Chen</td>
+                                <td><span class="badge badge-complete">✓ Container photo</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>9:05 AM</strong></td>
+                                <td>Jackson P.</td>
+                                <td>Omeprazole 10mg</td>
+                                <td>1 capsule (10mg)</td>
+                                <td>Emily Rodriguez</td>
+                                <td>Sarah Johnson</td>
+                                <td><span class="badge badge-complete">✓ Container photo</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>8:10 AM</strong></td>
+                                <td>Ava W.</td>
+                                <td>Zyrtec 5mg</td>
+                                <td>1 tablet (5mg)</td>
+                                <td>Sarah Johnson</td>
+                                <td>Lisa Thompson</td>
+                                <td><span class="badge badge-complete">✓ Container photo</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="card">
-                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🥜 Food Allergy Emergency Plans
-                    (Texas §744.2667-2669)</h3>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div
-                        style="padding: 16px; background: #fee2e2; border-radius: 8px; border-left: 4px solid var(--danger);">
-                        <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 8px;">
-                            <div style="flex: 1;">
-                                <strong style="font-size: 14px;">Olivia K. - SEVERE Peanut Allergy</strong>
-                                <div style="font-size: 13px; color: #991b1b; margin-top: 4px; font-weight: 600;">⚠️
-                                    ANAPHYLAXIS RISK - EpiPen required</div>
-                                <div style="font-size: 13px; color: #7c2d12; margin-top: 8px;">
-                                    <strong>Allergens:</strong> Peanuts, tree nuts (almonds, cashews, walnuts)<br>
-                                    <strong>Symptoms:</strong> Hives, swelling, difficulty breathing, vomiting<br>
-                                    <strong>Emergency Action:</strong> 1) Administer EpiPen Jr to outer thigh 2) Call
-                                    911 3) Call parents 4) Second dose if no improvement in 5-10 min
+                <div class="card">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🥜 Food Allergy Emergency Plans
+                        (Texas §744.2667-2669)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div
+                            style="padding: 16px; background: #fee2e2; border-radius: 8px; border-left: 4px solid var(--danger);">
+                            <div
+                                style="display: flex; justify-content: between; align-items: start; margin-bottom: 8px;">
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 14px;">Olivia K. - SEVERE Peanut Allergy</strong>
+                                    <div style="font-size: 13px; color: #991b1b; margin-top: 4px; font-weight: 600;">⚠️
+                                        ANAPHYLAXIS RISK - EpiPen required</div>
+                                    <div style="font-size: 13px; color: #7c2d12; margin-top: 8px;">
+                                        <strong>Allergens:</strong> Peanuts, tree nuts (almonds, cashews, walnuts)<br>
+                                        <strong>Symptoms:</strong> Hives, swelling, difficulty breathing, vomiting<br>
+                                        <strong>Emergency Action:</strong> 1) Administer EpiPen Jr to outer thigh 2)
+                                        Call
+                                        911 3) Call parents 4) Second dose if no improvement in 5-10 min
+                                    </div>
                                 </div>
+                                <span class="badge"
+                                    style="background: white; color: #991b1b; border: 2px solid #991b1b;">Plan signed by
+                                    Dr.
+                                    Martinez & parent</span>
                             </div>
-                            <span class="badge"
-                                style="background: white; color: #991b1b; border: 2px solid #991b1b;">Plan signed by Dr.
-                                Martinez & parent</span>
+                            <div style="margin-top: 12px; padding: 12px; background: white; border-radius: 6px;">
+                                <strong style="font-size: 13px;">Posted Locations:</strong> Kitchen ✓ | Classroom 2A ✓ |
+                                Cafeteria ✓ | Office ✓
+                            </div>
                         </div>
-                        <div style="margin-top: 12px; padding: 12px; background: white; border-radius: 6px;">
-                            <strong style="font-size: 13px;">Posted Locations:</strong> Kitchen ✓ | Classroom 2A ✓ |
-                            Cafeteria ✓ | Office ✓
-                        </div>
-                    </div>
-                    <div
-                        style="padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="flex: 1;">
-                                <strong style="font-size: 14px;">Mason T. - Dairy Allergy</strong>
-                                <div style="font-size: 13px; color: #78350f; margin-top: 8px;">
-                                    <strong>Allergens:</strong> Milk, cheese, yogurt, butter<br>
-                                    <strong>Symptoms:</strong> Stomach pain, diarrhea, skin rash<br>
-                                    <strong>Action:</strong> Remove from exposure, call parents, monitor for worsening
-                                    symptoms
+                        <div
+                            style="padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 14px;">Mason T. - Dairy Allergy</strong>
+                                    <div style="font-size: 13px; color: #78350f; margin-top: 8px;">
+                                        <strong>Allergens:</strong> Milk, cheese, yogurt, butter<br>
+                                        <strong>Symptoms:</strong> Stomach pain, diarrhea, skin rash<br>
+                                        <strong>Action:</strong> Remove from exposure, call parents, monitor for
+                                        worsening
+                                        symptoms
+                                    </div>
                                 </div>
+                                <span class="badge badge-complete">Plan on file</span>
                             </div>
-                            <span class="badge badge-complete">Plan on file</span>
                         </div>
-                    </div>
-                    <div
-                        style="padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div style="flex: 1;">
-                                <strong style="font-size: 14px;">Harper G. - Shellfish Allergy</strong>
-                                <div style="font-size: 13px; color: #78350f; margin-top: 8px;">
-                                    <strong>Allergens:</strong> Shrimp, crab, lobster, oysters<br>
-                                    <strong>Symptoms:</strong> Hives, itching, swelling of lips/tongue<br>
-                                    <strong>Action:</strong> Benadryl 12.5mg if mild reaction, call parents, 911 if
-                                    breathing difficulty
+                        <div
+                            style="padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 14px;">Harper G. - Shellfish Allergy</strong>
+                                    <div style="font-size: 13px; color: #78350f; margin-top: 8px;">
+                                        <strong>Allergens:</strong> Shrimp, crab, lobster, oysters<br>
+                                        <strong>Symptoms:</strong> Hives, itching, swelling of lips/tongue<br>
+                                        <strong>Action:</strong> Benadryl 12.5mg if mild reaction, call parents, 911 if
+                                        breathing difficulty
+                                    </div>
                                 </div>
+                                <span class="badge badge-complete">Plan on file</span>
                             </div>
-                            <span class="badge badge-complete">Plan on file</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <!-- Add Medication Authorization Modal -->
@@ -4992,19 +5052,20 @@
                     </div>
 
                     <!-- Drag-Drop Zone -->
-                    <div id="csv-drop-zone" class="drop-zone" 
-                         ondragover="handleCSVDragOver(event)" 
-                         ondrop="handleCSVDrop(event, 'staff')"
-                         onclick="document.getElementById('csv-file-input').click()">
+                    <div id="csv-drop-zone" class="drop-zone" ondragover="handleCSVDragOver(event)"
+                        ondrop="handleCSVDrop(event, 'staff')"
+                        onclick="document.getElementById('csv-file-input').click()">
                         <div class="drop-zone-icon">📄</div>
                         <p class="drop-zone-text">Drag and drop your CSV file here</p>
                         <p class="drop-zone-subtext">or click to browse</p>
                         <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">CSV files only, max 5MB</p>
-                        <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCSVFileSelect(event, 'staff')">
+                        <input type="file" id="csv-file-input" accept=".csv" style="display: none;"
+                            onchange="handleCSVFileSelect(event, 'staff')">
                     </div>
 
                     <!-- File Preview (shown after selection) -->
-                    <div id="csv-file-preview" style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                    <div id="csv-file-preview"
+                        style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <span style="font-size: 32px;">📄</span>
@@ -5022,27 +5083,34 @@
                 <div id="csv-preview-step" class="csv-step" style="display: none;">
                     <div style="text-align: center; margin-bottom: 24px;">
                         <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 2: Review Data</h3>
-                        <p style="font-size: 14px; color: var(--gray-700);">Verify the imported data before confirming</p>
+                        <p style="font-size: 14px; color: var(--gray-700);">Verify the imported data before confirming
+                        </p>
                     </div>
 
                     <!-- Summary Stats -->
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
                         <div style="padding: 16px; background: var(--gray-50); border-radius: 8px; text-align: center;">
-                            <div id="csv-total-rows" style="font-size: 24px; font-weight: 700; color: var(--gray-900);">0</div>
+                            <div id="csv-total-rows" style="font-size: 24px; font-weight: 700; color: var(--gray-900);">
+                                0</div>
                             <div style="font-size: 13px; color: var(--gray-700);">Total Rows</div>
                         </div>
-                        <div style="padding: 16px; background: var(--success-light); border-radius: 8px; text-align: center;">
-                            <div id="csv-valid-rows" style="font-size: 24px; font-weight: 700; color: var(--success);">0</div>
+                        <div
+                            style="padding: 16px; background: var(--success-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-valid-rows" style="font-size: 24px; font-weight: 700; color: var(--success);">0
+                            </div>
                             <div style="font-size: 13px; color: var(--success);">Valid</div>
                         </div>
-                        <div style="padding: 16px; background: var(--danger-light); border-radius: 8px; text-align: center;">
-                            <div id="csv-error-rows" style="font-size: 24px; font-weight: 700; color: var(--danger);">0</div>
+                        <div
+                            style="padding: 16px; background: var(--danger-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-error-rows" style="font-size: 24px; font-weight: 700; color: var(--danger);">0
+                            </div>
                             <div style="font-size: 13px; color: var(--danger);">Errors</div>
                         </div>
                     </div>
 
                     <!-- Preview Table -->
-                    <div style="max-height: 400px; overflow: auto; border: 1px solid var(--gray-300); border-radius: 8px;">
+                    <div
+                        style="max-height: 400px; overflow: auto; border: 1px solid var(--gray-300); border-radius: 8px;">
                         <table class="table">
                             <thead id="csv-preview-header">
                                 <!-- Dynamic headers -->
@@ -5058,7 +5126,8 @@
                         <h4 style="font-size: 14px; font-weight: 600; color: var(--danger); margin-bottom: 8px;">
                             ⚠️ Validation Errors
                         </h4>
-                        <div id="csv-error-list" style="max-height: 150px; overflow: auto; padding: 12px; background: var(--danger-light); border-radius: 8px; font-size: 13px;">
+                        <div id="csv-error-list"
+                            style="max-height: 150px; overflow: auto; padding: 12px; background: var(--danger-light); border-radius: 8px; font-size: 13px;">
                             <!-- Dynamic error messages -->
                         </div>
                     </div>
@@ -5069,7 +5138,8 @@
                     <div style="text-align: center;">
                         <div class="spinner" style="margin: 0 auto 16px;"></div>
                         <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Importing Staff...</h3>
-                        <p id="csv-import-status" style="font-size: 14px; color: var(--gray-700);">Processing 0 of 0 rows</p>
+                        <p id="csv-import-status" style="font-size: 14px; color: var(--gray-700);">Processing 0 of 0
+                            rows</p>
                         <div class="progress" style="margin-top: 16px;">
                             <div id="csv-import-progress" class="progress-fill" style="width: 0%;"></div>
                         </div>
@@ -5080,18 +5150,24 @@
                 <div id="csv-results-step" class="csv-step" style="display: none;">
                     <div style="text-align: center; margin-bottom: 24px;">
                         <div id="csv-results-icon" style="font-size: 64px; margin-bottom: 16px;">✅</div>
-                        <h3 id="csv-results-title" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Import Complete!</h3>
+                        <h3 id="csv-results-title" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Import
+                            Complete!</h3>
                         <p id="csv-results-message" style="font-size: 14px; color: var(--gray-700);"></p>
                     </div>
 
                     <!-- Results Summary -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                        <div style="padding: 20px; background: var(--success-light); border-radius: 8px; text-align: center;">
-                            <div id="csv-success-count" style="font-size: 32px; font-weight: 700; color: var(--success);">0</div>
-                            <div style="font-size: 14px; color: var(--success); font-weight: 600;">Successfully Imported</div>
+                        <div
+                            style="padding: 20px; background: var(--success-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-success-count"
+                                style="font-size: 32px; font-weight: 700; color: var(--success);">0</div>
+                            <div style="font-size: 14px; color: var(--success); font-weight: 600;">Successfully Imported
+                            </div>
                         </div>
-                        <div style="padding: 20px; background: var(--danger-light); border-radius: 8px; text-align: center;">
-                            <div id="csv-failure-count" style="font-size: 32px; font-weight: 700; color: var(--danger);">0</div>
+                        <div
+                            style="padding: 20px; background: var(--danger-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-failure-count"
+                                style="font-size: 32px; font-weight: 700; color: var(--danger);">0</div>
                             <div style="font-size: 14px; color: var(--danger); font-weight: 600;">Failed</div>
                         </div>
                     </div>
@@ -5099,7 +5175,8 @@
                     <!-- Failed Rows Detail -->
                     <div id="csv-failed-rows" style="display: none;">
                         <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Failed Rows:</h4>
-                        <div id="csv-failed-list" style="max-height: 200px; overflow: auto; padding: 12px; background: var(--gray-50); border-radius: 8px; font-size: 13px;">
+                        <div id="csv-failed-list"
+                            style="max-height: 200px; overflow: auto; padding: 12px; background: var(--gray-50); border-radius: 8px; font-size: 13px;">
                             <!-- Failed rows list -->
                         </div>
                         <div style="margin-top: 12px;">
@@ -5112,7 +5189,8 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="csv-back-btn" class="btn btn-secondary" onclick="csvGoBack()" style="display: none;">
+                <button type="button" id="csv-back-btn" class="btn btn-secondary" onclick="csvGoBack()"
+                    style="display: none;">
                     ← Back
                 </button>
                 <button type="button" class="btn btn-secondary" onclick="closeCSVImport()">
@@ -5121,10 +5199,12 @@
                 <button type="button" id="csv-next-btn" class="btn btn-primary" onclick="csvNextStep()" disabled>
                     Next →
                 </button>
-                <button type="button" id="csv-import-btn" class="btn btn-primary" onclick="executeCSVImport('staff')" style="display: none;">
+                <button type="button" id="csv-import-btn" class="btn btn-primary" onclick="executeCSVImport('staff')"
+                    style="display: none;">
                     Confirm Import
                 </button>
-                <button type="button" id="csv-done-btn" class="btn btn-primary" onclick="closeCSVImport()" style="display: none;">
+                <button type="button" id="csv-done-btn" class="btn btn-primary" onclick="closeCSVImport()"
+                    style="display: none;">
                     Done
                 </button>
             </div>
@@ -5142,10 +5222,13 @@
                 <div id="csv-med-upload-step" class="csv-step">
                     <div style="text-align: center; margin-bottom: 24px;">
                         <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 1: Upload CSV File</h3>
-                        <p style="font-size: 14px; color: var(--gray-700);">Upload a CSV file with medication authorizations</p>
-                        <div style="margin-top: 8px; padding: 12px; background: var(--warning-light); border-radius: 8px; border-left: 4px solid var(--warning);">
+                        <p style="font-size: 14px; color: var(--gray-700);">Upload a CSV file with medication
+                            authorizations</p>
+                        <div
+                            style="margin-top: 8px; padding: 12px; background: var(--warning-light); border-radius: 8px; border-left: 4px solid var(--warning);">
                             <strong style="color: var(--warning);">⚠️ Texas Compliance:</strong>
-                            <span style="font-size: 13px; color: var(--gray-800);"> Maximum 1-year authorization per §746.2653</span>
+                            <span style="font-size: 13px; color: var(--gray-800);"> Maximum 1-year authorization per
+                                §746.2653</span>
                         </div>
                     </div>
 
@@ -5157,19 +5240,20 @@
                     </div>
 
                     <!-- Drag-Drop Zone -->
-                    <div id="csv-med-drop-zone" class="drop-zone" 
-                         ondragover="handleCSVDragOver(event)" 
-                         ondrop="handleCSVDrop(event, 'medication')"
-                         onclick="document.getElementById('csv-med-file-input').click()">
+                    <div id="csv-med-drop-zone" class="drop-zone" ondragover="handleCSVDragOver(event)"
+                        ondrop="handleCSVDrop(event, 'medication')"
+                        onclick="document.getElementById('csv-med-file-input').click()">
                         <div class="drop-zone-icon">📄</div>
                         <p class="drop-zone-text">Drag and drop your CSV file here</p>
                         <p class="drop-zone-subtext">or click to browse</p>
                         <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">CSV files only, max 5MB</p>
-                        <input type="file" id="csv-med-file-input" accept=".csv" style="display: none;" onchange="handleCSVFileSelect(event, 'medication')">
+                        <input type="file" id="csv-med-file-input" accept=".csv" style="display: none;"
+                            onchange="handleCSVFileSelect(event, 'medication')">
                     </div>
 
                     <!-- File Preview -->
-                    <div id="csv-med-file-preview" style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                    <div id="csv-med-file-preview"
+                        style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <span style="font-size: 32px;">📄</span>
@@ -5186,26 +5270,33 @@
                 <!-- Preview/Results steps similar to staff import -->
                 <div id="csv-med-preview-step" class="csv-step" style="display: none;">
                     <div style="text-align: center; margin-bottom: 24px;">
-                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 2: Review Medication Data</h3>
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 2: Review Medication
+                            Data</h3>
                         <p style="font-size: 14px; color: var(--gray-700);">Verify authorizations before importing</p>
                     </div>
 
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
                         <div style="padding: 16px; background: var(--gray-50); border-radius: 8px; text-align: center;">
-                            <div id="csv-med-total-rows" style="font-size: 24px; font-weight: 700; color: var(--gray-900);">0</div>
+                            <div id="csv-med-total-rows"
+                                style="font-size: 24px; font-weight: 700; color: var(--gray-900);">0</div>
                             <div style="font-size: 13px; color: var(--gray-700);">Total Rows</div>
                         </div>
-                        <div style="padding: 16px; background: var(--success-light); border-radius: 8px; text-align: center;">
-                            <div id="csv-med-valid-rows" style="font-size: 24px; font-weight: 700; color: var(--success);">0</div>
+                        <div
+                            style="padding: 16px; background: var(--success-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-med-valid-rows"
+                                style="font-size: 24px; font-weight: 700; color: var(--success);">0</div>
                             <div style="font-size: 13px; color: var(--success);">Valid</div>
                         </div>
-                        <div style="padding: 16px; background: var(--danger-light); border-radius: 8px; text-align: center;">
-                            <div id="csv-med-error-rows" style="font-size: 24px; font-weight: 700; color: var(--danger);">0</div>
+                        <div
+                            style="padding: 16px; background: var(--danger-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-med-error-rows"
+                                style="font-size: 24px; font-weight: 700; color: var(--danger);">0</div>
                             <div style="font-size: 13px; color: var(--danger);">Errors</div>
                         </div>
                     </div>
 
-                    <div style="max-height: 400px; overflow: auto; border: 1px solid var(--gray-300); border-radius: 8px;">
+                    <div
+                        style="max-height: 400px; overflow: auto; border: 1px solid var(--gray-300); border-radius: 8px;">
                         <table class="table">
                             <thead id="csv-med-preview-header"></thead>
                             <tbody id="csv-med-preview-body"></tbody>
@@ -5216,18 +5307,23 @@
                         <h4 style="font-size: 14px; font-weight: 600; color: var(--danger); margin-bottom: 8px;">
                             ⚠️ Validation Errors
                         </h4>
-                        <div id="csv-med-error-list" style="max-height: 150px; overflow: auto; padding: 12px; background: var(--danger-light); border-radius: 8px; font-size: 13px;"></div>
+                        <div id="csv-med-error-list"
+                            style="max-height: 150px; overflow: auto; padding: 12px; background: var(--danger-light); border-radius: 8px; font-size: 13px;">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="csv-med-back-btn" class="btn btn-secondary" onclick="csvMedGoBack()" style="display: none;">← Back</button>
+                <button type="button" id="csv-med-back-btn" class="btn btn-secondary" onclick="csvMedGoBack()"
+                    style="display: none;">← Back</button>
                 <button type="button" class="btn btn-secondary" onclick="closeCSVMedImport()">
                     <span id="csv-med-cancel-text">Cancel</span>
                 </button>
-                <button type="button" id="csv-med-next-btn" class="btn btn-primary" onclick="csvMedNextStep()" disabled>Next →</button>
-                <button type="button" id="csv-med-import-btn" class="btn btn-primary" onclick="executeCSVImport('medication')" style="display: none;">Confirm Import</button>
+                <button type="button" id="csv-med-next-btn" class="btn btn-primary" onclick="csvMedNextStep()"
+                    disabled>Next →</button>
+                <button type="button" id="csv-med-import-btn" class="btn btn-primary"
+                    onclick="executeCSVImport('medication')" style="display: none;">Confirm Import</button>
             </div>
         </div>
     </div>
@@ -5307,12 +5403,13 @@
 
                 <div class="form-group">
                     <label class="form-label">
-                        📷 Verification Photo 
-                        <span style="font-size: 12px; color: var(--gray-600); font-weight: 400;">(Recommended per Texas §746.2655)</span>
+                        📷 Verification Photo
+                        <span style="font-size: 12px; color: var(--gray-600); font-weight: 400;">(Recommended per Texas
+                            §746.2655)</span>
                     </label>
-                    <div id="med-photo-upload-zone" class="drop-zone" style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
-                        ondragover="handleMedPhotoDragOver(event)"
-                        ondrop="handleMedPhotoDrop(event)"
+                    <div id="med-photo-upload-zone" class="drop-zone"
+                        style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                        ondragover="handleMedPhotoDragOver(event)" ondrop="handleMedPhotoDrop(event)"
                         onclick="document.getElementById('med-photo-input').click()">
                         <div style="font-size: 48px; margin-bottom: 12px;">📷</div>
                         <div style="font-size: 14px; color: var(--gray-700); font-weight: 500; margin-bottom: 4px;">
@@ -5325,20 +5422,28 @@
                             PNG, JPG up to 10MB
                         </div>
                     </div>
-                    <input type="file" id="med-photo-input" accept="image/*" capture="environment" style="display: none;" onchange="handleMedPhotoSelect(event)">
-                    
-                    <div id="med-photo-preview" style="display: none; margin-top: 12px; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                    <input type="file" id="med-photo-input" accept="image/*" capture="environment"
+                        style="display: none;" onchange="handleMedPhotoSelect(event)">
+
+                    <div id="med-photo-preview"
+                        style="display: none; margin-top: 12px; padding: 12px; background: var(--gray-50); border-radius: 8px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <img id="med-photo-thumbnail" src="" alt="Preview" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid var(--gray-300);">
+                            <img id="med-photo-thumbnail" src="" alt="Preview"
+                                style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid var(--gray-300);">
                             <div style="flex: 1;">
-                                <div style="font-size: 13px; font-weight: 600; color: var(--gray-800);" id="med-photo-filename"></div>
-                                <div style="font-size: 12px; color: var(--gray-600); margin-top: 2px;" id="med-photo-filesize"></div>
-                                <div style="font-size: 11px; color: var(--success); margin-top: 4px;">✓ Ready to upload</div>
+                                <div style="font-size: 13px; font-weight: 600; color: var(--gray-800);"
+                                    id="med-photo-filename"></div>
+                                <div style="font-size: 12px; color: var(--gray-600); margin-top: 2px;"
+                                    id="med-photo-filesize"></div>
+                                <div style="font-size: 11px; color: var(--success); margin-top: 4px;">✓ Ready to upload
+                                </div>
                             </div>
-                            <button type="button" class="btn-icon-small" onclick="removeMedPhoto()" style="background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Remove</button>
+                            <button type="button" class="btn-icon-small" onclick="removeMedPhoto()"
+                                style="background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Remove</button>
                         </div>
                     </div>
-                    <small class="form-help">Documentation helps verify proper administration and protects staff from liability</small>
+                    <small class="form-help">Documentation helps verify proper administration and protects staff from
+                        liability</small>
                 </div>
 
                 <div class="form-group">
@@ -5560,14 +5665,14 @@
                 'warning': '⚠',
                 'info': 'ℹ'
             };
-            
+
             const icon = icons[type] || icons['info'];
-            
+
             // Split message by newlines for multi-line messages
             const messageParts = message.split('\n\n');
             const mainMessage = messageParts[0];
             const subMessage = messageParts[1] || '';
-            
+
             toast.innerHTML = `
                 <div class="toast-icon">${icon}</div>
                 <div class="toast-message">
@@ -5596,7 +5701,7 @@
                 'Network error': 'Connection lost. Please check your internet connection and try again.',
                 'Validation failed': 'Please check all required fields are filled correctly.'
             };
-            
+
             // Check if we have enhanced context
             let enhancedMessage = message;
             for (const [key, value] of Object.entries(errorContext)) {
@@ -5605,7 +5710,7 @@
                     break;
                 }
             }
-            
+
             showToast(enhancedMessage, 'error');
         }
 
@@ -6941,7 +7046,7 @@
             event.preventDefault();
             event.stopPropagation();
             event.currentTarget.classList.remove('drag-over');
-            
+
             const files = event.dataTransfer.files;
             if (files.length > 0) {
                 processCSVFile(files[0], type);
@@ -6959,33 +7064,33 @@
         // Process CSV file
         function processCSVFile(file, type) {
             console.log('Processing CSV file:', file.name, 'Type:', type);
-            
+
             // Validate file type
             if (!file.name.endsWith('.csv')) {
                 showError('Invalid file type. Please upload a CSV file.');
                 return;
             }
-            
+
             // Validate file size (5MB max)
             if (file.size > 5 * 1024 * 1024) {
                 showError('File is too large. Maximum size is 5MB.');
                 return;
             }
-            
+
             // Store file info
             csvData.type = type;
             csvData.file = file;
-            
+
             // Show file preview
             const prefix = type === 'medication' ? 'med-' : '';
             document.getElementById(`csv-${prefix}filename`).textContent = file.name;
             document.getElementById(`csv-${prefix}filesize`).textContent = formatFileSize(file.size);
             document.getElementById(`csv-${prefix}file-preview`).style.display = 'block';
             document.getElementById(`csv-${prefix}drop-zone`).style.display = 'none';
-            
+
             // Enable next button
             document.getElementById(`csv-${prefix}next-btn`).disabled = false;
-            
+
             // Parse CSV
             parseCSV(file, type);
         }
@@ -6993,18 +7098,18 @@
         // Parse CSV with PapaParse
         function parseCSV(file, type) {
             console.log('Parsing CSV file...');
-            
+
             Papa.parse(file, {
                 header: true,
                 skipEmptyLines: true,
-                complete: function(results) {
+                complete: function (results) {
                     console.log('CSV parsed:', results);
                     csvData.parsed = results.data;
-                    
+
                     // Validate data
                     validateCSVData(results.data, type);
                 },
-                error: function(error) {
+                error: function (error) {
                     console.error('CSV parse error:', error);
                     showError('Failed to parse CSV file: ' + error.message);
                 }
@@ -7014,31 +7119,31 @@
         // Validate CSV data
         function validateCSVData(data, type) {
             console.log('Validating CSV data...', data.length, 'rows');
-            
+
             csvData.validRows = [];
             csvData.errorRows = [];
-            
-            const requiredFields = type === 'staff' 
+
+            const requiredFields = type === 'staff'
                 ? ['Name', 'Email', 'Role', 'Hire Date']
                 : ['Child Name', 'Medication Name', 'Dosage', 'Frequency', 'Route', 'Start Date', 'End Date', 'Prescriber Name', 'Prescriber Phone'];
-            
+
             data.forEach((row, index) => {
                 const errors = [];
-                
+
                 // Check required fields
                 requiredFields.forEach(field => {
                     if (!row[field] || row[field].trim() === '') {
                         errors.push(`Missing required field: ${field}`);
                     }
                 });
-                
+
                 // Type-specific validation
                 if (type === 'staff') {
                     // Validate email format
                     if (row.Email && !isValidEmail(row.Email)) {
                         errors.push('Invalid email format');
                     }
-                    
+
                     // Validate hire date
                     if (row['Hire Date'] && !isValidDate(row['Hire Date'])) {
                         errors.push('Invalid hire date format (use YYYY-MM-DD)');
@@ -7051,13 +7156,13 @@
                     if (row['End Date'] && !isValidDate(row['End Date'])) {
                         errors.push('Invalid end date format (use YYYY-MM-DD)');
                     }
-                    
+
                     // Validate route
                     const validRoutes = ['Oral', 'Injection', 'Topical', 'Inhalation'];
                     if (row.Route && !validRoutes.includes(row.Route)) {
                         errors.push(`Invalid route (must be: ${validRoutes.join(', ')})`);
                     }
-                    
+
                     // Texas compliance: Max 1 year authorization
                     if (row['Start Date'] && row['End Date']) {
                         const start = new Date(row['Start Date']);
@@ -7068,21 +7173,21 @@
                         }
                     }
                 }
-                
+
                 if (errors.length > 0) {
                     csvData.errorRows.push({ row: index + 1, data: row, errors });
                 } else {
                     csvData.validRows.push({ row: index + 1, data: row });
                 }
             });
-            
+
             console.log('Validation complete:', csvData.validRows.length, 'valid,', csvData.errorRows.length, 'errors');
         }
 
         // CSV Navigation & Display Functions
         function csvNextStep() {
             const prefix = csvData.type === 'medication' ? 'med-' : '';
-            
+
             if (csvData.currentStep === 1) {
                 csvData.currentStep = 2;
                 document.getElementById(`csv-${prefix}upload-step`).style.display = 'none';
@@ -7090,7 +7195,7 @@
                 document.getElementById(`csv-${prefix}back-btn`).style.display = 'inline-block';
                 document.getElementById(`csv-${prefix}next-btn`).style.display = 'none';
                 document.getElementById(`csv-${prefix}import-btn`).style.display = 'inline-block';
-                
+
                 displayCSVPreview(csvData.type);
             }
         }
@@ -7119,7 +7224,7 @@
 
         function csvMedNextStep() {
             const prefix = 'med-';
-            
+
             if (csvData.currentStep === 1) {
                 csvData.currentStep = 2;
                 document.getElementById(`csv-${prefix}upload-step`).style.display = 'none';
@@ -7127,37 +7232,37 @@
                 document.getElementById(`csv-${prefix}back-btn`).style.display = 'inline-block';
                 document.getElementById(`csv-${prefix}next-btn`).style.display = 'none';
                 document.getElementById(`csv-${prefix}import-btn`).style.display = 'inline-block';
-                
+
                 displayCSVPreview(csvData.type);
             }
         }
 
         function displayCSVPreview(type) {
             const prefix = type === 'medication' ? 'med-' : '';
-            
+
             document.getElementById(`csv-${prefix}total-rows`).textContent = csvData.parsed.length;
             document.getElementById(`csv-${prefix}valid-rows`).textContent = csvData.validRows.length;
             document.getElementById(`csv-${prefix}error-rows`).textContent = csvData.errorRows.length;
-            
+
             const headers = Object.keys(csvData.parsed[0] || {});
             const headerHTML = headers.map(h => `<th>${h}</th>`).join('');
             document.getElementById(`csv-${prefix}preview-header`).innerHTML = `<tr>${headerHTML}<th>Status</th></tr>`;
-            
+
             const bodyHTML = csvData.parsed.slice(0, 50).map((row, index) => {
                 const hasError = csvData.errorRows.find(e => e.row === index + 1);
                 const rowClass = hasError ? 'csv-error-row' : '';
                 const cells = headers.map(h => `<td>${row[h] || ''}</td>`).join('');
-                const status = hasError 
+                const status = hasError
                     ? `<span class="badge badge-danger">Error</span>`
                     : `<span class="badge badge-success">Valid</span>`;
                 return `<tr class="${rowClass}">${cells}<td>${status}</td></tr>`;
             }).join('');
-            
+
             document.getElementById(`csv-${prefix}preview-body`).innerHTML = bodyHTML;
-            
+
             if (csvData.errorRows.length > 0) {
                 document.getElementById(`csv-${prefix}errors`).style.display = 'block';
-                const errorHTML = csvData.errorRows.slice(0, 20).map(e => 
+                const errorHTML = csvData.errorRows.slice(0, 20).map(e =>
                     `<div style="margin-bottom: 8px;">
                         <strong>Row ${e.row}:</strong> ${e.errors.join(', ')}
                     </div>`
@@ -7170,29 +7275,29 @@
 
         async function executeCSVImport(type) {
             console.log('Executing CSV import for:', type);
-            
+
             if (csvData.validRows.length === 0) {
                 showError('No valid rows to import');
                 return;
             }
-            
+
             if (!AppState.facility || !AppState.facility.id) {
                 showError('Facility not loaded. Please refresh the page.');
                 return;
             }
-            
+
             const prefix = type === 'medication' ? 'med-' : '';
-            
+
             csvData.currentStep = 3;
             document.getElementById(`csv-${prefix}preview-step`).style.display = 'none';
             document.getElementById(`csv-${prefix}import-btn`).style.display = 'none';
             document.getElementById(`csv-${prefix}back-btn`).style.display = 'none';
             document.getElementById('csv-cancel-text').textContent = 'Close';
-            
+
             if (type === 'staff') {
                 document.getElementById('csv-import-step').style.display = 'block';
             }
-            
+
             try {
                 const results = await importCSVData(type, csvData.validRows);
                 showImportResults(results, type);
@@ -7204,52 +7309,52 @@
         }
 
         async function importCSVData(type, rows) {
-            const endpoint = type === 'staff' 
+            const endpoint = type === 'staff'
                 ? `/facilities/${AppState.facility.id}/staff/bulk`
                 : `/facilities/${AppState.facility.id}/medications/bulk`;
-            
+
             const data = rows.map(r => r.data);
-            
+
             console.log('Importing to:', endpoint, data.length, 'rows');
-            
+
             const response = await apiRequest(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ data })
             });
-            
+
             return response;
         }
 
         function showImportResults(results, type) {
             const prefix = type === 'medication' ? 'med-' : '';
-            
+
             if (type === 'staff') {
                 document.getElementById('csv-import-step').style.display = 'none';
                 document.getElementById('csv-results-step').style.display = 'block';
                 document.getElementById('csv-done-btn').style.display = 'inline-block';
-                
+
                 const success = results.success || 0;
                 const failed = results.failed || 0;
-                
+
                 document.getElementById('csv-success-count').textContent = success;
                 document.getElementById('csv-failure-count').textContent = failed;
-                
+
                 if (failed > 0) {
                     document.getElementById('csv-results-icon').textContent = '⚠️';
                     document.getElementById('csv-results-title').textContent = 'Import Completed with Errors';
-                    document.getElementById('csv-results-message').textContent = 
+                    document.getElementById('csv-results-message').textContent =
                         `${success} staff members imported successfully, ${failed} failed.`;
-                    
+
                     document.getElementById('csv-failed-rows').style.display = 'block';
-                    const failedHTML = (results.errors || []).map(e => 
+                    const failedHTML = (results.errors || []).map(e =>
                         `<div style="margin-bottom: 8px;">
                             <strong>${e.row}:</strong> ${e.error}
                         </div>`
                     ).join('');
                     document.getElementById('csv-failed-list').innerHTML = failedHTML;
                 } else {
-                    document.getElementById('csv-results-message').textContent = 
+                    document.getElementById('csv-results-message').textContent =
                         `All ${success} staff members imported successfully!`;
                 }
             } else {
@@ -7279,33 +7384,33 @@
                 errorRows: [],
                 currentStep: 1
             };
-            
+
             ['', 'med-'].forEach(prefix => {
                 const uploadStep = document.getElementById(`csv-${prefix}upload-step`);
                 const previewStep = document.getElementById(`csv-${prefix}preview-step`);
                 const filePreview = document.getElementById(`csv-${prefix}file-preview`);
                 const dropZone = document.getElementById(`csv-${prefix}drop-zone`);
                 const nextBtn = document.getElementById(`csv-${prefix}next-btn`);
-                
+
                 if (uploadStep) uploadStep.style.display = 'block';
                 if (previewStep) previewStep.style.display = 'none';
                 if (filePreview) filePreview.style.display = 'none';
                 if (dropZone) dropZone.style.display = 'block';
                 if (nextBtn) nextBtn.disabled = true;
             });
-            
+
             const importStep = document.getElementById('csv-import-step');
             const resultsStep = document.getElementById('csv-results-step');
             const backBtn = document.getElementById('csv-back-btn');
             const importBtn = document.getElementById('csv-import-btn');
             const doneBtn = document.getElementById('csv-done-btn');
-            
+
             if (importStep) importStep.style.display = 'none';
             if (resultsStep) resultsStep.style.display = 'none';
             if (backBtn) backBtn.style.display = 'none';
             if (importBtn) importBtn.style.display = 'none';
             if (doneBtn) doneBtn.style.display = 'none';
-            
+
             document.getElementById('csv-cancel-text').textContent = 'Cancel';
         }
 
@@ -7328,10 +7433,10 @@
         }
 
         function downloadCSVErrorReport() {
-            const csvContent = 'Row,Error\n' + csvData.errorRows.map(e => 
+            const csvContent = 'Row,Error\n' + csvData.errorRows.map(e =>
                 `${e.row},"${e.errors.join('; ')}"`
             ).join('\n');
-            
+
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -8086,19 +8191,19 @@
 
         function checkMedicationAlerts() {
             console.log('Checking medication alerts...');
-            
+
             medicationAlerts = [];
             const now = new Date();
             const today = now.toISOString().split('T')[0];
-            
+
             // Check all active medications
             allMedications.forEach(med => {
                 if (med.status !== 'active') return;
-                
+
                 // Check for expiring authorizations (within 7 days)
                 const endDate = new Date(med.endDate);
                 const daysUntilExpiry = Math.floor((endDate - now) / (1000 * 60 * 60 * 24));
-                
+
                 if (daysUntilExpiry <= 7 && daysUntilExpiry >= 0) {
                     medicationAlerts.push({
                         type: 'expiring',
@@ -8120,14 +8225,14 @@
                         medicationId: med.id
                     });
                 }
-                
+
                 // Check for upcoming doses (mock data - in production would check schedule)
                 if (med.frequency && med.frequency.toLowerCase().includes('daily')) {
                     const scheduledTime = '12:00'; // Mock scheduled time
                     const [hour, minute] = scheduledTime.split(':').map(Number);
                     const scheduleDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
                     const minutesUntilDose = Math.floor((scheduleDate - now) / (1000 * 60));
-                    
+
                     if (minutesUntilDose > 0 && minutesUntilDose <= 30) {
                         medicationAlerts.push({
                             type: 'upcoming',
@@ -8151,7 +8256,7 @@
                     }
                 }
             });
-            
+
             displayMedicationAlerts();
         }
 
@@ -8159,21 +8264,21 @@
             const alertsCard = document.getElementById('medication-alerts-card');
             const alertsList = document.getElementById('medication-alerts-list');
             const alertCount = document.getElementById('alert-count');
-            
+
             if (medicationAlerts.length === 0) {
                 alertsCard.style.display = 'none';
                 return;
             }
-            
+
             alertsCard.style.display = 'block';
             alertCount.textContent = medicationAlerts.length;
-            
+
             const severityColors = {
                 'high': { bg: 'var(--danger-light)', border: 'var(--danger)', icon: '⚠️' },
                 'medium': { bg: 'var(--warning-light)', border: 'var(--warning)', icon: '⏰' },
                 'low': { bg: '#dbeafe', border: '#3b82f6', icon: 'ℹ️' }
             };
-            
+
             alertsList.innerHTML = medicationAlerts.map((alert, index) => {
                 const colors = severityColors[alert.severity];
                 return `
@@ -8202,7 +8307,7 @@
 
         function handleAlert(medicationId, type) {
             console.log('Handling alert:', medicationId, type);
-            
+
             if (type === 'missed' || type === 'upcoming') {
                 administerMedication(medicationId);
             } else if (type === 'expiring' || type === 'expired') {
@@ -8222,26 +8327,26 @@
 
         function showDailySchedule() {
             console.log('Showing daily medication schedule');
-            
+
             // Update tab state
             document.querySelectorAll('#medication .tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
-            
+
             // Hide table and history, show schedule
             document.getElementById('medication-list-table').style.display = 'none';
             document.getElementById('administration-history-view').style.display = 'none';
             document.getElementById('daily-schedule-view').style.display = 'block';
-            
+
             // Set today's date
             const today = new Date();
-            const dateStr = today.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const dateStr = today.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             });
             document.getElementById('schedule-date').textContent = dateStr;
-            
+
             // Build schedule timeline
             buildScheduleTimeline();
         }
@@ -8254,23 +8359,23 @@
 
         function showAdministrationHistory() {
             console.log('Showing administration history');
-            
+
             // Update tab state
             document.querySelectorAll('#medication .tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
-            
+
             // Hide table and schedule, show history
             document.getElementById('medication-list-table').style.display = 'none';
             document.getElementById('daily-schedule-view').style.display = 'none';
             document.getElementById('administration-history-view').style.display = 'block';
-            
+
             // Load history data
             loadAdministrationHistory();
         }
 
         async function loadAdministrationHistory() {
             console.log('Loading administration history...');
-            
+
             // Mock data - in production, fetch from API
             administrationHistory = [
                 {
@@ -8322,38 +8427,38 @@
                     photo: true
                 }
             ];
-            
+
             displayAdministrationHistory();
         }
 
         function displayAdministrationHistory() {
             const timeline = document.getElementById('history-timeline');
             const empty = document.getElementById('history-empty');
-            
+
             if (administrationHistory.length === 0) {
                 timeline.style.display = 'none';
                 empty.style.display = 'block';
                 return;
             }
-            
+
             timeline.style.display = 'block';
             empty.style.display = 'none';
-            
+
             // Group by date
             const groupedByDate = {};
             administrationHistory.forEach(record => {
-                const date = new Date(record.date).toLocaleDateString('en-US', { 
+                const date = new Date(record.date).toLocaleDateString('en-US', {
                     weekday: 'long',
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                 });
                 if (!groupedByDate[date]) {
                     groupedByDate[date] = [];
                 }
                 groupedByDate[date].push(record);
             });
-            
+
             timeline.innerHTML = Object.entries(groupedByDate).map(([date, records]) => `
                 <div style="margin-bottom: 32px;">
                     <h4 style="font-size: 16px; font-weight: 600; color: var(--gray-900); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--gray-200);">
@@ -8412,13 +8517,13 @@
 
         function exportAdministrationHistory(format) {
             console.log('Exporting history as:', format);
-            
+
             if (format === 'csv') {
                 const csv = 'Date,Time,Child,Medication,Dosage,Administered By,Witnessed By,Notes\n' +
-                    administrationHistory.map(r => 
+                    administrationHistory.map(r =>
                         `"${new Date(r.date).toLocaleDateString()}","${r.time}","${r.child}","${r.medication}","${r.dosage}","${r.administeredBy}","${r.witnessedBy}","${r.notes}"`
                     ).join('\n');
-                
+
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -8434,25 +8539,25 @@
 
         function showDailySchedule() {
             console.log('Showing daily medication schedule');
-            
+
             // Update tab state
             document.querySelectorAll('#medication .tab').forEach(tab => tab.classList.remove('active'));
             event.target.classList.add('active');
-            
+
             // Hide table, show schedule
             document.getElementById('medication-list-table').style.display = 'none';
             document.getElementById('daily-schedule-view').style.display = 'block';
-            
+
             // Set today's date
             const today = new Date();
-            const dateStr = today.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const dateStr = today.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             });
             document.getElementById('schedule-date').textContent = dateStr;
-            
+
             // Build schedule timeline
             buildScheduleTimeline();
         }
@@ -8460,28 +8565,28 @@
         function buildScheduleTimeline() {
             const timeline = document.getElementById('schedule-timeline');
             const empty = document.getElementById('schedule-empty');
-            
+
             // Get all scheduled medications for today from real data
             const scheduledMeds = [];
             const now = new Date();
-            
+
             // Filter active medications and build schedule from real data
             allMedications.forEach(med => {
                 if (med.status !== 'active') return;
-                
+
                 // Parse frequency to determine if medication is due today
                 const frequency = med.frequency || med.schedule || '';
-                
+
                 // For medications with daily frequency, create schedule entries
                 if (frequency.toLowerCase().includes('daily') || frequency.toLowerCase().includes('times')) {
                     // Extract times from frequency if available, otherwise use default times
                     const times = ['08:00', '12:00', '14:00']; // Default schedule
-                    
+
                     times.forEach(time => {
                         const [hour, minute] = time.split(':').map(Number);
                         const scheduleTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
                         const minutesFromNow = Math.floor((scheduleTime - now) / (1000 * 60));
-                        
+
                         let status = 'upcoming';
                         if (minutesFromNow < -60) {
                             // More than 1 hour past - assume completed or skipped
@@ -8491,7 +8596,7 @@
                         } else if (minutesFromNow <= 30) {
                             status = 'pending';
                         }
-                        
+
                         scheduledMeds.push({
                             time: time,
                             medicationId: med.id,
@@ -8504,33 +8609,33 @@
                     });
                 }
             });
-            
+
             // Sort by time
             scheduledMeds.sort((a, b) => {
                 const [aH, aM] = a.time.split(':').map(Number);
                 const [bH, bM] = b.time.split(':').map(Number);
                 return (aH * 60 + aM) - (bH * 60 + bM);
             });
-            
+
             if (scheduledMeds.length === 0) {
                 timeline.style.display = 'none';
                 empty.style.display = 'block';
                 return;
             }
-            
+
             timeline.style.display = 'block';
             empty.style.display = 'none';
-            
+
             const statusText = {
                 'completed': '✓ Completed',
                 'pending': '⏰ Due Now',
                 'upcoming': '📅 Upcoming',
                 'overdue': '⚠️ Overdue'
             };
-            
+
             timeline.innerHTML = scheduledMeds.map(item => {
                 const statusClass = item.status;
-                
+
                 return `
                     <div class="schedule-item ${statusClass}">
                         <div class="schedule-time-marker">${item.time}</div>
@@ -8620,7 +8725,7 @@
 
                 // Make table sortable
                 makeSortable('#medication .table');
-                
+
                 // Check for medication alerts
                 checkMedicationAlerts();
             } catch (error) {
@@ -8677,7 +8782,7 @@
             const dropZone = document.getElementById('med-photo-upload-zone');
             dropZone.style.borderColor = 'var(--gray-300)';
             dropZone.style.background = 'transparent';
-            
+
             const files = event.dataTransfer.files;
             if (files.length > 0) {
                 processMedPhoto(files[0]);
@@ -8693,26 +8798,26 @@
 
         function processMedPhoto(file) {
             console.log('Processing medication photo:', file.name);
-            
+
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 showError('Invalid file type. Please upload an image (PNG, JPG, etc.).');
                 return;
             }
-            
+
             // Validate file size (10MB max)
             if (file.size > 10 * 1024 * 1024) {
                 showError('File is too large. Maximum size is 10MB.');
                 return;
             }
-            
+
             medicationPhotoFile = file;
-            
+
             // Create preview
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 medicationPhotoBase64 = e.target.result;
-                
+
                 document.getElementById('med-photo-thumbnail').src = e.target.result;
                 document.getElementById('med-photo-filename').textContent = file.name;
                 document.getElementById('med-photo-filesize').textContent = formatFileSize(file.size);
@@ -8828,10 +8933,10 @@
 
                 showSuccess('Medication administration recorded successfully!');
                 closeModal('administer-medication');
-                
+
                 // Reset photo data
                 removeMedPhoto();
-                
+
                 await loadMedicationList(currentMedicationFilter);
             } catch (error) {
                 console.error('Failed to record medication:', error);
@@ -10007,19 +10112,19 @@
                     openModal.style.display = 'none';
                 }
             }
-            
+
             // Ctrl/Cmd + K - Global search (future feature)
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
                 showInfo('Global search feature coming soon! Press ? for keyboard shortcuts.');
             }
-            
+
             // ? key - Show keyboard shortcuts help
             if (e.key === '?' && !e.target.matches('input, textarea')) {
                 e.preventDefault();
                 showKeyboardShortcuts();
             }
-            
+
             // Ctrl/Cmd + S - Save/Submit forms (prevent default browser save)
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
@@ -10053,7 +10158,7 @@
                     </button>
                 </div>
             `;
-            
+
             // Create temporary modal
             let modal = document.getElementById('keyboard-shortcuts-modal');
             if (!modal) {

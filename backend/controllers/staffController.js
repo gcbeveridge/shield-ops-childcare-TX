@@ -313,11 +313,11 @@ async function bulkImportStaff(req, res) {
     // Process each staff member
     for (let i = 0; i < staffData.length; i++) {
       const row = staffData[i];
-      
+
       try {
         // Build certifications object from CSV columns
         const certifications = {};
-        
+
         if (row['CPR Expiration']) {
           certifications.cpr = { expires: row['CPR Expiration'] };
         }

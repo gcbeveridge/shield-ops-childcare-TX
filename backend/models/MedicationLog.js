@@ -60,8 +60,8 @@ class MedicationLog {
     if (!this.dateTime) errors.push('Date and time are required');
     if (!this.dosageGiven) errors.push('Dosage given is required');
 
-    if (this.administeredBy && this.witnessedBy && 
-        this.administeredBy.id === this.witnessedBy.id) {
+    if (this.administeredBy && this.witnessedBy &&
+      this.administeredBy.id === this.witnessedBy.id) {
       errors.push('Administrator and witness must be different staff members');
     }
 
