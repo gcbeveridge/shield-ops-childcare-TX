@@ -1,0 +1,6 @@
+Name,Email,Role,Hire Date,CPR Expiration,First Aid Expiration,CDA Number,CDA Expiration,Teaching Cert Number,Teaching Cert Expiration,Food Handler Number,Food Handler Expiration,Background Check Status,TB Screening Status
+Sarah Johnson,sarah.johnson@example.com,Lead Teacher,2024-01-15,2025-12-31,2025-12-31,CDA123456,2026-06-30,TX-CERT-789012,2026-12-31,FH-2024-001,2025-11-30,Clear,Complete
+Michael Chen,michael.chen@example.com,Teacher,2024-03-20,2025-12-31,2025-12-31,,,,,,,Clear,Complete
+Emily Rodriguez,emily.rodriguez@example.com,Assistant Teacher,2024-06-01,2026-01-31,2026-01-31,CDA654321,2027-03-15,TX-CERT-345678,2027-08-31,FH-2024-002,2026-05-31,Clear,Complete
+David Williams,david.williams@example.com,Lead Teacher,2023-09-10,2025-10-31,2025-10-31,CDA789012,2026-12-31,TX-CERT-901234,2026-11-30,FH-2023-003,2025-09-30,Clear,Complete
+Jessica Martinez,jessica.martinez@example.com,Teacher,2024-02-14,2026-02-28,2026-02-28,,,,,FH-2024-004,2026-02-14,Clear,Complete

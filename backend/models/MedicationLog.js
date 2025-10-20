@@ -11,6 +11,8 @@ class MedicationLog {
     dosageGiven,
     notes = '',
     childResponse = '',
+    photo = null,
+    photoFilename = null,
     createdAt = new Date().toISOString()
   }) {
     this.id = id;
@@ -22,6 +24,8 @@ class MedicationLog {
     this.dosageGiven = dosageGiven;
     this.notes = notes;
     this.childResponse = childResponse;
+    this.photo = photo;
+    this.photoFilename = photoFilename;
     this.createdAt = createdAt;
   }
 
@@ -36,6 +40,8 @@ class MedicationLog {
       dosageGiven: this.dosageGiven,
       notes: this.notes,
       childResponse: this.childResponse,
+      photo: this.photo,
+      photoFilename: this.photoFilename,
       createdAt: this.createdAt
     };
   }

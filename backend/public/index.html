@@ -1621,6 +1621,393 @@
                 break-inside: avoid;
             }
         }
+
+        /* CSV Import Styles */
+        .drop-zone {
+            border: 2px dashed var(--gray-400);
+            border-radius: 12px;
+            padding: 48px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--gray-50);
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .drop-zone-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .drop-zone-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 4px;
+        }
+
+        .drop-zone-subtext {
+            font-size: 14px;
+            color: var(--gray-700);
+        }
+
+        .csv-step {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .csv-error-row {
+            background: var(--danger-light) !important;
+        }
+
+        .csv-warning-row {
+            background: var(--warning-light) !important;
+        }
+
+        /* Secondary Button Style */
+        .btn-secondary-small {
+            background: var(--gray-200);
+            color: var(--gray-900);
+        }
+
+        .btn-secondary-small:hover {
+            background: var(--gray-300);
+        }
+
+        /* Daily Schedule Timeline Styles */
+        .schedule-timeline {
+            position: relative;
+            padding-left: 100px;
+        }
+
+        .schedule-time-marker {
+            position: absolute;
+            left: 0;
+            width: 80px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-700);
+            padding-top: 2px;
+        }
+
+        .schedule-item {
+            position: relative;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--gray-300);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .schedule-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .schedule-item.completed {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.05), white);
+        }
+
+        .schedule-item.pending {
+            border-left-color: var(--warning);
+        }
+
+        .schedule-item.upcoming {
+            border-left-color: var(--primary);
+        }
+
+        .schedule-item.overdue {
+            border-left-color: var(--danger);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.05), white);
+        }
+
+        .schedule-status-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .schedule-status-badge.completed {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .schedule-status-badge.pending {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .schedule-status-badge.overdue {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        /* ============================================= */
+        /* UI/UX POLISH - ENHANCED ANIMATIONS & TRANSITIONS */
+        /* ============================================= */
+
+        /* Smooth transitions for all interactive elements */
+        .btn, .btn-small, .tab, .card, .modal-content, .badge, .form-input, .form-select {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Enhanced button hover effects */
+        .btn:hover:not(:disabled), .btn-small:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active:not(:disabled), .btn-small:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Tab hover effects */
+        .tab:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Card hover elevation */
+        .card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Smooth modal animations */
+        .modal {
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                backdrop-filter: blur(0px);
+            }
+            to {
+                opacity: 1;
+                backdrop-filter: blur(8px);
+            }
+        }
+
+        .modal-content {
+            animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Pulse animation for alerts */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .schedule-item.overdue {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Slide-in animation for screens */
+        .screen {
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Loading skeleton shimmer */
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Success checkmark animation */
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .badge-success::before {
+            content: '✓ ';
+            display: inline-block;
+            animation: checkmark 0.5s ease;
+        }
+
+        /* Progress bar animation */
+        @keyframes progress {
+            0% {
+                transform: scaleX(0);
+                transform-origin: left;
+            }
+            100% {
+                transform: scaleX(1);
+                transform-origin: left;
+            }
+        }
+
+        /* Focus ring for accessibility */
+        .btn:focus-visible, 
+        .form-input:focus-visible, 
+        .tab:focus-visible {
+            outline: 3px solid rgba(102, 126, 234, 0.5);
+            outline-offset: 2px;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Better form input focus */
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Toast notification animation */
+        @keyframes toastSlideIn {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-notification {
+            animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* Loading spinner */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            border: 3px solid rgba(102, 126, 234, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Ripple effect for buttons */
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Empty state illustrations */
+        .empty-state {
+            animation: fadeIn 0.6s ease;
+        }
+
+        /* Stagger animation for lists */
+        .table tbody tr {
+            animation: fadeIn 0.4s ease;
+            animation-fill-mode: both;
+        }
+
+        .table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+        .table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+        .table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+        .table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+        .table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+        /* Improved disabled state */
+        .btn:disabled, .btn-small:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Better tooltips */
+        [title] {
+            position: relative;
+            cursor: help;
+        }
+
+        /* Skeleton loading for cards */
+        .card.loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
     </style>
 </head>
 
@@ -2233,8 +2620,13 @@
                 <div class="card">
                     <div class="card-header">
                         <h2 class="card-title">Staff Roster</h2>
-                        <button class="btn-small btn-primary-small" onclick="openModal('add-staff')">+ Add
-                            Staff</button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-small btn-secondary-small" onclick="openModal('import-staff-csv')">
+                                📤 Import CSV
+                            </button>
+                            <button class="btn-small btn-primary-small" onclick="openModal('add-staff')">+ Add
+                                Staff</button>
+                        </div>
                     </div>
 
                     <table class="table data-table">
@@ -3052,8 +3444,13 @@
                         <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Texas Compliance Status</h3>
                         <p style="font-size: 14px; color: var(--gray-700);">All requirements met per §744.2651-2661</p>
                     </div>
-                    <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add Medication
-                        Authorization</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-small btn-secondary-small" onclick="openModal('import-medication-csv')">
+                            📤 Import CSV
+                        </button>
+                        <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add Medication
+                            Authorization</button>
+                    </div>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                     <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
@@ -3113,14 +3510,122 @@
                 </div>
             </div>
 
+            <!-- Medication Alerts Card -->
+            <div id="medication-alerts-card" class="card" style="display: none; border-left: 4px solid var(--warning);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: var(--warning);">
+                        🔔 Active Medication Alerts (<span id="alert-count">0</span>)
+                    </h3>
+                    <button class="btn-small btn-secondary-small" onclick="dismissAllAlerts()">Dismiss All</button>
+                </div>
+                <div id="medication-alerts-list"></div>
+            </div>
+
             <div class="card">
                 <div class="tabs">
-                    <button class="tab active" onclick="filterMedications('active')">Active Medications (12)</button>
-                    <button class="tab" onclick="filterMedications('today')">Today's Log (3)</button>
-                    <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (2)</button>
-                    <button class="tab" onclick="filterMedications('allergies')">Food Allergies (5)</button>
+                    <button class="tab active" onclick="filterMedications('active')">Active Medications (<span id="med-count-active">0</span>)</button>
+                    <button class="tab" onclick="showDailySchedule()">📅 Today's Schedule</button>
+                    <button class="tab" onclick="filterMedications('today')">Today's Log (<span id="med-count-today">0</span>)</button>
+                    <button class="tab" onclick="showAdministrationHistory()">📊 Administration History</button>
+                    <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (<span id="med-count-expired">0</span>)</button>
+                    <button class="tab" onclick="filterMedications('allergies')">Food Allergies (<span id="med-count-allergies">0</span>)</button>
                 </div>
 
+                <!-- Daily Schedule View -->
+                <div id="daily-schedule-view" style="display: none;">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+                            📅 Medication Schedule for <span id="schedule-date"></span>
+                        </h3>
+                        <p style="font-size: 14px; color: var(--gray-600);">All scheduled doses for today with real-time status</p>
+                    </div>
+
+                    <div id="schedule-timeline" style="margin-top: 24px;">
+                        <!-- Timeline will be populated dynamically -->
+                    </div>
+
+                    <div id="schedule-empty" style="display: none; text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">🎉</div>
+                        <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
+                            No Medications Scheduled Today
+                        </h3>
+                        <p style="font-size: 14px; color: var(--gray-600);">
+                            All children are medication-free today!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Administration History View -->
+                <div id="administration-history-view" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+                                📊 Administration History
+                            </h3>
+                            <p style="font-size: 14px; color: var(--gray-600);">Complete medication log with dual-staff verification records</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('csv')">
+                                📥 Export CSV
+                            </button>
+                            <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('pdf')">
+                                📄 Export PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Date Range</label>
+                            <select id="history-date-range" class="form-input" onchange="filterHistoryByDate()" style="font-size: 13px; padding: 8px;">
+                                <option value="today">Today</option>
+                                <option value="week" selected>This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Child</label>
+                            <select id="history-child-filter" class="form-input" onchange="filterHistory()" style="font-size: 13px; padding: 8px;">
+                                <option value="all">All Children</option>
+                                <option value="emma">Emma S.</option>
+                                <option value="liam">Liam M.</option>
+                                <option value="olivia">Olivia K.</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Medication</label>
+                            <select id="history-med-filter" class="form-input" onchange="filterHistory()" style="font-size: 13px; padding: 8px;">
+                                <option value="all">All Medications</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Staff Member</label>
+                            <select id="history-staff-filter" class="form-input" onchange="filterHistory()" style="font-size: 13px; padding: 8px;">
+                                <option value="all">All Staff</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- History Timeline -->
+                    <div id="history-timeline">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <div id="history-empty" style="display: none; text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
+                        <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
+                            No Administration Records Found
+                        </h3>
+                        <p style="font-size: 14px; color: var(--gray-600);">
+                            Try adjusting your filters or select a different date range
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Medication List Table -->
+                <div id="medication-list-table">
                 <table class="table">
                     <thead>
                         <tr>
@@ -3133,7 +3638,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="medications-table-body">
                         <tr>
                             <td><strong>Emma S.</strong></td>
                             <td>Albuterol Inhaler<br><small>For asthma</small></td>
@@ -4465,6 +4970,268 @@
         </div>
     </div>
 
+    <!-- Import Staff CSV Modal -->
+    <div id="import-staff-csv" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Import Staff from CSV</h2>
+            </div>
+            <div style="padding: 20px 0;">
+                <!-- Step 1: Upload File -->
+                <div id="csv-upload-step" class="csv-step">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 1: Upload CSV File</h3>
+                        <p style="font-size: 14px; color: var(--gray-700);">Upload a CSV file with staff information</p>
+                    </div>
+
+                    <!-- Download Template Button -->
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <a href="/templates/staff-import-template.csv" download class="btn btn-secondary">
+                            📥 Download CSV Template
+                        </a>
+                    </div>
+
+                    <!-- Drag-Drop Zone -->
+                    <div id="csv-drop-zone" class="drop-zone" 
+                         ondragover="handleCSVDragOver(event)" 
+                         ondrop="handleCSVDrop(event, 'staff')"
+                         onclick="document.getElementById('csv-file-input').click()">
+                        <div class="drop-zone-icon">📄</div>
+                        <p class="drop-zone-text">Drag and drop your CSV file here</p>
+                        <p class="drop-zone-subtext">or click to browse</p>
+                        <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">CSV files only, max 5MB</p>
+                        <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCSVFileSelect(event, 'staff')">
+                    </div>
+
+                    <!-- File Preview (shown after selection) -->
+                    <div id="csv-file-preview" style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 32px;">📄</span>
+                                <div>
+                                    <div id="csv-filename" style="font-weight: 600;"></div>
+                                    <div id="csv-filesize" style="font-size: 13px; color: var(--gray-700);"></div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secondary" onclick="removeCSVFile()">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Preview & Validate -->
+                <div id="csv-preview-step" class="csv-step" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 2: Review Data</h3>
+                        <p style="font-size: 14px; color: var(--gray-700);">Verify the imported data before confirming</p>
+                    </div>
+
+                    <!-- Summary Stats -->
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <div style="padding: 16px; background: var(--gray-50); border-radius: 8px; text-align: center;">
+                            <div id="csv-total-rows" style="font-size: 24px; font-weight: 700; color: var(--gray-900);">0</div>
+                            <div style="font-size: 13px; color: var(--gray-700);">Total Rows</div>
+                        </div>
+                        <div style="padding: 16px; background: var(--success-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-valid-rows" style="font-size: 24px; font-weight: 700; color: var(--success);">0</div>
+                            <div style="font-size: 13px; color: var(--success);">Valid</div>
+                        </div>
+                        <div style="padding: 16px; background: var(--danger-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-error-rows" style="font-size: 24px; font-weight: 700; color: var(--danger);">0</div>
+                            <div style="font-size: 13px; color: var(--danger);">Errors</div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Table -->
+                    <div style="max-height: 400px; overflow: auto; border: 1px solid var(--gray-300); border-radius: 8px;">
+                        <table class="table">
+                            <thead id="csv-preview-header">
+                                <!-- Dynamic headers -->
+                            </thead>
+                            <tbody id="csv-preview-body">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Error Messages -->
+                    <div id="csv-errors" style="margin-top: 16px; display: none;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: var(--danger); margin-bottom: 8px;">
+                            ⚠️ Validation Errors
+                        </h4>
+                        <div id="csv-error-list" style="max-height: 150px; overflow: auto; padding: 12px; background: var(--danger-light); border-radius: 8px; font-size: 13px;">
+                            <!-- Dynamic error messages -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Import Progress -->
+                <div id="csv-import-step" class="csv-step" style="display: none;">
+                    <div style="text-align: center;">
+                        <div class="spinner" style="margin: 0 auto 16px;"></div>
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Importing Staff...</h3>
+                        <p id="csv-import-status" style="font-size: 14px; color: var(--gray-700);">Processing 0 of 0 rows</p>
+                        <div class="progress" style="margin-top: 16px;">
+                            <div id="csv-import-progress" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Results -->
+                <div id="csv-results-step" class="csv-step" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div id="csv-results-icon" style="font-size: 64px; margin-bottom: 16px;">✅</div>
+                        <h3 id="csv-results-title" style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Import Complete!</h3>
+                        <p id="csv-results-message" style="font-size: 14px; color: var(--gray-700);"></p>
+                    </div>
+
+                    <!-- Results Summary -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div style="padding: 20px; background: var(--success-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-success-count" style="font-size: 32px; font-weight: 700; color: var(--success);">0</div>
+                            <div style="font-size: 14px; color: var(--success); font-weight: 600;">Successfully Imported</div>
+                        </div>
+                        <div style="padding: 20px; background: var(--danger-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-failure-count" style="font-size: 32px; font-weight: 700; color: var(--danger);">0</div>
+                            <div style="font-size: 14px; color: var(--danger); font-weight: 600;">Failed</div>
+                        </div>
+                    </div>
+
+                    <!-- Failed Rows Detail -->
+                    <div id="csv-failed-rows" style="display: none;">
+                        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Failed Rows:</h4>
+                        <div id="csv-failed-list" style="max-height: 200px; overflow: auto; padding: 12px; background: var(--gray-50); border-radius: 8px; font-size: 13px;">
+                            <!-- Failed rows list -->
+                        </div>
+                        <div style="margin-top: 12px;">
+                            <button type="button" class="btn btn-secondary" onclick="downloadCSVErrorReport()">
+                                📥 Download Error Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="csv-back-btn" class="btn btn-secondary" onclick="csvGoBack()" style="display: none;">
+                    ← Back
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeCSVImport()">
+                    <span id="csv-cancel-text">Cancel</span>
+                </button>
+                <button type="button" id="csv-next-btn" class="btn btn-primary" onclick="csvNextStep()" disabled>
+                    Next →
+                </button>
+                <button type="button" id="csv-import-btn" class="btn btn-primary" onclick="executeCSVImport('staff')" style="display: none;">
+                    Confirm Import
+                </button>
+                <button type="button" id="csv-done-btn" class="btn btn-primary" onclick="closeCSVImport()" style="display: none;">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Medications CSV Modal -->
+    <div id="import-medication-csv" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Import Medications from CSV</h2>
+            </div>
+            <div style="padding: 20px 0;">
+                <!-- Step 1: Upload File -->
+                <div id="csv-med-upload-step" class="csv-step">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 1: Upload CSV File</h3>
+                        <p style="font-size: 14px; color: var(--gray-700);">Upload a CSV file with medication authorizations</p>
+                        <div style="margin-top: 8px; padding: 12px; background: var(--warning-light); border-radius: 8px; border-left: 4px solid var(--warning);">
+                            <strong style="color: var(--warning);">⚠️ Texas Compliance:</strong>
+                            <span style="font-size: 13px; color: var(--gray-800);"> Maximum 1-year authorization per §746.2653</span>
+                        </div>
+                    </div>
+
+                    <!-- Download Template Button -->
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <a href="/templates/medications-import-template.csv" download class="btn btn-secondary">
+                            📥 Download CSV Template
+                        </a>
+                    </div>
+
+                    <!-- Drag-Drop Zone -->
+                    <div id="csv-med-drop-zone" class="drop-zone" 
+                         ondragover="handleCSVDragOver(event)" 
+                         ondrop="handleCSVDrop(event, 'medication')"
+                         onclick="document.getElementById('csv-med-file-input').click()">
+                        <div class="drop-zone-icon">📄</div>
+                        <p class="drop-zone-text">Drag and drop your CSV file here</p>
+                        <p class="drop-zone-subtext">or click to browse</p>
+                        <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">CSV files only, max 5MB</p>
+                        <input type="file" id="csv-med-file-input" accept=".csv" style="display: none;" onchange="handleCSVFileSelect(event, 'medication')">
+                    </div>
+
+                    <!-- File Preview -->
+                    <div id="csv-med-file-preview" style="display: none; margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span style="font-size: 32px;">📄</span>
+                                <div>
+                                    <div id="csv-med-filename" style="font-weight: 600;"></div>
+                                    <div id="csv-med-filesize" style="font-size: 13px; color: var(--gray-700);"></div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-secondary" onclick="removeCSVMedFile()">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview/Results steps similar to staff import -->
+                <div id="csv-med-preview-step" class="csv-step" style="display: none;">
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Step 2: Review Medication Data</h3>
+                        <p style="font-size: 14px; color: var(--gray-700);">Verify authorizations before importing</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <div style="padding: 16px; background: var(--gray-50); border-radius: 8px; text-align: center;">
+                            <div id="csv-med-total-rows" style="font-size: 24px; font-weight: 700; color: var(--gray-900);">0</div>
+                            <div style="font-size: 13px; color: var(--gray-700);">Total Rows</div>
+                        </div>
+                        <div style="padding: 16px; background: var(--success-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-med-valid-rows" style="font-size: 24px; font-weight: 700; color: var(--success);">0</div>
+                            <div style="font-size: 13px; color: var(--success);">Valid</div>
+                        </div>
+                        <div style="padding: 16px; background: var(--danger-light); border-radius: 8px; text-align: center;">
+                            <div id="csv-med-error-rows" style="font-size: 24px; font-weight: 700; color: var(--danger);">0</div>
+                            <div style="font-size: 13px; color: var(--danger);">Errors</div>
+                        </div>
+                    </div>
+
+                    <div style="max-height: 400px; overflow: auto; border: 1px solid var(--gray-300); border-radius: 8px;">
+                        <table class="table">
+                            <thead id="csv-med-preview-header"></thead>
+                            <tbody id="csv-med-preview-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="csv-med-errors" style="margin-top: 16px; display: none;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: var(--danger); margin-bottom: 8px;">
+                            ⚠️ Validation Errors
+                        </h4>
+                        <div id="csv-med-error-list" style="max-height: 150px; overflow: auto; padding: 12px; background: var(--danger-light); border-radius: 8px; font-size: 13px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="csv-med-back-btn" class="btn btn-secondary" onclick="csvMedGoBack()" style="display: none;">← Back</button>
+                <button type="button" class="btn btn-secondary" onclick="closeCSVMedImport()">
+                    <span id="csv-med-cancel-text">Cancel</span>
+                </button>
+                <button type="button" id="csv-med-next-btn" class="btn btn-primary" onclick="csvMedNextStep()" disabled>Next →</button>
+                <button type="button" id="csv-med-import-btn" class="btn btn-primary" onclick="executeCSVImport('medication')" style="display: none;">Confirm Import</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Incident Details Modal -->
     <div id="incident-details" class="modal">
         <div class="modal-content" style="max-width: 800px;">
@@ -4536,6 +5303,42 @@
                 <div class="form-group">
                     <label class="form-label">Time Administered</label>
                     <input id="admin-time" type="time" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        📷 Verification Photo 
+                        <span style="font-size: 12px; color: var(--gray-600); font-weight: 400;">(Recommended per Texas §746.2655)</span>
+                    </label>
+                    <div id="med-photo-upload-zone" class="drop-zone" style="border: 2px dashed var(--gray-300); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                        ondragover="handleMedPhotoDragOver(event)"
+                        ondrop="handleMedPhotoDrop(event)"
+                        onclick="document.getElementById('med-photo-input').click()">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📷</div>
+                        <div style="font-size: 14px; color: var(--gray-700); font-weight: 500; margin-bottom: 4px;">
+                            Click to upload or drag & drop
+                        </div>
+                        <div style="font-size: 12px; color: var(--gray-600);">
+                            Photo of medication container and child (if parent consents)
+                        </div>
+                        <div style="font-size: 11px; color: var(--gray-500); margin-top: 8px;">
+                            PNG, JPG up to 10MB
+                        </div>
+                    </div>
+                    <input type="file" id="med-photo-input" accept="image/*" capture="environment" style="display: none;" onchange="handleMedPhotoSelect(event)">
+                    
+                    <div id="med-photo-preview" style="display: none; margin-top: 12px; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <img id="med-photo-thumbnail" src="" alt="Preview" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid var(--gray-300);">
+                            <div style="flex: 1;">
+                                <div style="font-size: 13px; font-weight: 600; color: var(--gray-800);" id="med-photo-filename"></div>
+                                <div style="font-size: 12px; color: var(--gray-600); margin-top: 2px;" id="med-photo-filesize"></div>
+                                <div style="font-size: 11px; color: var(--success); margin-top: 4px;">✓ Ready to upload</div>
+                            </div>
+                            <button type="button" class="btn-icon-small" onclick="removeMedPhoto()" style="background: var(--danger); color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;">Remove</button>
+                        </div>
+                    </div>
+                    <small class="form-help">Documentation helps verify proper administration and protects staff from liability</small>
                 </div>
 
                 <div class="form-group">
@@ -4645,6 +5448,9 @@
         </div>
     </div>
 
+    <!-- PapaParse CSV Library -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
     <script>
         // =============================================
         // API CLIENT & AUTHENTICATION
@@ -4746,12 +5552,28 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            toast.className = `toast toast-notification ${type}`;
 
-            const icon = type === 'success' ? '✓' : '✕';
+            const icons = {
+                'success': '✓',
+                'error': '✕',
+                'warning': '⚠',
+                'info': 'ℹ'
+            };
+            
+            const icon = icons[type] || icons['info'];
+            
+            // Split message by newlines for multi-line messages
+            const messageParts = message.split('\n\n');
+            const mainMessage = messageParts[0];
+            const subMessage = messageParts[1] || '';
+            
             toast.innerHTML = `
                 <div class="toast-icon">${icon}</div>
-                <div class="toast-message">${message}</div>
+                <div class="toast-message">
+                    <div style="font-weight: 600;">${mainMessage}</div>
+                    ${subMessage ? `<div style="font-size: 12px; margin-top: 4px; opacity: 0.9;">${subMessage}</div>` : ''}
+                </div>
                 <button class="toast-close" onclick="this.parentElement.remove()">✕</button>
             `;
 
@@ -4760,27 +5582,57 @@
             setTimeout(() => {
                 toast.style.animation = 'slideIn 0.3s ease reverse';
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, 5000); // Extended to 5s for better readability
         }
 
         function showError(message) {
-            showToast(message, 'error');
+            // Enhanced error messages with context
+            const errorContext = {
+                'Failed to load medication': 'The medication record could not be found. It may have been deleted or expired.',
+                'Medication not found': 'This medication authorization no longer exists. Please check the Active Medications list.',
+                'Authentication failed': 'Your session may have expired. Please try logging in again.',
+                'Failed to load medications': 'Unable to connect to the server. Please check your internet connection and try again.',
+                'Failed to load staff': 'Unable to load staff data. Please refresh the page or contact support.',
+                'Network error': 'Connection lost. Please check your internet connection and try again.',
+                'Validation failed': 'Please check all required fields are filled correctly.'
+            };
+            
+            // Check if we have enhanced context
+            let enhancedMessage = message;
+            for (const [key, value] of Object.entries(errorContext)) {
+                if (message.includes(key)) {
+                    enhancedMessage = `${message}\n\n${value}`;
+                    break;
+                }
+            }
+            
+            showToast(enhancedMessage, 'error');
         }
 
         function showSuccess(message) {
             showToast(message, 'success');
         }
 
+        function showInfo(message) {
+            showToast(message, 'info');
+        }
+
+        function showWarning(message) {
+            showToast(message, 'warning');
+        }
+
         function setLoading(button, loading = true) {
             if (loading) {
                 button.disabled = true;
                 button.dataset.originalText = button.textContent;
-                button.innerHTML = '<span class="spinner"></span> Loading...';
-                button.style.opacity = '0.7';
+                button.innerHTML = '<div class="spinner" style="display: inline-block; width: 16px; height: 16px; margin-right: 8px; vertical-align: middle;"></div>Loading...';
+                button.style.opacity = '0.8';
+                button.style.cursor = 'not-allowed';
             } else {
                 button.disabled = false;
                 button.innerHTML = button.dataset.originalText || button.textContent;
                 button.style.opacity = '1';
+                button.style.cursor = 'pointer';
             }
         }
 
@@ -6064,6 +6916,448 @@
             }
         };
 
+        // =============================================
+        // CSV BULK IMPORT SYSTEM
+        // =============================================
+
+        let csvData = {
+            type: null,
+            file: null,
+            parsed: null,
+            validRows: [],
+            errorRows: [],
+            currentStep: 1
+        };
+
+        // Handle drag over
+        function handleCSVDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        // Handle file drop
+        function handleCSVDrop(event, type) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.currentTarget.classList.remove('drag-over');
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                processCSVFile(files[0], type);
+            }
+        }
+
+        // Handle file select
+        function handleCSVFileSelect(event, type) {
+            const file = event.target.files[0];
+            if (file) {
+                processCSVFile(file, type);
+            }
+        }
+
+        // Process CSV file
+        function processCSVFile(file, type) {
+            console.log('Processing CSV file:', file.name, 'Type:', type);
+            
+            // Validate file type
+            if (!file.name.endsWith('.csv')) {
+                showError('Invalid file type. Please upload a CSV file.');
+                return;
+            }
+            
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showError('File is too large. Maximum size is 5MB.');
+                return;
+            }
+            
+            // Store file info
+            csvData.type = type;
+            csvData.file = file;
+            
+            // Show file preview
+            const prefix = type === 'medication' ? 'med-' : '';
+            document.getElementById(`csv-${prefix}filename`).textContent = file.name;
+            document.getElementById(`csv-${prefix}filesize`).textContent = formatFileSize(file.size);
+            document.getElementById(`csv-${prefix}file-preview`).style.display = 'block';
+            document.getElementById(`csv-${prefix}drop-zone`).style.display = 'none';
+            
+            // Enable next button
+            document.getElementById(`csv-${prefix}next-btn`).disabled = false;
+            
+            // Parse CSV
+            parseCSV(file, type);
+        }
+
+        // Parse CSV with PapaParse
+        function parseCSV(file, type) {
+            console.log('Parsing CSV file...');
+            
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    console.log('CSV parsed:', results);
+                    csvData.parsed = results.data;
+                    
+                    // Validate data
+                    validateCSVData(results.data, type);
+                },
+                error: function(error) {
+                    console.error('CSV parse error:', error);
+                    showError('Failed to parse CSV file: ' + error.message);
+                }
+            });
+        }
+
+        // Validate CSV data
+        function validateCSVData(data, type) {
+            console.log('Validating CSV data...', data.length, 'rows');
+            
+            csvData.validRows = [];
+            csvData.errorRows = [];
+            
+            const requiredFields = type === 'staff' 
+                ? ['Name', 'Email', 'Role', 'Hire Date']
+                : ['Child Name', 'Medication Name', 'Dosage', 'Frequency', 'Route', 'Start Date', 'End Date', 'Prescriber Name', 'Prescriber Phone'];
+            
+            data.forEach((row, index) => {
+                const errors = [];
+                
+                // Check required fields
+                requiredFields.forEach(field => {
+                    if (!row[field] || row[field].trim() === '') {
+                        errors.push(`Missing required field: ${field}`);
+                    }
+                });
+                
+                // Type-specific validation
+                if (type === 'staff') {
+                    // Validate email format
+                    if (row.Email && !isValidEmail(row.Email)) {
+                        errors.push('Invalid email format');
+                    }
+                    
+                    // Validate hire date
+                    if (row['Hire Date'] && !isValidDate(row['Hire Date'])) {
+                        errors.push('Invalid hire date format (use YYYY-MM-DD)');
+                    }
+                } else if (type === 'medication') {
+                    // Validate dates
+                    if (row['Start Date'] && !isValidDate(row['Start Date'])) {
+                        errors.push('Invalid start date format (use YYYY-MM-DD)');
+                    }
+                    if (row['End Date'] && !isValidDate(row['End Date'])) {
+                        errors.push('Invalid end date format (use YYYY-MM-DD)');
+                    }
+                    
+                    // Validate route
+                    const validRoutes = ['Oral', 'Injection', 'Topical', 'Inhalation'];
+                    if (row.Route && !validRoutes.includes(row.Route)) {
+                        errors.push(`Invalid route (must be: ${validRoutes.join(', ')})`);
+                    }
+                    
+                    // Texas compliance: Max 1 year authorization
+                    if (row['Start Date'] && row['End Date']) {
+                        const start = new Date(row['Start Date']);
+                        const end = new Date(row['End Date']);
+                        const daysDiff = (end - start) / (1000 * 60 * 60 * 24);
+                        if (daysDiff > 365) {
+                            errors.push('Authorization exceeds 1 year (Texas §746.2653)');
+                        }
+                    }
+                }
+                
+                if (errors.length > 0) {
+                    csvData.errorRows.push({ row: index + 1, data: row, errors });
+                } else {
+                    csvData.validRows.push({ row: index + 1, data: row });
+                }
+            });
+            
+            console.log('Validation complete:', csvData.validRows.length, 'valid,', csvData.errorRows.length, 'errors');
+        }
+
+        // CSV Navigation & Display Functions
+        function csvNextStep() {
+            const prefix = csvData.type === 'medication' ? 'med-' : '';
+            
+            if (csvData.currentStep === 1) {
+                csvData.currentStep = 2;
+                document.getElementById(`csv-${prefix}upload-step`).style.display = 'none';
+                document.getElementById(`csv-${prefix}preview-step`).style.display = 'block';
+                document.getElementById(`csv-${prefix}back-btn`).style.display = 'inline-block';
+                document.getElementById(`csv-${prefix}next-btn`).style.display = 'none';
+                document.getElementById(`csv-${prefix}import-btn`).style.display = 'inline-block';
+                
+                displayCSVPreview(csvData.type);
+            }
+        }
+
+        function csvGoBack() {
+            if (csvData.currentStep === 2) {
+                csvData.currentStep = 1;
+                document.getElementById('csv-upload-step').style.display = 'block';
+                document.getElementById('csv-preview-step').style.display = 'none';
+                document.getElementById('csv-back-btn').style.display = 'none';
+                document.getElementById('csv-next-btn').style.display = 'inline-block';
+                document.getElementById('csv-import-btn').style.display = 'none';
+            }
+        }
+
+        function csvMedGoBack() {
+            if (csvData.currentStep === 2) {
+                csvData.currentStep = 1;
+                document.getElementById('csv-med-upload-step').style.display = 'block';
+                document.getElementById('csv-med-preview-step').style.display = 'none';
+                document.getElementById('csv-med-back-btn').style.display = 'none';
+                document.getElementById('csv-med-next-btn').style.display = 'inline-block';
+                document.getElementById('csv-med-import-btn').style.display = 'none';
+            }
+        }
+
+        function csvMedNextStep() {
+            const prefix = 'med-';
+            
+            if (csvData.currentStep === 1) {
+                csvData.currentStep = 2;
+                document.getElementById(`csv-${prefix}upload-step`).style.display = 'none';
+                document.getElementById(`csv-${prefix}preview-step`).style.display = 'block';
+                document.getElementById(`csv-${prefix}back-btn`).style.display = 'inline-block';
+                document.getElementById(`csv-${prefix}next-btn`).style.display = 'none';
+                document.getElementById(`csv-${prefix}import-btn`).style.display = 'inline-block';
+                
+                displayCSVPreview(csvData.type);
+            }
+        }
+
+        function displayCSVPreview(type) {
+            const prefix = type === 'medication' ? 'med-' : '';
+            
+            document.getElementById(`csv-${prefix}total-rows`).textContent = csvData.parsed.length;
+            document.getElementById(`csv-${prefix}valid-rows`).textContent = csvData.validRows.length;
+            document.getElementById(`csv-${prefix}error-rows`).textContent = csvData.errorRows.length;
+            
+            const headers = Object.keys(csvData.parsed[0] || {});
+            const headerHTML = headers.map(h => `<th>${h}</th>`).join('');
+            document.getElementById(`csv-${prefix}preview-header`).innerHTML = `<tr>${headerHTML}<th>Status</th></tr>`;
+            
+            const bodyHTML = csvData.parsed.slice(0, 50).map((row, index) => {
+                const hasError = csvData.errorRows.find(e => e.row === index + 1);
+                const rowClass = hasError ? 'csv-error-row' : '';
+                const cells = headers.map(h => `<td>${row[h] || ''}</td>`).join('');
+                const status = hasError 
+                    ? `<span class="badge badge-danger">Error</span>`
+                    : `<span class="badge badge-success">Valid</span>`;
+                return `<tr class="${rowClass}">${cells}<td>${status}</td></tr>`;
+            }).join('');
+            
+            document.getElementById(`csv-${prefix}preview-body`).innerHTML = bodyHTML;
+            
+            if (csvData.errorRows.length > 0) {
+                document.getElementById(`csv-${prefix}errors`).style.display = 'block';
+                const errorHTML = csvData.errorRows.slice(0, 20).map(e => 
+                    `<div style="margin-bottom: 8px;">
+                        <strong>Row ${e.row}:</strong> ${e.errors.join(', ')}
+                    </div>`
+                ).join('');
+                document.getElementById(`csv-${prefix}error-list`).innerHTML = errorHTML;
+            } else {
+                document.getElementById(`csv-${prefix}errors`).style.display = 'none';
+            }
+        }
+
+        async function executeCSVImport(type) {
+            console.log('Executing CSV import for:', type);
+            
+            if (csvData.validRows.length === 0) {
+                showError('No valid rows to import');
+                return;
+            }
+            
+            if (!AppState.facility || !AppState.facility.id) {
+                showError('Facility not loaded. Please refresh the page.');
+                return;
+            }
+            
+            const prefix = type === 'medication' ? 'med-' : '';
+            
+            csvData.currentStep = 3;
+            document.getElementById(`csv-${prefix}preview-step`).style.display = 'none';
+            document.getElementById(`csv-${prefix}import-btn`).style.display = 'none';
+            document.getElementById(`csv-${prefix}back-btn`).style.display = 'none';
+            document.getElementById('csv-cancel-text').textContent = 'Close';
+            
+            if (type === 'staff') {
+                document.getElementById('csv-import-step').style.display = 'block';
+            }
+            
+            try {
+                const results = await importCSVData(type, csvData.validRows);
+                showImportResults(results, type);
+            } catch (error) {
+                console.error('Import failed:', error);
+                showError('Import failed: ' + error.message);
+                closeCSVImport();
+            }
+        }
+
+        async function importCSVData(type, rows) {
+            const endpoint = type === 'staff' 
+                ? `/facilities/${AppState.facility.id}/staff/bulk`
+                : `/facilities/${AppState.facility.id}/medications/bulk`;
+            
+            const data = rows.map(r => r.data);
+            
+            console.log('Importing to:', endpoint, data.length, 'rows');
+            
+            const response = await apiRequest(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data })
+            });
+            
+            return response;
+        }
+
+        function showImportResults(results, type) {
+            const prefix = type === 'medication' ? 'med-' : '';
+            
+            if (type === 'staff') {
+                document.getElementById('csv-import-step').style.display = 'none';
+                document.getElementById('csv-results-step').style.display = 'block';
+                document.getElementById('csv-done-btn').style.display = 'inline-block';
+                
+                const success = results.success || 0;
+                const failed = results.failed || 0;
+                
+                document.getElementById('csv-success-count').textContent = success;
+                document.getElementById('csv-failure-count').textContent = failed;
+                
+                if (failed > 0) {
+                    document.getElementById('csv-results-icon').textContent = '⚠️';
+                    document.getElementById('csv-results-title').textContent = 'Import Completed with Errors';
+                    document.getElementById('csv-results-message').textContent = 
+                        `${success} staff members imported successfully, ${failed} failed.`;
+                    
+                    document.getElementById('csv-failed-rows').style.display = 'block';
+                    const failedHTML = (results.errors || []).map(e => 
+                        `<div style="margin-bottom: 8px;">
+                            <strong>${e.row}:</strong> ${e.error}
+                        </div>`
+                    ).join('');
+                    document.getElementById('csv-failed-list').innerHTML = failedHTML;
+                } else {
+                    document.getElementById('csv-results-message').textContent = 
+                        `All ${success} staff members imported successfully!`;
+                }
+            } else {
+                showSuccess(`Imported ${results.success || csvData.validRows.length} medications successfully!`);
+                closeCSVMedImport();
+                loadMedicationList();
+            }
+        }
+
+        function closeCSVImport() {
+            closeModal('import-staff-csv');
+            resetCSVImport();
+            loadStaffList();
+        }
+
+        function closeCSVMedImport() {
+            closeModal('import-medication-csv');
+            resetCSVImport();
+        }
+
+        function resetCSVImport() {
+            csvData = {
+                type: null,
+                file: null,
+                parsed: null,
+                validRows: [],
+                errorRows: [],
+                currentStep: 1
+            };
+            
+            ['', 'med-'].forEach(prefix => {
+                const uploadStep = document.getElementById(`csv-${prefix}upload-step`);
+                const previewStep = document.getElementById(`csv-${prefix}preview-step`);
+                const filePreview = document.getElementById(`csv-${prefix}file-preview`);
+                const dropZone = document.getElementById(`csv-${prefix}drop-zone`);
+                const nextBtn = document.getElementById(`csv-${prefix}next-btn`);
+                
+                if (uploadStep) uploadStep.style.display = 'block';
+                if (previewStep) previewStep.style.display = 'none';
+                if (filePreview) filePreview.style.display = 'none';
+                if (dropZone) dropZone.style.display = 'block';
+                if (nextBtn) nextBtn.disabled = true;
+            });
+            
+            const importStep = document.getElementById('csv-import-step');
+            const resultsStep = document.getElementById('csv-results-step');
+            const backBtn = document.getElementById('csv-back-btn');
+            const importBtn = document.getElementById('csv-import-btn');
+            const doneBtn = document.getElementById('csv-done-btn');
+            
+            if (importStep) importStep.style.display = 'none';
+            if (resultsStep) resultsStep.style.display = 'none';
+            if (backBtn) backBtn.style.display = 'none';
+            if (importBtn) importBtn.style.display = 'none';
+            if (doneBtn) doneBtn.style.display = 'none';
+            
+            document.getElementById('csv-cancel-text').textContent = 'Cancel';
+        }
+
+        function removeCSVFile() {
+            document.getElementById('csv-file-preview').style.display = 'none';
+            document.getElementById('csv-drop-zone').style.display = 'block';
+            document.getElementById('csv-next-btn').disabled = true;
+            document.getElementById('csv-file-input').value = '';
+            csvData.file = null;
+            csvData.parsed = null;
+        }
+
+        function removeCSVMedFile() {
+            document.getElementById('csv-med-file-preview').style.display = 'none';
+            document.getElementById('csv-med-drop-zone').style.display = 'block';
+            document.getElementById('csv-med-next-btn').disabled = true;
+            document.getElementById('csv-med-file-input').value = '';
+            csvData.file = null;
+            csvData.parsed = null;
+        }
+
+        function downloadCSVErrorReport() {
+            const csvContent = 'Row,Error\n' + csvData.errorRows.map(e => 
+                `${e.row},"${e.errors.join('; ')}"`
+            ).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'import-errors.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function isValidDate(dateString) {
+            const regex = /^\d{4}-\d{2}-\d{2}$/;
+            if (!regex.test(dateString)) return false;
+            const date = new Date(dateString);
+            return date instanceof Date && !isNaN(date);
+        }
+
         // STAFF MANAGEMENT
         function toggleCertificationFields(type) {
             const checkbox = document.getElementById(`staff-has-${type}`);
@@ -6784,6 +8078,504 @@
         let allMedications = [];
         let currentMedicationFilter = 'active';
 
+        // =============================================
+        // DAILY MEDICATION SCHEDULE
+        // =============================================
+
+        let medicationAlerts = [];
+
+        function checkMedicationAlerts() {
+            console.log('Checking medication alerts...');
+            
+            medicationAlerts = [];
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            // Check all active medications
+            allMedications.forEach(med => {
+                if (med.status !== 'active') return;
+                
+                // Check for expiring authorizations (within 7 days)
+                const endDate = new Date(med.endDate);
+                const daysUntilExpiry = Math.floor((endDate - now) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiry <= 7 && daysUntilExpiry >= 0) {
+                    medicationAlerts.push({
+                        type: 'expiring',
+                        severity: daysUntilExpiry <= 3 ? 'high' : 'medium',
+                        child: med.childInfo?.name || med.childName,
+                        medication: med.medicationName,
+                        message: `Authorization expires in ${daysUntilExpiry} day${daysUntilExpiry !== 1 ? 's' : ''}`,
+                        action: 'Renew authorization',
+                        medicationId: med.id
+                    });
+                } else if (daysUntilExpiry < 0) {
+                    medicationAlerts.push({
+                        type: 'expired',
+                        severity: 'high',
+                        child: med.childInfo?.name || med.childName,
+                        medication: med.medicationName,
+                        message: `Authorization expired ${Math.abs(daysUntilExpiry)} day${Math.abs(daysUntilExpiry) !== 1 ? 's' : ''} ago`,
+                        action: 'Renew immediately',
+                        medicationId: med.id
+                    });
+                }
+                
+                // Check for upcoming doses (mock data - in production would check schedule)
+                if (med.frequency && med.frequency.toLowerCase().includes('daily')) {
+                    const scheduledTime = '12:00'; // Mock scheduled time
+                    const [hour, minute] = scheduledTime.split(':').map(Number);
+                    const scheduleDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                    const minutesUntilDose = Math.floor((scheduleDate - now) / (1000 * 60));
+                    
+                    if (minutesUntilDose > 0 && minutesUntilDose <= 30) {
+                        medicationAlerts.push({
+                            type: 'upcoming',
+                            severity: 'low',
+                            child: med.childInfo?.name || med.childName,
+                            medication: med.medicationName,
+                            message: `Dose due in ${minutesUntilDose} minutes`,
+                            action: 'Prepare medication',
+                            medicationId: med.id
+                        });
+                    } else if (minutesUntilDose < 0 && minutesUntilDose >= -60) {
+                        medicationAlerts.push({
+                            type: 'missed',
+                            severity: 'high',
+                            child: med.childInfo?.name || med.childName,
+                            medication: med.medicationName,
+                            message: `Dose was due ${Math.abs(minutesUntilDose)} minutes ago`,
+                            action: 'Administer now',
+                            medicationId: med.id
+                        });
+                    }
+                }
+            });
+            
+            displayMedicationAlerts();
+        }
+
+        function displayMedicationAlerts() {
+            const alertsCard = document.getElementById('medication-alerts-card');
+            const alertsList = document.getElementById('medication-alerts-list');
+            const alertCount = document.getElementById('alert-count');
+            
+            if (medicationAlerts.length === 0) {
+                alertsCard.style.display = 'none';
+                return;
+            }
+            
+            alertsCard.style.display = 'block';
+            alertCount.textContent = medicationAlerts.length;
+            
+            const severityColors = {
+                'high': { bg: 'var(--danger-light)', border: 'var(--danger)', icon: '⚠️' },
+                'medium': { bg: 'var(--warning-light)', border: 'var(--warning)', icon: '⏰' },
+                'low': { bg: '#dbeafe', border: '#3b82f6', icon: 'ℹ️' }
+            };
+            
+            alertsList.innerHTML = medicationAlerts.map((alert, index) => {
+                const colors = severityColors[alert.severity];
+                return `
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: ${colors.bg}; border-left: 4px solid ${colors.border}; border-radius: 8px; margin-bottom: 12px;">
+                        <div style="font-size: 24px;">${colors.icon}</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 600; color: var(--gray-900); margin-bottom: 4px;">
+                                ${alert.child} - ${alert.medication}
+                            </div>
+                            <div style="font-size: 13px; color: var(--gray-700);">
+                                ${alert.message}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button class="btn-small btn-primary-small" onclick="handleAlert('${alert.medicationId}', '${alert.type}')" style="white-space: nowrap;">
+                                ${alert.action}
+                            </button>
+                            <button class="btn-icon-small" onclick="dismissAlert(${index})" style="background: var(--gray-200); color: var(--gray-700); border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 16px;">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function handleAlert(medicationId, type) {
+            console.log('Handling alert:', medicationId, type);
+            
+            if (type === 'missed' || type === 'upcoming') {
+                administerMedication(medicationId);
+            } else if (type === 'expiring' || type === 'expired') {
+                showInfo('Please contact parent to renew medication authorization');
+            }
+        }
+
+        function dismissAlert(index) {
+            medicationAlerts.splice(index, 1);
+            displayMedicationAlerts();
+        }
+
+        function dismissAllAlerts() {
+            medicationAlerts = [];
+            displayMedicationAlerts();
+        }
+
+        function showDailySchedule() {
+            console.log('Showing daily medication schedule');
+            
+            // Update tab state
+            document.querySelectorAll('#medication .tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide table and history, show schedule
+            document.getElementById('medication-list-table').style.display = 'none';
+            document.getElementById('administration-history-view').style.display = 'none';
+            document.getElementById('daily-schedule-view').style.display = 'block';
+            
+            // Set today's date
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('schedule-date').textContent = dateStr;
+            
+            // Build schedule timeline
+            buildScheduleTimeline();
+        }
+
+        // =============================================
+        // ADMINISTRATION HISTORY
+        // =============================================
+
+        let administrationHistory = [];
+
+        function showAdministrationHistory() {
+            console.log('Showing administration history');
+            
+            // Update tab state
+            document.querySelectorAll('#medication .tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide table and schedule, show history
+            document.getElementById('medication-list-table').style.display = 'none';
+            document.getElementById('daily-schedule-view').style.display = 'none';
+            document.getElementById('administration-history-view').style.display = 'block';
+            
+            // Load history data
+            loadAdministrationHistory();
+        }
+
+        async function loadAdministrationHistory() {
+            console.log('Loading administration history...');
+            
+            // Mock data - in production, fetch from API
+            administrationHistory = [
+                {
+                    id: '1',
+                    date: new Date().toISOString(),
+                    child: 'Emma S.',
+                    medication: 'Albuterol Inhaler',
+                    dosage: '2 puffs',
+                    administeredBy: 'Sarah Johnson',
+                    witnessedBy: 'Michael Chen',
+                    time: '08:05 AM',
+                    notes: 'Child used inhaler with proper technique. No adverse reactions observed.',
+                    photo: true
+                },
+                {
+                    id: '2',
+                    date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                    child: 'Liam M.',
+                    medication: 'Amoxicillin',
+                    dosage: '5 mL',
+                    administeredBy: 'Emily Rodriguez',
+                    witnessedBy: 'Lisa Thompson',
+                    time: '12:03 PM',
+                    notes: 'Medication refrigerated. Child took full dose with apple juice.',
+                    photo: true
+                },
+                {
+                    id: '3',
+                    date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+                    child: 'Sophia L.',
+                    medication: 'Allergy Medicine (Zyrtec)',
+                    dosage: '1 tablet',
+                    administeredBy: 'David Martinez',
+                    witnessedBy: 'Sarah Johnson',
+                    time: '02:15 PM',
+                    notes: 'Seasonal allergies. Child feeling better after 30 minutes.',
+                    photo: false
+                },
+                {
+                    id: '4',
+                    date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+                    child: 'Emma S.',
+                    medication: 'Albuterol Inhaler',
+                    dosage: '2 puffs',
+                    administeredBy: 'Michael Chen',
+                    witnessedBy: 'Emily Rodriguez',
+                    time: '03:45 PM',
+                    notes: 'Used during outdoor play due to mild wheezing. Child recovered within 5 minutes.',
+                    photo: true
+                }
+            ];
+            
+            displayAdministrationHistory();
+        }
+
+        function displayAdministrationHistory() {
+            const timeline = document.getElementById('history-timeline');
+            const empty = document.getElementById('history-empty');
+            
+            if (administrationHistory.length === 0) {
+                timeline.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            timeline.style.display = 'block';
+            empty.style.display = 'none';
+            
+            // Group by date
+            const groupedByDate = {};
+            administrationHistory.forEach(record => {
+                const date = new Date(record.date).toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                if (!groupedByDate[date]) {
+                    groupedByDate[date] = [];
+                }
+                groupedByDate[date].push(record);
+            });
+            
+            timeline.innerHTML = Object.entries(groupedByDate).map(([date, records]) => `
+                <div style="margin-bottom: 32px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: var(--gray-900); margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--gray-200);">
+                        ${date}
+                    </h4>
+                    ${records.map(record => `
+                        <div style="margin-bottom: 16px; padding: 16px; background: white; border-radius: 8px; border-left: 4px solid var(--success); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                            <div style="display: grid; grid-template-columns: 80px 1fr 1fr 1fr auto; gap: 16px; align-items: start;">
+                                <div>
+                                    <div style="font-size: 18px; font-weight: 700; color: var(--primary);">${record.time}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Child</div>
+                                    <div style="font-size: 15px; font-weight: 600; color: var(--gray-900);">${record.child}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Medication & Dosage</div>
+                                    <div style="font-size: 15px; font-weight: 600; color: var(--gray-900);">${record.medication}</div>
+                                    <div style="font-size: 13px; color: var(--gray-700); margin-top: 2px;">${record.dosage}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Dual Verification</div>
+                                    <div style="font-size: 13px; color: var(--gray-800);">
+                                        ✓ ${record.administeredBy}<br>
+                                        <span style="color: var(--gray-600);">Witnessed by ${record.witnessedBy}</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    ${record.photo ? '<span style="font-size: 24px;" title="Photo attached">📷</span>' : ''}
+                                    <span class="badge badge-success" style="font-size: 11px;">Verified</span>
+                                </div>
+                            </div>
+                            ${record.notes ? `
+                                <div style="margin-top: 12px; padding: 10px; background: var(--gray-50); border-radius: 6px; font-size: 13px; color: var(--gray-700);">
+                                    <strong style="color: var(--gray-800);">Notes:</strong> ${record.notes}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function filterHistory() {
+            console.log('Filtering history...');
+            // In production, would filter based on dropdown selections
+            displayAdministrationHistory();
+        }
+
+        function filterHistoryByDate() {
+            const range = document.getElementById('history-date-range').value;
+            console.log('Filtering by date range:', range);
+            // In production, would fetch different date ranges from API
+            displayAdministrationHistory();
+        }
+
+        function exportAdministrationHistory(format) {
+            console.log('Exporting history as:', format);
+            
+            if (format === 'csv') {
+                const csv = 'Date,Time,Child,Medication,Dosage,Administered By,Witnessed By,Notes\n' +
+                    administrationHistory.map(r => 
+                        `"${new Date(r.date).toLocaleDateString()}","${r.time}","${r.child}","${r.medication}","${r.dosage}","${r.administeredBy}","${r.witnessedBy}","${r.notes}"`
+                    ).join('\n');
+                
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `medication-history-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+                showSuccess('Administration history exported successfully!');
+            } else if (format === 'pdf') {
+                showInfo('PDF export feature coming soon! Use CSV export for now.');
+            }
+        }
+
+        function showDailySchedule() {
+            console.log('Showing daily medication schedule');
+            
+            // Update tab state
+            document.querySelectorAll('#medication .tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide table, show schedule
+            document.getElementById('medication-list-table').style.display = 'none';
+            document.getElementById('daily-schedule-view').style.display = 'block';
+            
+            // Set today's date
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            document.getElementById('schedule-date').textContent = dateStr;
+            
+            // Build schedule timeline
+            buildScheduleTimeline();
+        }
+
+        function buildScheduleTimeline() {
+            const timeline = document.getElementById('schedule-timeline');
+            const empty = document.getElementById('schedule-empty');
+            
+            // Get all scheduled medications for today from real data
+            const scheduledMeds = [];
+            const now = new Date();
+            
+            // Filter active medications and build schedule from real data
+            allMedications.forEach(med => {
+                if (med.status !== 'active') return;
+                
+                // Parse frequency to determine if medication is due today
+                const frequency = med.frequency || med.schedule || '';
+                
+                // For medications with daily frequency, create schedule entries
+                if (frequency.toLowerCase().includes('daily') || frequency.toLowerCase().includes('times')) {
+                    // Extract times from frequency if available, otherwise use default times
+                    const times = ['08:00', '12:00', '14:00']; // Default schedule
+                    
+                    times.forEach(time => {
+                        const [hour, minute] = time.split(':').map(Number);
+                        const scheduleTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+                        const minutesFromNow = Math.floor((scheduleTime - now) / (1000 * 60));
+                        
+                        let status = 'upcoming';
+                        if (minutesFromNow < -60) {
+                            // More than 1 hour past - assume completed or skipped
+                            status = 'completed';
+                        } else if (minutesFromNow < 0) {
+                            status = 'overdue';
+                        } else if (minutesFromNow <= 30) {
+                            status = 'pending';
+                        }
+                        
+                        scheduledMeds.push({
+                            time: time,
+                            medicationId: med.id,
+                            child: med.childInfo?.name || med.childName,
+                            medication: med.medicationName,
+                            dosage: med.dosage,
+                            status: status,
+                            frequency: frequency
+                        });
+                    });
+                }
+            });
+            
+            // Sort by time
+            scheduledMeds.sort((a, b) => {
+                const [aH, aM] = a.time.split(':').map(Number);
+                const [bH, bM] = b.time.split(':').map(Number);
+                return (aH * 60 + aM) - (bH * 60 + bM);
+            });
+            
+            if (scheduledMeds.length === 0) {
+                timeline.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+            
+            timeline.style.display = 'block';
+            empty.style.display = 'none';
+            
+            const statusText = {
+                'completed': '✓ Completed',
+                'pending': '⏰ Due Now',
+                'upcoming': '📅 Upcoming',
+                'overdue': '⚠️ Overdue'
+            };
+            
+            timeline.innerHTML = scheduledMeds.map(item => {
+                const statusClass = item.status;
+                
+                return `
+                    <div class="schedule-item ${statusClass}">
+                        <div class="schedule-time-marker">${item.time}</div>
+                        <span class="schedule-status-badge ${statusClass}">${statusText[item.status]}</span>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: ${item.status === 'completed' ? '12px' : '16px'};">
+                            <div>
+                                <div style="font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Child</div>
+                                <div style="font-size: 15px; font-weight: 600; color: var(--gray-900);">${item.child}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Medication</div>
+                                <div style="font-size: 15px; font-weight: 600; color: var(--gray-900);">${item.medication}</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--gray-600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Dosage</div>
+                                <div style="font-size: 15px; font-weight: 500; color: var(--gray-800);">${item.dosage}</div>
+                            </div>
+                        </div>
+                        
+                        ${item.status === 'completed' ? `
+                            <div style="padding: 8px 12px; background: rgba(16, 185, 129, 0.1); border-radius: 6px; font-size: 12px; color: var(--success);">
+                                <strong>Administered earlier today</strong>
+                            </div>
+                        ` : item.status === 'pending' || item.status === 'overdue' ? `
+                            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                <button class="btn-small btn-primary-small" onclick="administerMedication('${item.medicationId}')">
+                                    Log Administration
+                                </button>
+                                <button class="btn-small btn-secondary-small" onclick="viewMedicationDetails('${item.medicationId}')">
+                                    View Details
+                                </button>
+                            </div>
+                        ` : ''}
+                        
+                        ${item.status === 'overdue' ? `
+                            <div style="margin-top: 12px; font-size: 12px; color: var(--danger); font-weight: 500;">
+                                ⚠️ Medication is overdue - administer as soon as possible
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
         async function loadMedicationList(filter = 'active') {
             try {
                 // Show skeleton while loading
@@ -6828,6 +8620,9 @@
 
                 // Make table sortable
                 makeSortable('#medication .table');
+                
+                // Check for medication alerts
+                checkMedicationAlerts();
             } catch (error) {
                 console.error('Failed to load medications:', error);
                 showError('Failed to load medication list');
@@ -6838,6 +8633,11 @@
 
         function filterMedications(filter) {
             console.log('Filtering medications by:', filter);
+
+            // Hide schedule and history views, show table
+            document.getElementById('daily-schedule-view').style.display = 'none';
+            document.getElementById('administration-history-view').style.display = 'none';
+            document.getElementById('medication-list-table').style.display = 'block';
 
             // Update active tab styling
             const tabs = document.querySelectorAll('#medication .tab');
@@ -6856,6 +8656,79 @@
         }
 
         let currentMedicationData = null;
+        let medicationPhotoFile = null;
+        let medicationPhotoBase64 = null;
+
+        // =============================================
+        // MEDICATION PHOTO UPLOAD FUNCTIONS
+        // =============================================
+
+        function handleMedPhotoDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('med-photo-upload-zone');
+            dropZone.style.borderColor = 'var(--primary)';
+            dropZone.style.background = 'rgba(102, 126, 234, 0.05)';
+        }
+
+        function handleMedPhotoDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('med-photo-upload-zone');
+            dropZone.style.borderColor = 'var(--gray-300)';
+            dropZone.style.background = 'transparent';
+            
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                processMedPhoto(files[0]);
+            }
+        }
+
+        function handleMedPhotoSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processMedPhoto(file);
+            }
+        }
+
+        function processMedPhoto(file) {
+            console.log('Processing medication photo:', file.name);
+            
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError('Invalid file type. Please upload an image (PNG, JPG, etc.).');
+                return;
+            }
+            
+            // Validate file size (10MB max)
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File is too large. Maximum size is 10MB.');
+                return;
+            }
+            
+            medicationPhotoFile = file;
+            
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                medicationPhotoBase64 = e.target.result;
+                
+                document.getElementById('med-photo-thumbnail').src = e.target.result;
+                document.getElementById('med-photo-filename').textContent = file.name;
+                document.getElementById('med-photo-filesize').textContent = formatFileSize(file.size);
+                document.getElementById('med-photo-preview').style.display = 'block';
+                document.getElementById('med-photo-upload-zone').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeMedPhoto() {
+            medicationPhotoFile = null;
+            medicationPhotoBase64 = null;
+            document.getElementById('med-photo-preview').style.display = 'none';
+            document.getElementById('med-photo-upload-zone').style.display = 'block';
+            document.getElementById('med-photo-input').value = '';
+        }
 
         async function administerMedication(medicationId) {
             try {
@@ -6942,7 +8815,9 @@
                 verifiedBy,
                 dosageGiven,
                 administeredAt: new Date(`${new Date().toISOString().split('T')[0]}T${timeGiven}`).toISOString(),
-                notes
+                notes,
+                photo: medicationPhotoBase64 || null,
+                photoFilename: medicationPhotoFile ? medicationPhotoFile.name : null
             };
 
             try {
@@ -6953,6 +8828,10 @@
 
                 showSuccess('Medication administration recorded successfully!');
                 closeModal('administer-medication');
+                
+                // Reset photo data
+                removeMedPhoto();
+                
                 await loadMedicationList(currentMedicationFilter);
             } catch (error) {
                 console.error('Failed to record medication:', error);
@@ -8116,6 +9995,76 @@
                 });
             }
         });
+
+        // =============================================
+        // KEYBOARD SHORTCUTS
+        // =============================================
+        document.addEventListener('keydown', (e) => {
+            // Escape key - close modals
+            if (e.key === 'Escape') {
+                const openModal = document.querySelector('.modal[style*="display: flex"]');
+                if (openModal) {
+                    openModal.style.display = 'none';
+                }
+            }
+            
+            // Ctrl/Cmd + K - Global search (future feature)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                showInfo('Global search feature coming soon! Press ? for keyboard shortcuts.');
+            }
+            
+            // ? key - Show keyboard shortcuts help
+            if (e.key === '?' && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                showKeyboardShortcuts();
+            }
+            
+            // Ctrl/Cmd + S - Save/Submit forms (prevent default browser save)
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                const activeModal = document.querySelector('.modal[style*="display: flex"]');
+                if (activeModal) {
+                    const submitBtn = activeModal.querySelector('button[type="submit"], .btn-primary');
+                    if (submitBtn) submitBtn.click();
+                }
+            }
+        });
+
+        function showKeyboardShortcuts() {
+            const shortcuts = `
+                <div style="padding: 20px;">
+                    <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 600;">⌨️ Keyboard Shortcuts</h3>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 12px; font-size: 14px;">
+                        <kbd style="padding: 4px 8px; background: var(--gray-100); border-radius: 4px; font-family: monospace;">Esc</kbd>
+                        <span>Close modals and overlays</span>
+                        
+                        <kbd style="padding: 4px 8px; background: var(--gray-100); border-radius: 4px; font-family: monospace;">Ctrl + S</kbd>
+                        <span>Save/Submit current form</span>
+                        
+                        <kbd style="padding: 4px 8px; background: var(--gray-100); border-radius: 4px; font-family: monospace;">?</kbd>
+                        <span>Show this help dialog</span>
+                        
+                        <kbd style="padding: 4px 8px; background: var(--gray-100); border-radius: 4px; font-family: monospace;">Tab</kbd>
+                        <span>Navigate between form fields</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="closeModal('keyboard-shortcuts-modal')" style="margin-top: 20px; width: 100%;">
+                        Got it!
+                    </button>
+                </div>
+            `;
+            
+            // Create temporary modal
+            let modal = document.getElementById('keyboard-shortcuts-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'keyboard-shortcuts-modal';
+                modal.className = 'modal';
+                modal.innerHTML = `<div class="modal-content" style="max-width: 500px;">${shortcuts}</div>`;
+                document.body.appendChild(modal);
+            }
+            modal.style.display = 'flex';
+        }
     </script>
 </body>
 

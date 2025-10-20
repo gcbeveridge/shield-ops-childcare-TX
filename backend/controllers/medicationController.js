@@ -148,9 +148,90 @@ async function getMedicationDetails(req, res) {
   }
 }
 
+async function bulkImportMedications(req, res) {
+  try {
+    const { facilityId } = req.params;
+    const { data: medicationData } = req.body;
+
+    if (!medicationData || !Array.isArray(medicationData)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid data format. Expected array of medication records.'
+      });
+    }
+
+    console.log(`Bulk importing ${medicationData.length} medications for facility ${facilityId}`);
+
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: []
+    };
+
+    // Process each medication
+    for (let i = 0; i < medicationData.length; i++) {
+      const row = medicationData[i];
+      
+      try {
+        const medication = new Medication({
+          facilityId,
+          childName: row['Child Name'],
+          medicationName: row['Medication Name'],
+          dosage: row.Dosage,
+          frequency: row.Frequency,
+          route: row.Route,
+          startDate: row['Start Date'],
+          endDate: row['End Date'],
+          prescriber: {
+            name: row['Prescriber Name'],
+            phone: row['Prescriber Phone']
+          },
+          instructions: row.Instructions || '',
+          allergies: row.Allergies || '',
+          status: 'active'
+        });
+
+        // Validate medication
+        const errors = medication.validate();
+        if (errors.length > 0) {
+          throw new Error(errors.join(', '));
+        }
+
+        // Save to database
+        await db.set(`medication:${facilityId}:${medication.id}`, medication.toJSON());
+
+        results.success++;
+      } catch (error) {
+        console.error(`Error importing row ${i + 1}:`, error.message);
+        results.failed++;
+        results.errors.push({
+          row: row['Child Name'] || `Row ${i + 1}`,
+          error: error.message
+        });
+      }
+    }
+
+    console.log('Bulk medication import complete:', results);
+
+    res.json({
+      success: true,
+      message: `Imported ${results.success} medications, ${results.failed} failed`,
+      ...results
+    });
+  } catch (error) {
+    console.error('Error in bulk medication import:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error importing medications',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
   getActiveMedications,
   createMedication,
   administerDose,
-  getMedicationDetails
+  getMedicationDetails,
+  bulkImportMedications
 };

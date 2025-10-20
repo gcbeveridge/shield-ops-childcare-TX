@@ -1,0 +1,6 @@
+Child Name,Medication Name,Dosage,Frequency,Route,Start Date,End Date,Prescriber Name,Prescriber Phone,Special Instructions,Allergies
+Emma Thompson,Amoxicillin,250mg,Three times daily,Oral,2025-01-15,2025-01-25,Dr. Sarah Smith,(512) 555-0123,Take with food,Penicillin
+Liam Johnson,Albuterol Inhaler,2 puffs,As needed for wheezing,Inhalation,2025-01-10,2026-01-10,Dr. Michael Brown,(512) 555-0124,Use spacer device,None
+Sophia Garcia,EpiPen Jr,0.15mg,Emergency use only,Injection,2025-01-01,2026-01-01,Dr. Jennifer Lee,(512) 555-0125,Use immediately for allergic reaction,Peanuts (severe)
+Noah Martinez,Tylenol,5mL,Every 4-6 hours as needed,Oral,2025-01-20,2025-07-20,Dr. Robert Davis,(512) 555-0126,Do not exceed 5 doses in 24 hours,None
+Olivia Wilson,Benadryl,12.5mg,Twice daily,Oral,2025-02-01,2025-08-01,Dr. Emily Taylor,(512) 555-0127,May cause drowsiness,None

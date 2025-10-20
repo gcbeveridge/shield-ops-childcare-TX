@@ -290,10 +290,106 @@ async function updateCertifications(req, res) {
   }
 }
 
+async function bulkImportStaff(req, res) {
+  try {
+    const { facilityId } = req.params;
+    const { data: staffData } = req.body;
+
+    if (!staffData || !Array.isArray(staffData)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid data format. Expected array of staff records.'
+      });
+    }
+
+    console.log(`Bulk importing ${staffData.length} staff members for facility ${facilityId}`);
+
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: []
+    };
+
+    // Process each staff member
+    for (let i = 0; i < staffData.length; i++) {
+      const row = staffData[i];
+      
+      try {
+        // Build certifications object from CSV columns
+        const certifications = {};
+        
+        if (row['CPR Expiration']) {
+          certifications.cpr = { expires: row['CPR Expiration'] };
+        }
+        if (row['First Aid Expiration']) {
+          certifications.firstAid = { expires: row['First Aid Expiration'] };
+        }
+        if (row['CDA Expiration']) {
+          certifications.cda = { expires: row['CDA Expiration'] };
+        }
+        if (row['Teaching Certificate Expiration']) {
+          certifications.teachingCert = { expires: row['Teaching Certificate Expiration'] };
+        }
+        if (row['Food Handler Expiration']) {
+          certifications.foodHandler = { expires: row['Food Handler Expiration'] };
+        }
+        if (row['Background Check Date']) {
+          certifications.backgroundCheck = { date: row['Background Check Date'] };
+        }
+        if (row['TB Screening Date']) {
+          certifications.tbScreening = { date: row['TB Screening Date'] };
+        }
+
+        // Insert staff member
+        const { error } = await supabase
+          .from('staff')
+          .insert({
+            facility_id: facilityId,
+            name: row.Name,
+            email: row.Email,
+            role: row.Role,
+            hire_date: row['Hire Date'],
+            certifications: certifications,
+            training_completion: 0
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        results.success++;
+      } catch (error) {
+        console.error(`Error importing row ${i + 1}:`, error.message);
+        results.failed++;
+        results.errors.push({
+          row: row.Name || `Row ${i + 1}`,
+          error: error.message
+        });
+      }
+    }
+
+    console.log('Bulk import complete:', results);
+
+    res.json({
+      success: true,
+      message: `Imported ${results.success} staff members, ${results.failed} failed`,
+      ...results
+    });
+  } catch (error) {
+    console.error('Error in bulk import:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error importing staff members',
+      error: error.message
+    });
+  }
+}
+
 module.exports = {
   getAllStaff,
   getStaffById,
   createStaff,
   updateStaff,
-  updateCertifications
+  updateCertifications,
+  bulkImportStaff
 };
