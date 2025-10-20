@@ -32,7 +32,7 @@ async function getDashboard(req, res) {
 
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
-    const todayIncidents = incidents.filter(inc => 
+    const todayIncidents = incidents.filter(inc =>
       inc.dateTime && inc.dateTime.startsWith(todayString)
     );
 
@@ -40,20 +40,20 @@ async function getDashboard(req, res) {
     const totalRequirements = TEXAS_COMPLIANCE_REQUIREMENTS.length;
 
     // Calculate priority alerts
-    
+
     // Missing documents (required categories with no docs)
     const requiredCategories = ['licenses', 'policies', 'certifications'];
     const existingCategories = [...new Set(documents.map(d => d.category))];
     const missingDocs = requiredCategories.filter(cat => !existingCategories.includes(cat));
-    
+
     // Expired documents
     const expiredDocs = documents.filter(doc => {
       if (!doc.expirationDate) return false;
       return new Date(doc.expirationDate) < today;
     });
-    
+
     // Missing signatures
-    const missingSignatures = incidents.filter(inc => 
+    const missingSignatures = incidents.filter(inc =>
       inc.parentNotified && !inc.parentSignature
     );
 
@@ -102,12 +102,12 @@ async function getDashboard(req, res) {
     riskScore -= (missingSignatures.length * 5);
     riskScore -= (expiringCerts.length * 2);
     riskScore = Math.max(0, Math.min(100, riskScore));
-    
+
     // Days since last incident
-    const sortedIncidents = incidents.sort((a, b) => 
+    const sortedIncidents = incidents.sort((a, b) =>
       new Date(b.dateTime) - new Date(a.dateTime)
     );
-    const daysSinceIncident = sortedIncidents.length > 0 
+    const daysSinceIncident = sortedIncidents.length > 0
       ? Math.floor((today - new Date(sortedIncidents[0].dateTime)) / (1000 * 60 * 60 * 24))
       : 0;
 
