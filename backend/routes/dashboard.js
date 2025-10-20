@@ -3,7 +3,7 @@ const router = express.Router();
 const { getDashboard } = require('../controllers/dashboardController');
 const { authenticateToken } = require('../middleware/auth');
 const { getWeatherByZip } = require('../services/weatherService');
-const pool = require('../config/db');
+const supabase = require('../config/supabase');
 
 router.get('/facilities/:facilityId/dashboard', authenticateToken, getDashboard);
 
@@ -11,10 +11,15 @@ router.get('/facilities/:facilityId/weather', authenticateToken, async (req, res
   try {
     const { facilityId } = req.params;
     
-    const facilityResult = await pool.query('SELECT * FROM facilities WHERE id = $1', [facilityId]);
-    const facility = facilityResult.rows[0];
+    // Get facility from Supabase
+    const { data: facility, error: facilityError } = await supabase
+      .from('facilities')
+      .select('*')
+      .eq('id', facilityId)
+      .single();
     
-    if (!facility) {
+    if (facilityError || !facility) {
+      console.error('Facility fetch error:', facilityError);
       return res.status(404).json({ error: 'Facility not found' });
     }
     

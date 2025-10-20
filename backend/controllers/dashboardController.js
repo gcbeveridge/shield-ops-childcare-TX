@@ -1,30 +1,34 @@
-const pool = require('../config/db');
+const supabase = require('../config/supabase');
 const { TEXAS_COMPLIANCE_REQUIREMENTS } = require('../config/constants');
 
 async function getDashboard(req, res) {
   try {
     const { facilityId } = req.params;
 
-    // Get facility from PostgreSQL
-    const facilityResult = await pool.query('SELECT * FROM facilities WHERE id = $1', [facilityId]);
-    const facility = facilityResult.rows[0];
+    // Get facility from Supabase
+    const { data: facility, error: facilityError } = await supabase
+      .from('facilities')
+      .select('*')
+      .eq('id', facilityId)
+      .single();
 
-    if (!facility) {
+    if (facilityError || !facility) {
+      console.error('Facility fetch error:', facilityError);
       return res.status(404).json({ error: 'Facility not found' });
     }
 
-    // Get related data from PostgreSQL
-    const staffResult = await pool.query('SELECT * FROM staff WHERE facility_id = $1', [facilityId]);
-    const staff = staffResult.rows;
-    
-    const incidentsResult = await pool.query('SELECT * FROM incidents WHERE facility_id = $1', [facilityId]);
-    const incidents = incidentsResult.rows;
-    
-    const complianceResult = await pool.query('SELECT * FROM compliance_items WHERE facility_id = $1', [facilityId]);
-    const compliance = complianceResult.rows;
-    
-    const documentsResult = await pool.query('SELECT * FROM documents WHERE facility_id = $1', [facilityId]);
-    const documents = documentsResult.rows;
+    // Get related data from Supabase in parallel for better performance
+    const [
+      { data: staff = [] },
+      { data: incidents = [] },
+      { data: compliance = [] },
+      { data: documents = [] }
+    ] = await Promise.all([
+      supabase.from('staff').select('*').eq('facility_id', facilityId),
+      supabase.from('incidents').select('*').eq('facility_id', facilityId),
+      supabase.from('compliance_items').select('*').eq('facility_id', facilityId),
+      supabase.from('documents').select('*').eq('facility_id', facilityId)
+    ]);
 
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
