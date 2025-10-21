@@ -103,39 +103,14 @@
 
     <!-- Initialize App with Partials -->
     <script>
-        // Load modals from original index.html
-        async function loadModals() {
-            try {
-                // Fetch the original index.html to extract modals
-                const response = await fetch('/index.html');
-                const html = await response.text();
-
-                // Extract modals section
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-
-                // Get all modal elements
-                const modalsContainer = document.getElementById('modals-container');
-
-                // Extract modals (divs with class="modal")
-                const modalElements = doc.querySelectorAll('.modal');
-                modalElements.forEach(modal => {
-                    modalsContainer.appendChild(modal.cloneNode(true));
-                });
-
-                console.log(`✅ Loaded ${modalElements.length} modals`);
-            } catch (error) {
-                console.error('❌ Failed to load modals:', error);
-            }
-        }
-
         // Initialize modular architecture on page load
         window.addEventListener('DOMContentLoaded', async () => {
             try {
                 console.log('🚀 Initializing Shield Ops with modular architecture...');
 
-                // Load modals first (needed for all pages)
-                await loadModals();
+                // Load modals from partials
+                await window.htmlLoader.loadInto('modals.html', '#modals-container');
+                console.log('✅ Modals loaded from partials/modals.html');
 
                 // Always load auth screens (they will be hidden if user is authenticated)
                 await window.htmlLoader.loadInto('auth/login.html', '#auth-container');
