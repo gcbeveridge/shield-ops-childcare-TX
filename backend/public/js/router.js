@@ -13,10 +13,10 @@ class Router {
     init() {
         // Listen for hash changes
         window.addEventListener('hashchange', () => this.handleRouteChange());
-        
+
         // Listen for popstate (back/forward buttons)
         window.addEventListener('popstate', () => this.handleRouteChange());
-        
+
         // Handle initial route immediately
         this.handleRouteChange();
     }
@@ -29,9 +29,9 @@ class Router {
 
     navigate(path, updateHash = true) {
         console.log('Router: Navigating to', path);
-        
+
         const route = this.matchRoute(path);
-        
+
         if (!route) {
             console.error('Route not found:', path);
             this.navigate('/dashboard', updateHash);

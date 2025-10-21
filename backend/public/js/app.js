@@ -475,12 +475,24 @@ async function login(event) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app').classList.add('active');
 
+        // Load sidebar if using modular architecture
+        const sidebarContainer = document.getElementById('sidebar-container');
+        if (sidebarContainer && !sidebarContainer.innerHTML.trim()) {
+            await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
+            console.log('✅ Sidebar loaded after login');
+        }
+
         updateFacilityInfo();
-        
+
         // Initialize router after login
         if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined' && !window.appRouter) {
             window.appRouter = new Router(appRoutes);
             console.log('Router initialized after login');
+            
+            // Preload screens in background
+            window.htmlLoader.preloadAllScreens().catch(err => {
+                console.error('Failed to preload screens:', err);
+            });
         } else if (window.appRouter) {
             // Router already exists, just navigate to dashboard
             window.appRouter.go('/dashboard');
@@ -524,12 +536,24 @@ async function signup(event) {
         document.getElementById('signup-screen').style.display = 'none';
         document.getElementById('app').classList.add('active');
 
+        // Load sidebar if using modular architecture
+        const sidebarContainer = document.getElementById('sidebar-container');
+        if (sidebarContainer && !sidebarContainer.innerHTML.trim()) {
+            await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
+            console.log('✅ Sidebar loaded after signup');
+        }
+
         updateFacilityInfo();
-        
+
         // Initialize router after signup
         if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined' && !window.appRouter) {
             window.appRouter = new Router(appRoutes);
             console.log('Router initialized after signup');
+            
+            // Preload screens in background
+            window.htmlLoader.preloadAllScreens().catch(err => {
+                console.error('Failed to preload screens:', err);
+            });
         } else if (window.appRouter) {
             // Router already exists, just navigate to dashboard
             window.appRouter.go('/dashboard');
@@ -1078,14 +1102,30 @@ window.addEventListener('DOMContentLoaded', async () => {
     const isValid = await validateAuth();
 
     if (isValid) {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app').classList.add('active');
-        updateFacilityInfo();
+        const loginScreen = document.getElementById('login-screen');
+        const app = document.getElementById('app');
         
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (app) app.classList.add('active');
+        
+        // Load sidebar if using modular architecture
+        const sidebarContainer = document.getElementById('sidebar-container');
+        if (sidebarContainer && !sidebarContainer.innerHTML.trim()) {
+            await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
+            console.log('✅ Sidebar loaded on page load');
+        }
+        
+        updateFacilityInfo();
+
         // Initialize router before loading dashboard
         if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined') {
             window.appRouter = new Router(appRoutes);
             console.log('Router initialized successfully');
+            
+            // Preload screens in background
+            window.htmlLoader.preloadAllScreens().catch(err => {
+                console.error('Failed to preload screens:', err);
+            });
         } else {
             console.error('Router or appRoutes not loaded. Make sure router.js and routes.js are included before app.js');
             // Fallback to loading dashboard directly
@@ -1093,7 +1133,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     } else {
         // Show login screen
-        document.getElementById('login-screen').style.display = 'flex';
+        const loginScreen = document.getElementById('login-screen');
+        if (loginScreen) loginScreen.style.display = 'flex';
     }
 });
 

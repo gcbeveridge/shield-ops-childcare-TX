@@ -9,7 +9,7 @@ const routes = [
         screen: 'dashboard',
         title: 'Dashboard',
         handler: async (params) => {
-            showScreen('dashboard');
+            await window.htmlLoader.loadScreen('dashboard');
             await loadDashboardData();
         }
     },
@@ -18,7 +18,7 @@ const routes = [
         screen: 'dashboard',
         title: 'Dashboard',
         handler: async (params) => {
-            showScreen('dashboard');
+            await window.htmlLoader.loadScreen('dashboard');
             await loadDashboardData();
         }
     },
@@ -29,7 +29,7 @@ const routes = [
         screen: 'staff',
         title: 'Staff Management',
         handler: async (params) => {
-            showScreen('staff');
+            await window.htmlLoader.loadScreen('staff');
             await loadStaffList();
         }
     },
@@ -38,7 +38,7 @@ const routes = [
         screen: 'staff',
         title: 'Add Staff Member',
         handler: async (params) => {
-            showScreen('staff');
+            await window.htmlLoader.loadScreen('staff');
             await loadStaffList();
             openModal('add-staff');
         }
@@ -48,7 +48,7 @@ const routes = [
         screen: 'staff',
         title: 'Staff Details',
         handler: async (params) => {
-            showScreen('staff');
+            await window.htmlLoader.loadScreen('staff');
             await loadStaffList();
             // TODO: Open staff detail modal with params.id
         }
@@ -60,7 +60,7 @@ const routes = [
         screen: 'documents',
         title: 'Document Vault',
         handler: async (params) => {
-            showScreen('documents');
+            await window.htmlLoader.loadScreen('documents');
             await loadDocuments();
         }
     },
@@ -69,7 +69,7 @@ const routes = [
         screen: 'documents',
         title: 'Upload Document',
         handler: async (params) => {
-            showScreen('documents');
+            await window.htmlLoader.loadScreen('documents');
             await loadDocuments();
             openModal('upload-document');
         }
@@ -79,7 +79,7 @@ const routes = [
         screen: 'documents',
         title: 'Document Vault',
         handler: async (params) => {
-            showScreen('documents');
+            await window.htmlLoader.loadScreen('documents');
             await loadDocuments(params.category);
         }
     },
@@ -90,7 +90,7 @@ const routes = [
         screen: 'medication',
         title: 'Medication Tracking',
         handler: async (params) => {
-            showScreen('medication');
+            await window.htmlLoader.loadScreen('medication');
             await loadMedicationList();
         }
     },
@@ -99,7 +99,7 @@ const routes = [
         screen: 'medication',
         title: 'Medication Tracking',
         handler: async (params) => {
-            showScreen('medication');
+            await window.htmlLoader.loadScreen('medication');
             await loadMedicationList();
         }
     },
@@ -108,7 +108,7 @@ const routes = [
         screen: 'medication',
         title: 'Add Medication',
         handler: async (params) => {
-            showScreen('medication');
+            await window.htmlLoader.loadScreen('medication');
             await loadMedicationList();
             openModal('add-medication');
         }
@@ -120,7 +120,7 @@ const routes = [
         screen: 'incidents',
         title: 'Incident Reports',
         handler: async (params) => {
-            showScreen('incidents');
+            await window.htmlLoader.loadScreen('incidents');
             await loadIncidentList();
         }
     },
@@ -129,7 +129,7 @@ const routes = [
         screen: 'incidents',
         title: 'New Incident Report',
         handler: async (params) => {
-            showScreen('incidents');
+            await window.htmlLoader.loadScreen('incidents');
             await loadIncidentList();
             openModal('add-incident');
         }
@@ -141,7 +141,7 @@ const routes = [
         screen: 'training',
         title: 'Training Hub',
         handler: async (params) => {
-            showScreen('training');
+            await window.htmlLoader.loadScreen('training');
             await loadTrainingModules();
         }
     },
@@ -152,7 +152,7 @@ const routes = [
         screen: 'licensing',
         title: 'Compliance',
         handler: async (params) => {
-            showScreen('licensing');
+            await window.htmlLoader.loadScreen('compliance');
             await loadComplianceList();
         }
     },
@@ -161,7 +161,7 @@ const routes = [
         screen: 'licensing',
         title: 'Licensing',
         handler: async (params) => {
-            showScreen('licensing');
+            await window.htmlLoader.loadScreen('compliance');
             await loadComplianceList();
         }
     },
@@ -172,7 +172,7 @@ const routes = [
         screen: 'checklist',
         title: 'Daily Checklist',
         handler: async (params) => {
-            showScreen('checklist');
+            await window.htmlLoader.loadScreen('checklist');
             await loadTodayChecklist();
         }
     }

@@ -1,0 +1,419 @@
+<div class="page-header">
+                <h1 class="page-title">Medication Tracking 💊</h1>
+                <p class="page-subtitle">Texas-compliant medication administration and documentation</p>
+            </div>
+
+            <div class="card"
+                style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div>
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Texas Compliance Status</h3>
+                        <p style="font-size: 14px; color: var(--gray-700);">All requirements met per §744.2651-2661</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-small btn-secondary-small" onclick="openModal('import-medication-csv')">
+                            📤 Import CSV
+                        </button>
+                        <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add
+                            Medication
+                            Authorization</button>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--gray-900);">12</div>
+                        <div style="font-size: 13px; color: var(--gray-700);">Active Authorizations</div>
+                    </div>
+                    <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--success);">100%</div>
+                        <div style="font-size: 13px; color: var(--gray-700);">Dual-Staff Verification</div>
+                    </div>
+                    <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--success);">3</div>
+                        <div style="font-size: 13px; color: var(--gray-700);">Doses Given Today</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🚨 Critical Texas Requirements</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div
+                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <span style="color: var(--success); font-size: 24px;">✓</span>
+                            <strong style="font-size: 14px;">Parent Authorization Required</strong>
+                        </div>
+                        <div style="font-size: 13px; color: var(--gray-700);">Written/electronic, signed & dated,
+                            expires annually (§744.2653)</div>
+                    </div>
+                    <div
+                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <span style="color: var(--success); font-size: 24px;">✓</span>
+                            <strong style="font-size: 14px;">Original Container Only</strong>
+                        </div>
+                        <div style="font-size: 13px; color: var(--gray-700);">Child's name, date brought, cannot be
+                            expired (§744.2655)</div>
+                    </div>
+                    <div
+                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <span style="color: var(--success); font-size: 24px;">✓</span>
+                            <strong style="font-size: 14px;">Dual-Staff Verification</strong>
+                        </div>
+                        <div style="font-size: 13px; color: var(--gray-700);">One administers, one witnesses - both sign
+                            log</div>
+                    </div>
+                    <div
+                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <span style="color: var(--success); font-size: 24px;">✓</span>
+                            <strong style="font-size: 14px;">Secure Storage</strong>
+                        </div>
+                        <div style="font-size: 13px; color: var(--gray-700);">Locked, out of reach, separate from food
+                            (§744.2657)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medication Alerts Card -->
+            <div id="medication-alerts-card" class="card" style="display: none; border-left: 4px solid var(--warning);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="font-size: 16px; font-weight: 600; color: var(--warning);">
+                        🔔 Active Medication Alerts (<span id="alert-count">0</span>)
+                    </h3>
+                    <button class="btn-small btn-secondary-small" onclick="dismissAllAlerts()">Dismiss All</button>
+                </div>
+                <div id="medication-alerts-list"></div>
+            </div>
+
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="filterMedications('active')">Active Medications (<span
+                            id="med-count-active">0</span>)</button>
+                    <button class="tab" onclick="showDailySchedule()">📅 Today's Schedule</button>
+                    <button class="tab" onclick="filterMedications('today')">Today's Log (<span
+                            id="med-count-today">0</span>)</button>
+                    <button class="tab" onclick="showAdministrationHistory()">📊 Administration History</button>
+                    <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (<span
+                            id="med-count-expired">0</span>)</button>
+                    <button class="tab" onclick="filterMedications('allergies')">Food Allergies (<span
+                            id="med-count-allergies">0</span>)</button>
+                </div>
+
+                <!-- Daily Schedule View -->
+                <div id="daily-schedule-view" style="display: none;">
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+                            📅 Medication Schedule for <span id="schedule-date"></span>
+                        </h3>
+                        <p style="font-size: 14px; color: var(--gray-600);">All scheduled doses for today with real-time
+                            status</p>
+                    </div>
+
+                    <div id="schedule-timeline" style="margin-top: 24px;">
+                        <!-- Timeline will be populated dynamically -->
+                    </div>
+
+                    <div id="schedule-empty" style="display: none; text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">🎉</div>
+                        <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
+                            No Medications Scheduled Today
+                        </h3>
+                        <p style="font-size: 14px; color: var(--gray-600);">
+                            All children are medication-free today!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Administration History View -->
+                <div id="administration-history-view" style="display: none;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+                                📊 Administration History
+                            </h3>
+                            <p style="font-size: 14px; color: var(--gray-600);">Complete medication log with dual-staff
+                                verification records</p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('csv')">
+                                📥 Export CSV
+                            </button>
+                            <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('pdf')">
+                                📄 Export PDF
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filters -->
+                    <div
+                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+                        <div>
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Date
+                                Range</label>
+                            <select id="history-date-range" class="form-input" onchange="filterHistoryByDate()"
+                                style="font-size: 13px; padding: 8px;">
+                                <option value="today">Today</option>
+                                <option value="week" selected>This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Child</label>
+                            <select id="history-child-filter" class="form-input" onchange="filterHistory()"
+                                style="font-size: 13px; padding: 8px;">
+                                <option value="all">All Children</option>
+                                <option value="emma">Emma S.</option>
+                                <option value="liam">Liam M.</option>
+                                <option value="olivia">Olivia K.</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Medication</label>
+                            <select id="history-med-filter" class="form-input" onchange="filterHistory()"
+                                style="font-size: 13px; padding: 8px;">
+                                <option value="all">All Medications</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Staff
+                                Member</label>
+                            <select id="history-staff-filter" class="form-input" onchange="filterHistory()"
+                                style="font-size: 13px; padding: 8px;">
+                                <option value="all">All Staff</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- History Timeline -->
+                    <div id="history-timeline">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <div id="history-empty" style="display: none; text-align: center; padding: 60px 20px;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
+                        <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
+                            No Administration Records Found
+                        </h3>
+                        <p style="font-size: 14px; color: var(--gray-600);">
+                            Try adjusting your filters or select a different date range
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Medication List Table -->
+                <div id="medication-list-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Child Name</th>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Schedule</th>
+                                <th>Authorization</th>
+                                <th>Container Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="medications-table-body">
+                            <tr>
+                                <td><strong>Emma S.</strong></td>
+                                <td>Albuterol Inhaler<br><small>For asthma</small></td>
+                                <td>2 puffs</td>
+                                <td>As needed<br><small>Max 4x/day</small></td>
+                                <td><span class="badge badge-complete">Valid until Mar 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;"
+                                        onclick="openModal('administer-medication')">Log Dose</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Liam M.</strong></td>
+                                <td>Amoxicillin<br><small>Antibiotic</small></td>
+                                <td>5 mL</td>
+                                <td>12:00 PM daily<br><small>7 days remaining</small></td>
+                                <td><span class="badge badge-complete">Valid until Oct 2025</span></td>
+                                <td><span class="badge badge-complete">✓ Original, refrigerated</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--warning); color: white; border: none; border-radius: 4px; cursor: pointer;"
+                                        onclick="openModal('administer-medication')">Due in 15 min</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Olivia K.</strong></td>
+                                <td>EpiPen Jr<br><small>Food allergy emergency</small></td>
+                                <td>0.15 mg</td>
+                                <td>Emergency only<br><small>Severe peanut allergy</small></td>
+                                <td><span class="badge badge-complete">Valid until Jun 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, temp-controlled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--gray-300); color: var(--gray-700); border: none; border-radius: 4px; cursor: pointer;">View
+                                        Plan</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Noah B.</strong></td>
+                                <td>Methylphenidate<br><small>ADHD medication</small></td>
+                                <td>10 mg</td>
+                                <td>11:00 AM daily</td>
+                                <td><span class="badge badge-complete">Valid until Dec 2025</span></td>
+                                <td><span class="badge badge-complete">✓ Original, locked</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
+                                        Given 11:05 AM</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sophia L.</strong></td>
+                                <td>Children's Tylenol<br><small>Fever/pain relief</small></td>
+                                <td>10 mL (160mg)</td>
+                                <td>As needed<br><small>Parent permission required</small></td>
+                                <td><span class="badge badge-complete">Valid until Aug 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer;">Log
+                                        Dose</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jackson P.</strong></td>
+                                <td>Omeprazole<br><small>Acid reflux</small></td>
+                                <td>10 mg</td>
+                                <td>9:00 AM daily</td>
+                                <td><span class="badge" style="background: #fef3c7; color: #92400e;">Expires Dec 15,
+                                        2025</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
+                                        Given 9:05 AM</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Ava W.</strong></td>
+                                <td>Zyrtec<br><small>Seasonal allergies</small></td>
+                                <td>5 mg</td>
+                                <td>8:00 AM daily</td>
+                                <td><span class="badge badge-complete">Valid until May 2026</span></td>
+                                <td><span class="badge badge-complete">✓ Original, labeled</span></td>
+                                <td><button class="btn-small"
+                                        style="padding: 4px 12px; font-size: 12px; background: var(--success); color: white; border: none; border-radius: 4px; cursor: pointer;">✓
+                                        Given 8:10 AM</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">📋 Today's Administration Log -
+                        October 3, 2025</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Child</th>
+                                <th>Medication</th>
+                                <th>Dosage Given</th>
+                                <th>Administered By</th>
+                                <th>Witnessed By</th>
+                                <th>Photo Verification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>11:05 AM</strong></td>
+                                <td>Noah B.</td>
+                                <td>Methylphenidate 10mg</td>
+                                <td>1 tablet (10mg)</td>
+                                <td>Sarah Johnson</td>
+                                <td>Michael Chen</td>
+                                <td><span class="badge badge-complete">✓ Container photo</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>9:05 AM</strong></td>
+                                <td>Jackson P.</td>
+                                <td>Omeprazole 10mg</td>
+                                <td>1 capsule (10mg)</td>
+                                <td>Emily Rodriguez</td>
+                                <td>Sarah Johnson</td>
+                                <td><span class="badge badge-complete">✓ Container photo</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>8:10 AM</strong></td>
+                                <td>Ava W.</td>
+                                <td>Zyrtec 5mg</td>
+                                <td>1 tablet (5mg)</td>
+                                <td>Sarah Johnson</td>
+                                <td>Lisa Thompson</td>
+                                <td><span class="badge badge-complete">✓ Container photo</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🥜 Food Allergy Emergency Plans
+                        (Texas §744.2667-2669)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div
+                            style="padding: 16px; background: #fee2e2; border-radius: 8px; border-left: 4px solid var(--danger);">
+                            <div
+                                style="display: flex; justify-content: between; align-items: start; margin-bottom: 8px;">
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 14px;">Olivia K. - SEVERE Peanut Allergy</strong>
+                                    <div style="font-size: 13px; color: #991b1b; margin-top: 4px; font-weight: 600;">⚠️
+                                        ANAPHYLAXIS RISK - EpiPen required</div>
+                                    <div style="font-size: 13px; color: #7c2d12; margin-top: 8px;">
+                                        <strong>Allergens:</strong> Peanuts, tree nuts (almonds, cashews, walnuts)<br>
+                                        <strong>Symptoms:</strong> Hives, swelling, difficulty breathing, vomiting<br>
+                                        <strong>Emergency Action:</strong> 1) Administer EpiPen Jr to outer thigh 2)
+                                        Call
+                                        911 3) Call parents 4) Second dose if no improvement in 5-10 min
+                                    </div>
+                                </div>
+                                <span class="badge"
+                                    style="background: white; color: #991b1b; border: 2px solid #991b1b;">Plan signed by
+                                    Dr.
+                                    Martinez & parent</span>
+                            </div>
+                            <div style="margin-top: 12px; padding: 12px; background: white; border-radius: 6px;">
+                                <strong style="font-size: 13px;">Posted Locations:</strong> Kitchen ✓ | Classroom 2A ✓ |
+                                Cafeteria ✓ | Office ✓
+                            </div>
+                        </div>
+                        <div
+                            style="padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 14px;">Mason T. - Dairy Allergy</strong>
+                                    <div style="font-size: 13px; color: #78350f; margin-top: 8px;">
+                                        <strong>Allergens:</strong> Milk, cheese, yogurt, butter<br>
+                                        <strong>Symptoms:</strong> Stomach pain, diarrhea, skin rash<br>
+                                        <strong>Action:</strong> Remove from exposure, call parents, monitor for
+                                        worsening
+                                        symptoms
+                                    </div>
+                                </div>
+                                <span class="badge badge-complete">Plan on file</span>
+                            </div>
+                        </div>
+                        <div
+                            style="padding: 16px; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--warning);">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <strong style="font-size: 14px;">Harper G. - Shellfish Allergy</strong>
+                                    <div style="font-size: 13px; color: #78350f; margin-top: 8px;">
+                                        <strong>Allergens:</strong> Shrimp, crab, lobster, oysters<br>
+                                        <strong>Symptoms:</strong> Hives, itching, swelling of lips/tongue<br>
+                                        <strong>Action:</strong> Benadryl 12.5mg if mild reaction, call parents, 911 if
+                                        breathing difficulty
+                                    </div>
+                                </div>
+                                <span class="badge badge-complete">Plan on file</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>

@@ -33,12 +33,12 @@ class HTMLLoader {
 
         try {
             const html = await loadPromise;
-            
+
             // Cache the result
             if (useCache) {
                 this.cache.set(path, html);
             }
-            
+
             return html;
         } finally {
             // Remove from loading map
@@ -53,15 +53,15 @@ class HTMLLoader {
      */
     async fetchPartial(path) {
         console.log(`HTMLLoader: Fetching partial: ${path}`);
-        
+
         try {
             const fullPath = `/partials/${path}`;
             const response = await fetch(fullPath);
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to load partial: ${path} (${response.status})`);
             }
-            
+
             const html = await response.text();
             console.log(`HTMLLoader: Successfully loaded: ${path}`);
             return html;
@@ -80,11 +80,11 @@ class HTMLLoader {
      */
     async loadInto(path, container, append = false) {
         const html = await this.loadPartial(path);
-        
-        const containerEl = typeof container === 'string' 
-            ? document.querySelector(container) 
+
+        const containerEl = typeof container === 'string'
+            ? document.querySelector(container)
             : container;
-        
+
         if (!containerEl) {
             throw new Error(`Container not found: ${container}`);
         }
@@ -104,15 +104,15 @@ class HTMLLoader {
      */
     async loadMultiple(paths, useCache = true) {
         console.log(`HTMLLoader: Loading ${paths.length} partials in parallel`);
-        
-        const promises = paths.map(path => 
+
+        const promises = paths.map(path =>
             this.loadPartial(path, useCache)
                 .then(html => ({ path, html }))
                 .catch(error => ({ path, error }))
         );
 
         const results = await Promise.all(promises);
-        
+
         // Convert array to object
         const resultMap = {};
         results.forEach(({ path, html, error }) => {
@@ -160,6 +160,62 @@ class HTMLLoader {
             paths: Array.from(this.cache.keys()),
             loading: Array.from(this.loading.keys())
         };
+    }
+
+    /**
+     * Load a screen into the main content area
+     * @param {string} screenName - Screen name (e.g., 'dashboard', 'staff')
+     * @param {string} containerId - Container ID (default: 'screen-container')
+     * @returns {Promise<void>}
+     */
+    async loadScreen(screenName, containerId = 'screen-container') {
+        const screenPath = `screens/${screenName}.html`;
+        const container = document.getElementById(containerId);
+        
+        if (!container) {
+            throw new Error(`Screen container not found: ${containerId}`);
+        }
+
+        console.log(`HTMLLoader: Loading screen: ${screenName}`);
+        
+        try {
+            const html = await this.loadPartial(screenPath);
+            // Wrap the content in a screen div with proper ID and class
+            const wrappedHtml = `<div id="${screenName}" class="screen active">${html}</div>`;
+            container.innerHTML = wrappedHtml;
+            console.log(`HTMLLoader: Screen loaded successfully: ${screenName}`);
+        } catch (error) {
+            console.error(`HTMLLoader: Failed to load screen ${screenName}:`, error);
+            container.innerHTML = `
+                <div style="padding: 48px; text-align: center;">
+                    <h2 style="color: #ef4444; margin-bottom: 16px;">⚠️ Error Loading Screen</h2>
+                    <p style="color: #6b7280;">Failed to load ${screenName} screen.</p>
+                    <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 16px;">Reload Page</button>
+                </div>
+            `;
+            throw error;
+        }
+    }
+
+    /**
+     * Preload all screens for faster navigation
+     * @returns {Promise<void>}
+     */
+    async preloadAllScreens() {
+        const screens = [
+            'dashboard',
+            'compliance',
+            'training',
+            'staff',
+            'incidents',
+            'checklist',
+            'documents',
+            'medication'
+        ];
+
+        console.log('HTMLLoader: Preloading all screens...');
+        await this.preload(screens.map(s => `screens/${s}.html`));
+        console.log('HTMLLoader: All screens preloaded!');
     }
 }
 

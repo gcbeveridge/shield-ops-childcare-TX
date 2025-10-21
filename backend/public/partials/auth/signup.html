@@ -1,0 +1,40 @@
+<!-- Signup Screen -->
+<div id="signup-screen" class="auth-container" style="display: none;">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <div class="auth-logo-icon">
+                <img src="attached_assets/shield CHAMPION LOGO OYR (4)_1759763234301.png" alt="Shield Ops Logo"
+                    style="width: 120px; height: auto;">
+            </div>
+            <h1>Shield Ops</h1>
+            <p>Create Your Account</p>
+        </div>
+        <form onsubmit="signup(event)">
+            <div class="form-group">
+                <label class="form-label">Your Name</label>
+                <input id="signup-name" type="text" class="form-input" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Facility Name</label>
+                <input id="signup-facility" type="text" class="form-input"
+                    placeholder="Bright Futures Learning Center" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Location</label>
+                <input id="signup-address" type="text" class="form-input" placeholder="Austin, TX">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input id="signup-email" type="email" class="form-input" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input id="signup-password" type="password" class="form-input" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Account</button>
+        </form>
+        <div class="auth-footer">
+            Already have an account? <a href="javascript:void(0);" onclick="showLogin()">Sign In</a>
+        </div>
+    </div>
+</div>

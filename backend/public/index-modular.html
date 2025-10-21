@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shield Ops - Child Care Safety Platform</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <!-- Mobile Hamburger Menu Button -->
+    <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" style="display: none;">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Auth Container (loaded dynamically) -->
+    <div id="auth-container"></div>
+
+    <!-- Main App -->
+    <div id="app" class="app-container">
+        <!-- Sidebar Container (loaded dynamically) -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Screen Container (screens loaded dynamically) -->
+            <div id="screen-container"></div>
+        </div>
+    </div>
+
+    <!-- Modals Container (loaded from original index.html for now) -->
+    <div id="modals-container">
+        <!-- All modals from original index.html will be included here -->
+        <!-- This is a temporary solution - modals should be extracted to partials/ in future iteration -->
+    </div>
+
+    <!-- AI Chat FAB & Container -->
+    <div class="ai-chat-fab" id="ai-chat-fab" onclick="toggleAIChat()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            <path d="M9 10h.01M15 10h.01M9.5 14.5s1.5 1.5 3 1.5 3-1.5 3-1.5" />
+        </svg>
+        <span class="ai-badge">AI</span>
+    </div>
+
+    <div class="ai-chat-container" id="ai-chat-container">
+        <div class="ai-chat-header">
+            <div>
+                <h3>🤖 Shield AI</h3>
+                <p>Texas DFPS Compliance Assistant</p>
+            </div>
+            <button class="ai-close-btn" onclick="toggleAIChat()">✕</button>
+        </div>
+        <div class="ai-chat-messages" id="ai-chat-messages">
+            <div class="ai-message ai-message-assistant">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-content">
+                    <p><strong>Hi! I'm Shield AI.</strong></p>
+                    <p>I can help you with Texas DFPS child care regulations and compliance questions.</p>
+                    <p>Try asking me:</p>
+                    <ul>
+                        <li>"What are the medication administration requirements?"</li>
+                        <li>"How often do staff need CPR certification?"</li>
+                        <li>"What incidents must be reported to DFPS?"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input-container">
+            <textarea id="ai-chat-input" placeholder="Ask about Texas DFPS regulations..." rows="1"
+                onkeydown="handleAIInputKeydown(event)"></textarea>
+            <button class="ai-send-btn" onclick="sendAIMessage()" id="ai-send-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- PapaParse CSV Library -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <!-- HTML Loader -->
+    <script src="js/htmlLoader.js"></script>
+
+    <!-- Routing System -->
+    <script src="js/router.js"></script>
+    <script src="js/routes.js"></script>
+
+    <!-- Main Application JavaScript -->
+    <script src="js/app.js"></script>
+
+    <!-- Initialize App with Partials -->
+    <script>
+        // Load initial partials
+        (async function initializeApp() {
+            try {
+                console.log('🚀 Initializing Shield Ops with modular architecture...');
+                
+                // Load modals from original index.html (temporary solution)
+                await loadModals();
+                
+                // Load auth screens
+                await window.htmlLoader.loadInto('auth/login.html', '#auth-container');
+                await window.htmlLoader.loadInto('auth/signup.html', '#auth-container', true);
+                
+                console.log('✅ Auth screens loaded');
+                
+                // Check if user is authenticated
+                const isAuth = await validateAuth();
+                
+                if (isAuth) {
+                    // Load sidebar for authenticated users
+                    await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
+                    console.log('✅ Sidebar loaded');
+                    
+                    // Preload all screens in background for fast navigation
+                    window.htmlLoader.preloadAllScreens().then(() => {
+                        console.log('✅ All screens preloaded');
+                    });
+                }
+                
+                console.log('✅ App initialization complete');
+            } catch (error) {
+                console.error('❌ App initialization failed:', error);
+            }
+        })();
+
+        // Load modals from original index.html
+        async function loadModals() {
+            try {
+                // Fetch the original index.html to extract modals
+                const response = await fetch('/index.html');
+                const html = await response.text();
+                
+                // Extract modals section (from <!-- Add Medication to AI chat)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Get all modal elements and AI chat
+                const modalsContainer = document.getElementById('modals-container');
+                
+                // Extract modals (divs with class="modal")
+                const modalElements = doc.querySelectorAll('.modal');
+                modalElements.forEach(modal => {
+                    modalsContainer.appendChild(modal.cloneNode(true));
+                });
+                
+                console.log(`✅ Loaded ${modalElements.length} modals`);
+            } catch (error) {
+                console.error('❌ Failed to load modals:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>

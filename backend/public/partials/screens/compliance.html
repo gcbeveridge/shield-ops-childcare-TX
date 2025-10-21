@@ -1,0 +1,145 @@
+<div class="page-header">
+                    <h1 class="page-title">State Licensing 📋</h1>
+                    <p class="page-subtitle">Texas Child Care Minimum Standards Compliance</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Overall Compliance</h3>
+                    <div style="font-size: 32px; font-weight: 700; color: var(--gray-900);">94%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 94%;"></div>
+                    </div>
+                    <p style="font-size: 13px; color: var(--gray-700);">11 of 12 requirements complete</p>
+                </div>
+
+                <div class="card">
+                    <div class="tabs">
+                        <button class="tab active" onclick="filterRequirements('all')">All (12)</button>
+                        <button class="tab" onclick="filterRequirements('complete')">Complete (11)</button>
+                        <button class="tab" onclick="filterRequirements('pending')">Pending (1)</button>
+                        <button class="tab" onclick="filterRequirements('overdue')">Overdue (0)</button>
+                    </div>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Requirement</th>
+                                <th>Category</th>
+                                <th>Priority</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Complete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requirements-table">
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Orientation Training</strong><br><small>Emergency procedures, abuse
+                                        reporting, policies</small></td>
+                                <td>📚 Staff Training</td>
+                                <td><span class="badge badge-medium">Medium-High</span></td>
+                                <td>Within 7 days</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Pre-Service Training</strong><br><small>8 clock hours on child development &
+                                        safety</small></td>
+                                <td>📚 Staff Training</td>
+                                <td><span class="badge badge-medium">Medium-High</span></td>
+                                <td>Within 90 days</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Pediatric First Aid</strong><br><small>All staff must have current
+                                        certification</small></td>
+                                <td>📚 Staff Training</td>
+                                <td><span class="badge badge-medium">Medium-High</span></td>
+                                <td>Within 90 days</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Pediatric CPR</strong><br><small>AHA guidelines, must stay current</small>
+                                </td>
+                                <td>📚 Staff Training</td>
+                                <td><span class="badge badge-medium">Medium-High</span></td>
+                                <td>Within 90 days</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Annual Training - Caregivers</strong><br><small>15 clock hours covering 8
+                                        required topics</small></td>
+                                <td>📚 Staff Training</td>
+                                <td><span class="badge badge-medium">Medium-High</span></td>
+                                <td>Annually</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="pending">
+                                <td><strong>Annual Training - Directors</strong><br><small>20 clock hours including
+                                        management training</small></td>
+                                <td>📚 Staff Training</td>
+                                <td><span class="badge badge-medium">Medium-High</span></td>
+                                <td>Dec 15, 2025</td>
+                                <td><span class="badge badge-pending">Pending</span></td>
+                                <td><input type="checkbox" class="checkbox"></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Transportation Safety Training</strong><br><small>2 clock hours for drivers
+                                        (if applicable)</small></td>
+                                <td>📚 Staff Training</td>
+                                <td><span class="badge badge-medium">Medium-High</span></td>
+                                <td>Annually</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Background Checks</strong><br><small>Criminal history & sex offender
+                                        registry</small></td>
+                                <td>🏢 Facility</td>
+                                <td><span class="badge badge-high">High</span></td>
+                                <td>Before hire</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Tuberculosis Screening</strong><br><small>Risk assessment for all
+                                        employees</small></td>
+                                <td>🏢 Facility</td>
+                                <td><span class="badge badge-medium">Medium</span></td>
+                                <td>At hire</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Child Health Records</strong><br><small>Immunizations, health statements,
+                                        care plans</small></td>
+                                <td>⚙️ Operational</td>
+                                <td><span class="badge badge-medium">Medium</span></td>
+                                <td>At enrollment</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Attendance Records</strong><br><small>Daily sign-in/out & employee
+                                        timesheets</small></td>
+                                <td>⚙️ Operational</td>
+                                <td><span class="badge badge-low">Medium-Low</span></td>
+                                <td>Daily</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                            <tr class="requirement-row" data-status="complete">
+                                <td><strong>Minimum Caregiver Qualifications</strong><br><small>High school diploma, 18+
+                                        years old</small></td>
+                                <td>⚙️ Operational</td>
+                                <td><span class="badge badge-medium">Medium</span></td>
+                                <td>At hire</td>
+                                <td><span class="badge badge-complete">Complete</span></td>
+                                <td><input type="checkbox" class="checkbox" checked disabled></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>

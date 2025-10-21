@@ -1,0 +1,200 @@
+<!-- Header -->
+                <div
+                    style="background: white; padding: 20px 32px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; margin: -24px -24px 24px -24px;">
+                    <div>
+                        <h1 style="font-size: 24px; font-weight: 700; margin: 0; color: #111827;"
+                            id="dashboard-greeting">Welcome back!</h1>
+                        <p style="font-size: 14px; color: #6b7280; margin: 4px 0 0 0;">Here's your facility status for
+                            today</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div id="weather-widget-placeholder"></div>
+                        <div id="user-avatar"
+                            style="width: 40px; height: 40px; background: #e0e7ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #4f46e5; cursor: pointer;">
+                            SC
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 0px;">
+                    <!-- Weather Alert Widget -->
+                    <div id="weather-alert-widget"
+                        style="display: none; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 16px; padding: 24px; margin-bottom: 24px; color: white; cursor: pointer;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <span id="weather-icon" style="font-size: 32px;"></span>
+                            <div style="flex: 1;">
+                                <div style="font-size: 18px; font-weight: 700;" id="weather-title"></div>
+                                <div style="font-size: 14px; opacity: 0.9;" id="weather-location"></div>
+                            </div>
+                            <div style="font-size: 36px; font-weight: 700;" id="weather-temp"></div>
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.95; line-height: 1.5;" id="weather-recommendation">
+                        </div>
+                    </div>
+
+                    <!-- Combined Safety Score + Streak -->
+                    <div
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 32px; margin-bottom: 24px; color: white; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Overall Safety
+                                    Performance</div>
+                                <div style="display: flex; align-items: baseline; gap: 12px;">
+                                    <div style="font-size: 64px; font-weight: 700; line-height: 1;"
+                                        id="risk-score-display">87</div>
+                                    <div style="font-size: 20px; font-weight: 600;" id="risk-rating-display">Excellent
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.9; margin-top: 8px;" id="risk-change-display">↑
+                                    3 from last month</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 48px; font-weight: 700; line-height: 1; margin-bottom: 8px;"
+                                    id="streak-days-display">15</div>
+                                <div style="font-size: 14px; opacity: 0.9;">Days Incident-Free</div>
+                                <div
+                                    style="background: rgba(255,255,255,0.2); border-radius: 8px; padding: 8px 16px; margin-top: 12px; font-size: 12px;">
+                                    ⭐ Next Goal: <span id="next-goal-display">30 Day Safety Star</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attention Needed Section -->
+                    <div id="attention-section" style="display: none; margin-bottom: 32px;">
+                        <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px;">🔔 Attention
+                            Needed</h2>
+                        <div id="attention-alerts-container" style="display: flex; flex-direction: column; gap: 12px;">
+                        </div>
+                    </div>
+
+                    <!-- Today's Priorities -->
+                    <div style="margin-bottom: 32px;">
+                        <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px;">📅 Today's
+                            Priorities</h2>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                            <!-- Missing Docs Card -->
+                            <div id="priority-missing-docs"
+                                style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); cursor: pointer;"
+                                onclick="if (window.appRouter) window.appRouter.go('/documents')">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                    <div
+                                        style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                        ⚠️
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 12px; opacity: 0.9;">Critical</div>
+                                        <div style="font-size: 18px; font-weight: 700;">Missing Documents</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.95; margin-bottom: 16px;"
+                                    id="missing-docs-description">Required facility documents not on file</div>
+                                <div
+                                    style="background: white; color: #ef4444; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+                                    Upload Now
+                                </div>
+                            </div>
+
+                            <!-- Expired Docs Card -->
+                            <div id="priority-expired-docs"
+                                style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); cursor: pointer;"
+                                onclick="if (window.appRouter) window.appRouter.go('/documents')">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                    <div
+                                        style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                        📅
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 12px; opacity: 0.9;">Urgent</div>
+                                        <div style="font-size: 18px; font-weight: 700;">Expired Documents</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.95; margin-bottom: 16px;"
+                                    id="expired-docs-description">Documents need renewal immediately</div>
+                                <div
+                                    style="background: white; color: #f97316; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+                                    Renew Now
+                                </div>
+                            </div>
+
+                            <!-- Missing Signatures Card -->
+                            <div id="priority-signatures"
+                                style="background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); cursor: pointer;"
+                                onclick="if (window.appRouter) window.appRouter.go('/incidents')">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                    <div
+                                        style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                        ✍️
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 12px; opacity: 0.9;">Pending</div>
+                                        <div style="font-size: 18px; font-weight: 700;">Missing Signatures</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.95; margin-bottom: 16px;"
+                                    id="signatures-description">Incident reports awaiting parent signatures</div>
+                                <div
+                                    style="background: white; color: #eab308; text-align: center; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 14px;">
+                                    Get Signatures
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="margin-bottom: 32px;">
+                        <h2 style="font-size: 18px; font-weight: 700; color: #111827; margin-bottom: 16px;">⚡ Quick
+                            Actions</h2>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;"
+                            id="quick-actions-container">
+                            <button onclick="openModal('new-incident')"
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; text-align: left; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);"
+                                class="quick-action-btn">
+                                <div style="font-size: 28px; margin-bottom: 8px;">🚨</div>
+                                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Log Incident</div>
+                                <div style="font-size: 12px; opacity: 0.9;">Document injury or illness</div>
+                            </button>
+
+                            <button onclick="openModal('administer-medication')"
+                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; text-align: left; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(245, 87, 108, 0.3);"
+                                class="quick-action-btn">
+                                <div style="font-size: 28px; margin-bottom: 8px;">💊</div>
+                                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Log Medication</div>
+                                <div style="font-size: 12px; opacity: 0.9;">Record dose given</div>
+                            </button>
+
+                            <button onclick="if (window.appRouter) window.appRouter.go('/documents')"
+                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; text-align: left; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);"
+                                class="quick-action-btn">
+                                <div style="font-size: 28px; margin-bottom: 8px;">📁</div>
+                                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Upload Document
+                                </div>
+                                <div style="font-size: 12px; opacity: 0.9;">Add certificates</div>
+                            </button>
+
+                            <button onclick="if (window.appRouter) window.appRouter.go('/staff')"
+                                style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; text-align: left; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);"
+                                class="quick-action-btn">
+                                <div style="font-size: 28px; margin-bottom: 8px;">👥</div>
+                                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">Manage Staff</div>
+                                <div style="font-size: 12px; opacity: 0.9;">View staff records</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 style="font-size: 18px; font-weight: 700; color: #111827;">Recent Activity</h2>
+                            <a href="#"
+                                style="color: #3b82f6; text-decoration: none; font-size: 14px; font-weight: 600;">View
+                                All →</a>
+                        </div>
+                        <div style="background: white; border-radius: 12px; border: 1px solid #e5e7eb; padding: 20px;"
+                            id="recent-activity-container">
+                            <!-- Recent activity items will be inserted here -->
+                        </div>
+                    </div>
+                </div>
