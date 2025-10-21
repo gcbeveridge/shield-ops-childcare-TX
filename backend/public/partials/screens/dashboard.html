@@ -4,28 +4,21 @@
 
 <!-- Hero Section -->
 <div class="cac-hero cac-animate-fadeIn">
-    <div style="position: relative; z-index: 1;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
-            <div>
+    <div class="cac-hero-inner">
+        <div class="cac-hero-header">
+            <div class="cac-hero-heading">
                 <h1 class="cac-hero-title" id="dashboard-greeting">
-                    <span
-                        style="display: block; font-size: 1.5rem; font-weight: 600; opacity: 0.9; margin-bottom: 8px;">Welcome
-                        back,</span>
+                    <span class="cac-hero-greeting">Welcome back,</span>
                     Command Center
                 </h1>
                 <p class="cac-hero-subtitle">Mission-ready dashboard • Real-time compliance monitoring</p>
             </div>
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <div id="weather-widget-compact"
-                    style="background: rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <span id="weather-icon-hero" style="font-size: 32px;">🌤️</span>
-                        <div>
-                            <div style="font-size: 24px; font-weight: 700; color: white;" id="weather-temp-hero">72°F
-                            </div>
-                            <div style="font-size: 12px; opacity: 0.8; color: white;" id="weather-condition-hero">Clear
-                            </div>
-                        </div>
+            <div class="cac-hero-header-right">
+                <div id="weather-widget-compact" class="cac-hero-weather">
+                    <span id="weather-icon-hero" class="cac-hero-weather-icon">🌤️</span>
+                    <div class="cac-hero-weather-meta">
+                        <div class="cac-hero-weather-temp" id="weather-temp-hero">72°F</div>
+                        <div class="cac-hero-weather-condition" id="weather-condition-hero">Clear</div>
                     </div>
                 </div>
             </div>
@@ -166,27 +159,30 @@
             Quick Actions
         </h2>
     </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-        <button onclick="openModal('new-incident')" class="cac-btn cac-btn-primary cac-btn-lg cac-hover-lift"
-            style="flex-direction: column; height: 120px; justify-content: center;">
+    <div class="quick-actions-grid">
+        <button onclick="openModal('new-incident')"
+            class="cac-btn cac-btn-primary cac-btn-lg cac-hover-lift quick-action-btn">
             <span style="font-size: 32px; margin-bottom: 8px;">🚨</span>
             <span>Log Incident</span>
         </button>
 
-        <button onclick="openModal('add-medication')" class="cac-btn cac-btn-lg cac-hover-lift"
-            style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+        <button onclick="openModal('add-medication')"
+            class="cac-btn cac-btn-lg cac-hover-lift quick-action-btn"
+            style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
             <span style="font-size: 32px; margin-bottom: 8px;">💊</span>
             <span>Add Medication</span>
         </button>
 
-        <button onclick="openModal('upload-document')" class="cac-btn cac-btn-lg cac-hover-lift"
-            style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+        <button onclick="openModal('upload-document')"
+            class="cac-btn cac-btn-lg cac-hover-lift quick-action-btn"
+            style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
             <span style="font-size: 32px; margin-bottom: 8px;">📁</span>
             <span>Upload Document</span>
         </button>
 
-        <button onclick="openModal('add-staff')" class="cac-btn cac-btn-lg cac-hover-lift"
-            style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+        <button onclick="openModal('add-staff')"
+            class="cac-btn cac-btn-lg cac-hover-lift quick-action-btn"
+            style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
             <span style="font-size: 32px; margin-bottom: 8px;">👥</span>
             <span>Add Staff</span>
         </button>
@@ -217,18 +213,3 @@
     </div>
 </div>
 
-<style>
-    /* Quick Action Button Hover Effects */
-    .quick-action-btn {
-        transition: transform 0.2s, box-shadow 0.3s;
-    }
-
-    .quick-action-btn:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
-    }
-
-    .quick-action-btn:active {
-        transform: translateY(-2px) scale(1);
-    }
-</style>

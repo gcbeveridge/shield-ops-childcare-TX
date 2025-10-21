@@ -110,10 +110,14 @@ async function apiRequest(endpoint, options = {}) {
                 const loginScreen = document.getElementById('login-screen');
                 const signupScreen = document.getElementById('signup-screen');
 
-                if (app) app.classList.remove('active');
+                if (app) {
+                    app.classList.remove('active');
+                    updateHamburgerVisibility();
+                }
                 if (authContainer) authContainer.style.display = 'block';
                 if (loginScreen) loginScreen.style.display = 'flex';
                 if (signupScreen) signupScreen.style.display = 'none';
+                updateHamburgerVisibility();
 
                 throw new Error('Session expired. Please login again.');
             }
@@ -370,18 +374,20 @@ function toggleMobileMenu() {
     const overlay = document.getElementById('mobile-overlay');
     const hamburger = document.getElementById('hamburger');
 
-    if (sidebar && overlay && hamburger) {
-        const isOpen = sidebar.classList.contains('mobile-open');
+    if (!sidebar || !overlay || !hamburger) return;
 
-        if (isOpen) {
-            sidebar.classList.remove('mobile-open');
-            overlay.classList.remove('active');
-            hamburger.classList.remove('active');
-        } else {
-            sidebar.classList.add('mobile-open');
-            overlay.classList.add('active');
-            hamburger.classList.add('active');
-        }
+    const isOpen = sidebar.classList.contains('mobile-open');
+
+    if (isOpen) {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+        hamburger.classList.remove('active');
+        document.body.classList.remove('mobile-menu-open');
+    } else {
+        sidebar.classList.add('mobile-open');
+        overlay.classList.add('active');
+        hamburger.classList.add('active');
+        document.body.classList.add('mobile-menu-open');
     }
 }
 
@@ -390,40 +396,49 @@ function closeMobileMenu() {
     const overlay = document.getElementById('mobile-overlay');
     const hamburger = document.getElementById('hamburger');
 
-    if (sidebar && overlay && hamburger) {
-        sidebar.classList.remove('mobile-open');
-        overlay.classList.remove('active');
+    if (!sidebar || !overlay || !hamburger) return;
+
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+    hamburger.classList.remove('active');
+    document.body.classList.remove('mobile-menu-open');
+}
+
+function updateHamburgerVisibility() {
+    const hamburger = document.getElementById('hamburger');
+    const app = document.getElementById('app');
+
+    if (!hamburger) return;
+
+    const shouldShow = window.innerWidth <= 768 && app && app.classList.contains('active');
+
+    if (shouldShow) {
+        hamburger.style.display = 'flex';
+    } else {
+        hamburger.style.display = 'none';
         hamburger.classList.remove('active');
+        document.body.classList.remove('mobile-menu-open');
+        closeMobileMenu();
     }
 }
 
-// Close mobile menu when screen is clicked or link is selected
 document.addEventListener('DOMContentLoaded', () => {
-    // Show hamburger on mobile
-    const updateHamburgerVisibility = () => {
-        const hamburger = document.getElementById('hamburger');
-        if (hamburger) {
-            hamburger.style.display = window.innerWidth <= 768 ? 'block' : 'none';
-        }
+    updateHamburgerVisibility();
 
-        // Close menu if screen resized to desktop
+    window.addEventListener('resize', () => {
+        updateHamburgerVisibility();
         if (window.innerWidth > 768) {
             closeMobileMenu();
         }
-    };
-
-    updateHamburgerVisibility();
-    window.addEventListener('resize', updateHamburgerVisibility);
-
-    // Close menu when nav item clicked
-    const navItems = document.querySelectorAll('.nav-item');
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                closeMobileMenu();
-            }
-        });
     });
+});
+
+document.addEventListener('click', event => {
+    if (window.innerWidth > 768) return;
+
+    if (event.target.closest('.nav-item')) {
+        closeMobileMenu();
+    }
 });
 
 // =============================================
@@ -688,10 +703,14 @@ function logout() {
     const loginScreen = document.getElementById('login-screen');
     const signupScreen = document.getElementById('signup-screen');
 
-    if (app) app.classList.remove('active');
+    if (app) {
+        app.classList.remove('active');
+        updateHamburgerVisibility();
+    }
     if (authContainer) authContainer.style.display = 'block';
     if (loginScreen) loginScreen.style.display = 'flex';
     if (signupScreen) signupScreen.style.display = 'none';
+    updateHamburgerVisibility();
 
     // Clear the screen container
     const screenContainer = document.getElementById('screen-container');
@@ -1334,7 +1353,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (authContainer) authContainer.style.display = 'none';
         if (loginScreen) loginScreen.style.display = 'none';
         if (signupScreen) signupScreen.style.display = 'none';
-        if (app) app.classList.add('active');
+        if (app) {
+            app.classList.add('active');
+            updateHamburgerVisibility();
+        }
 
         // Load sidebar if using modular architecture
         const sidebarContainer = document.getElementById('sidebar-container');
@@ -1369,6 +1391,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (authContainer) authContainer.style.display = 'block';
         if (loginScreen) loginScreen.style.display = 'flex';
         if (signupScreen) signupScreen.style.display = 'none';
+        updateHamburgerVisibility();
     }
 });
 

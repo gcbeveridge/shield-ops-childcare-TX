@@ -48,6 +48,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+body.mobile-menu-open {
+    overflow: hidden;
+}
+
 /* Auth Pages */
 .auth-container {
     display: flex;
@@ -445,6 +449,53 @@ body {
     padding: 32px;
     overflow-y: auto;
     margin-left: 280px;
+}
+
+.hamburger {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: none;
+    background: var(--primary);
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.25);
+    padding: 12px 11px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 7px;
+    cursor: pointer;
+    z-index: 1100;
+    transition: transform var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
+}
+
+.hamburger span {
+    width: 100%;
+    height: 2px;
+    background: white;
+    border-radius: 999px;
+    transition: transform 0.25s ease, opacity 0.2s ease, width 0.25s ease;
+    transform-origin: center;
+}
+
+.hamburger.active {
+    background: var(--gray-900);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.35);
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
 }
 
 .page-header {
@@ -875,6 +926,12 @@ body {
     border-top: 2px solid var(--gray-100);
 }
 
+.modal-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
 /* Training Grid */
 .training-grid {
     display: grid;
@@ -996,7 +1053,7 @@ body {
 
 @media (max-width: 768px) {
     .sidebar {
-        display: none;
+        width: 280px;
     }
 
     .stats-grid {
@@ -1378,34 +1435,12 @@ body {
         display: block;
     }
 
-    /* Hamburger button */
-    .hamburger {
-        display: block;
-        position: fixed;
-        top: 16px;
-        left: 16px;
-        z-index: 1001;
-        background: var(--primary);
-        border: none;
-        border-radius: 8px;
-        padding: 12px;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .hamburger span {
-        display: block;
-        width: 24px;
-        height: 2px;
-        background: white;
-        margin: 5px 0;
-        transition: 0.3s;
-    }
-
     /* Main content - Full width */
     .main-content {
         margin-left: 0;
-        padding: 20px 16px;
+        padding: 88px 18px 24px;
+        background: linear-gradient(180deg, #f8fafc 0%, #e0e7ff 80%, #eef2ff 100%);
+        min-height: 100vh;
     }
 
     /* Page header - Smaller */
@@ -1503,17 +1538,18 @@ body {
         /* Prevents zoom on iOS */
     }
 
-    /* Modal - Full width */
+    /* Modal - Mobile adjustments */
     .modal-content {
-        width: 95%;
-        max-width: 95%;
-        margin: 20px auto;
+        width: calc(100% - 32px);
+        max-width: none;
+        margin: 0 auto;
+        padding: 24px 20px;
         max-height: 90vh;
         overflow-y: auto;
     }
 
     .modal-header {
-        padding: 16px;
+        padding: 16px 0 16px;
     }
 
     .modal-title {
@@ -1522,11 +1558,32 @@ body {
 
     .modal-footer {
         flex-direction: column;
-        gap: 8px;
+        gap: 12px;
+        align-items: stretch;
     }
 
-    .modal-footer .btn {
+    .modal-footer .btn,
+    .modal-footer .btn-secondary {
         width: 100%;
+    }
+
+    .modal-grid-2 {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .modal-content [style*="grid-template-columns: 1fr 1fr"],
+    .modal-content [style*="grid-template-columns: 140px"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .modal-content [style*="display: flex"] {
+        flex-wrap: wrap;
+    }
+
+    .modal-content [style*="justify-content: space-between"] {
+        justify-content: flex-start !important;
+        gap: 12px !important;
     }
 
     /* Buttons - Full width on mobile */
@@ -1600,6 +1657,10 @@ body {
     .btn-sm {
         font-size: 11px;
         padding: 5px 10px;
+    }
+
+    .modal-content {
+        padding: 20px 16px;
     }
 }
 
@@ -2359,8 +2420,10 @@ html {
 
     .main-content {
         margin-left: 0 !important;
-        padding: 16px;
+        padding: 88px 18px 28px;
         width: 100%;
+        background: linear-gradient(180deg, #f8fafc 0%, #e0e7ff 70%, #eef2ff 100%);
+        min-height: 100vh;
     }
 
     /* Mobile overlay for sidebar */
@@ -2372,6 +2435,7 @@ html {
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
         z-index: 999;
     }
 
@@ -2379,52 +2443,12 @@ html {
         display: block;
     }
 
-    /* Hamburger menu */
-    .hamburger {
-        display: flex !important;
-        flex-direction: column;
-        justify-content: space-around;
-        width: 40px;
-        height: 40px;
-        background: white;
-        border: 2px solid var(--gray-200);
-        border-radius: 8px;
-        padding: 8px;
-        cursor: pointer;
-        position: fixed;
-        top: 16px;
-        left: 16px;
-        z-index: 1001;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .hamburger span {
-        width: 100%;
-        height: 3px;
-        background: var(--gray-800);
-        border-radius: 2px;
-        transition: all 0.3s ease;
-    }
-
-    .hamburger.active span:nth-child(1) {
-        transform: rotate(45deg) translate(8px, 8px);
-    }
-
-    .hamburger.active span:nth-child(2) {
-        opacity: 0;
-    }
-
-    .hamburger.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(6px, -6px);
-    }
-
     /* Page headers */
     .page-header {
         flex-direction: column;
         align-items: flex-start !important;
         gap: 16px;
-        padding-left: 60px;
-        /* Space for hamburger */
+        padding-left: 0;
     }
 
     .page-title {
@@ -2818,5 +2842,228 @@ html {
     button {
         -webkit-user-select: none;
         user-select: none;
+    }
+}
+/* =============================================
+   ADDITIONAL MOBILE PAGE OPTIMIZATIONS
+   ============================================= */
+
+@media (max-width: 768px) {
+    /* Dashboard page specific */
+    .dashboard-metrics {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+    }
+
+    .metric-card {
+        padding: 14px !important;
+    }
+
+    /* Documents page */
+    .document-card {
+        padding: 14px !important;
+    }
+
+    .document-icon {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Staff certifications */
+    .certification-card {
+        padding: 12px !important;
+    }
+
+    .staff-avatar {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Action buttons row */
+    .action-buttons {
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100%;
+    }
+
+    .action-buttons .btn {
+        width: 100% !important;
+    }
+
+    /* Search bars */
+    .search-container {
+        width: 100% !important;
+        margin-bottom: 12px;
+    }
+
+    .search-input {
+        width: 100% !important;
+        font-size: 16px !important;
+    }
+
+    /* Tabs */
+    .tabs {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-item {
+        font-size: 13px !important;
+        padding: 10px 16px !important;
+        white-space: nowrap;
+    }
+
+    /* File upload */
+    .file-upload-area {
+        padding: 24px 12px !important;
+        font-size: 13px !important;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+        font-size: 12px !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Card grids */
+    .card-grid-2,
+    .card-grid-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .card-grid-4 {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* Utility classes */
+.desktop-only {
+    display: block;
+}
+
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-only {
+        display: block !important;
+    }
+}
+
+/* =============================================
+   ADDITIONAL MOBILE PAGE OPTIMIZATIONS
+   ============================================= */
+
+@media (max-width: 768px) {
+    /* Dashboard page specific */
+    .dashboard-metrics {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+    }
+
+    .metric-card {
+        padding: 14px !important;
+    }
+
+    /* Documents page */
+    .document-card {
+        padding: 14px !important;
+    }
+
+    .document-icon {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Staff certifications */
+    .certification-card {
+        padding: 12px !important;
+    }
+
+    .staff-avatar {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Action buttons row */
+    .action-buttons {
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100%;
+    }
+
+    .action-buttons .btn {
+        width: 100% !important;
+    }
+
+    /* Search bars */
+    .search-container {
+        width: 100% !important;
+        margin-bottom: 12px;
+    }
+
+    .search-input {
+        width: 100% !important;
+        font-size: 16px !important;
+    }
+
+    /* Tabs */
+    .tabs {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .tab-item {
+        font-size: 13px !important;
+        padding: 10px 16px !important;
+        white-space: nowrap;
+    }
+
+    /* File upload */
+    .file-upload-area {
+        padding: 24px 12px !important;
+        font-size: 13px !important;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs {
+        font-size: 12px !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Card grids */
+    .card-grid-2,
+    .card-grid-3 {
+        grid-template-columns: 1fr !important;
+    }
+
+    .card-grid-4 {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+/* Utility classes */
+.desktop-only {
+    display: block;
+}
+
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+
+    .mobile-only {
+        display: block !important;
     }
 }

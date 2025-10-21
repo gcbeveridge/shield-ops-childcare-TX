@@ -14,7 +14,7 @@
                 <label class="form-label">Medication Name</label>
                 <input id="med-name" type="text" class="form-input" placeholder="e.g., Amoxicillin, Albuterol" required>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div class="form-group">
                     <label class="form-label">Type</label>
                     <select id="med-type" class="form-input" required>
@@ -38,7 +38,7 @@
                     <option>Emergency Only</option>
                 </select>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div class="form-group">
                     <label class="form-label">Start Date</label>
                     <input id="med-start-date" type="date" class="form-input" required>
@@ -147,7 +147,7 @@
 
             <!-- Step 2: Dates & Association -->
             <div id="upload-step-2" class="upload-step" style="display: none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                     <div class="form-group">
                         <label class="form-label">Issue Date</label>
                         <input type="date" id="upload-issue-date" class="form-input" required>
@@ -658,7 +658,7 @@
             <h2 class="modal-title">Log New Incident 🚨</h2>
         </div>
         <form id="new-incident-form" onsubmit="createIncident(event)">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div class="form-group">
                     <label class="form-label">Child Name</label>
                     <input id="incident-child-name" type="text" class="form-input" placeholder="Select child..."
@@ -674,7 +674,7 @@
                     </select>
                 </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div class="form-group">
                     <label class="form-label">Date</label>
                     <input id="incident-date" type="date" class="form-input" required>
@@ -836,7 +836,7 @@
 
         <div style="border-top: 1px solid var(--gray-200); padding-top: 20px;">
             <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Export Options:</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+            <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                 <label
                     style="display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px solid var(--gray-200); border-radius: 8px; cursor: pointer;">
                     <input type="radio" name="export-format" checked>
@@ -1169,7 +1169,7 @@
                 </div>
 
                 <!-- Results Summary -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div class="modal-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                     <div
                         style="padding: 20px; background: var(--success-light); border-radius: 8px; text-align: center;">
                         <div id="csv-success-count" style="font-size: 32px; font-weight: 700; color: var(--success);">0
