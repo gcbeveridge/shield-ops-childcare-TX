@@ -1103,7 +1103,7 @@ async function validateAuth() {
     console.log('Token exists:', !!AppState.token);
     console.log('User exists:', !!AppState.user);
     console.log('Facility exists:', !!AppState.facility);
-    
+
     if (!AppState.token || !AppState.user || !AppState.facility) {
         console.log('❌ Missing auth data in AppState');
         return false;
@@ -1113,7 +1113,7 @@ async function validateAuth() {
         console.log('📡 Calling /api/auth/me with token...');
         // Validate token and user/facility still exist
         const userData = await apiRequest('/auth/me');
-        
+
         console.log('✅ /api/auth/me successful:', userData);
 
         // Update AppState with fresh data from server
