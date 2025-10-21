@@ -370,15 +370,17 @@ function toggleMobileMenu() {
     const overlay = document.getElementById('mobile-overlay');
     const hamburger = document.getElementById('hamburger');
 
-    if (sidebar && overlay) {
+    if (sidebar && overlay && hamburger) {
         const isOpen = sidebar.classList.contains('mobile-open');
 
         if (isOpen) {
             sidebar.classList.remove('mobile-open');
             overlay.classList.remove('active');
+            hamburger.classList.remove('active');
         } else {
             sidebar.classList.add('mobile-open');
             overlay.classList.add('active');
+            hamburger.classList.add('active');
         }
     }
 }
@@ -386,10 +388,12 @@ function toggleMobileMenu() {
 function closeMobileMenu() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.getElementById('mobile-overlay');
+    const hamburger = document.getElementById('hamburger');
 
-    if (sidebar && overlay) {
+    if (sidebar && overlay && hamburger) {
         sidebar.classList.remove('mobile-open');
         overlay.classList.remove('active');
+        hamburger.classList.remove('active');
     }
 }
 

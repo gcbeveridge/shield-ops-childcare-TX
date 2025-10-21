@@ -2334,3 +2334,484 @@ html {
         right: 16px;
     }
 }
+
+/* =============================================
+   COMPREHENSIVE MOBILE OPTIMIZATION
+   ============================================= */
+
+@media (max-width: 768px) {
+    /* Layout adjustments */
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        height: 100vh;
+        width: 280px;
+        transition: left 0.3s ease;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.mobile-open {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        padding: 16px;
+        width: 100%;
+    }
+
+    /* Mobile overlay for sidebar */
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    .mobile-overlay.active {
+        display: block;
+    }
+
+    /* Hamburger menu */
+    .hamburger {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: space-around;
+        width: 40px;
+        height: 40px;
+        background: white;
+        border: 2px solid var(--gray-200);
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1001;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .hamburger span {
+        width: 100%;
+        height: 3px;
+        background: var(--gray-800);
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+
+    .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(8px, 8px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Page headers */
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 16px;
+        padding-left: 60px; /* Space for hamburger */
+    }
+
+    .page-title {
+        font-size: 22px !important;
+    }
+
+    .page-subtitle {
+        font-size: 13px !important;
+    }
+
+    /* Stats grids */
+    .stats-grid,
+    .stat-cards {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 16px !important;
+    }
+
+    .stat-value {
+        font-size: 24px !important;
+    }
+
+    .stat-label {
+        font-size: 11px !important;
+    }
+
+    /* Cards */
+    .card {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+
+    .card-title {
+        font-size: 16px !important;
+    }
+
+    /* Tables */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        font-size: 13px !important;
+        min-width: 600px;
+    }
+
+    thead th {
+        font-size: 11px !important;
+        padding: 10px 8px !important;
+    }
+
+    tbody td {
+        padding: 10px 8px !important;
+        font-size: 13px !important;
+    }
+
+    /* Badges */
+    .badge {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+    }
+
+    /* Buttons */
+    .btn {
+        font-size: 13px !important;
+        padding: 10px 16px !important;
+        white-space: nowrap;
+    }
+
+    .btn-icon {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        font-size: 16px !important;
+    }
+
+    .btn-group {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Forms */
+    .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+        font-size: 16px !important; /* Prevent zoom on iOS */
+    }
+
+    .form-label {
+        font-size: 13px !important;
+    }
+
+    /* Modals */
+    .modal-content {
+        width: calc(100vw - 32px) !important;
+        max-width: none !important;
+        margin: 16px;
+        max-height: calc(100vh - 32px);
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        padding: 16px;
+    }
+
+    .modal-body {
+        padding: 16px;
+    }
+
+    .modal-footer {
+        padding: 16px;
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    /* Dashboard specific */
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .compliance-chart,
+    .activity-list {
+        min-height: 250px;
+    }
+
+    /* Timeline items */
+    .timeline-item {
+        padding-left: 40px !important;
+    }
+
+    .timeline-icon {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+    }
+
+    /* AI Chat */
+    .ai-chat-fab {
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+    }
+
+    .ai-chat-container {
+        bottom: 90px;
+        right: 16px;
+        width: calc(100vw - 32px);
+        height: calc(100vh - 180px);
+    }
+
+    /* Auth pages */
+    .auth-container {
+        padding: 16px;
+    }
+
+    .auth-card {
+        padding: 24px !important;
+    }
+
+    .auth-logo h1 {
+        font-size: 24px !important;
+    }
+
+    .auth-logo img {
+        width: 80px !important;
+    }
+
+    /* Hide elements on mobile */
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .show-mobile {
+        display: block !important;
+    }
+
+    /* Touch-friendly spacing */
+    .nav-item {
+        padding: 14px 20px !important;
+        font-size: 14px !important;
+    }
+
+    .nav-item-icon {
+        font-size: 18px !important;
+    }
+
+    /* Compliance sections */
+    .compliance-section {
+        padding: 16px;
+    }
+
+    .requirement-item {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    /* Document grid */
+    .documents-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Staff certifications table - stack on mobile */
+    .certifications-table {
+        font-size: 12px;
+    }
+
+    /* Medication logs */
+    .medication-form {
+        padding: 16px;
+    }
+
+    /* Filter buttons */
+    .filter-buttons {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .filter-btn {
+        font-size: 12px !important;
+        padding: 8px 14px !important;
+    }
+
+    /* Charts - make more compact */
+    .chart-container {
+        height: 250px !important;
+    }
+
+    /* Progress bars */
+    .progress-container {
+        margin-bottom: 12px;
+    }
+
+    .progress-label {
+        font-size: 12px !important;
+    }
+
+    /* Alert messages */
+    .alert {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    /* Training matrix */
+    .training-matrix {
+        overflow-x: auto;
+    }
+
+    /* Severity indicators */
+    .severity-indicators {
+        flex-wrap: wrap;
+    }
+
+    .severity-item {
+        font-size: 12px;
+    }
+
+    /* Quick actions */
+    .quick-actions {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+    }
+
+    .quick-action-btn {
+        padding: 14px !important;
+        font-size: 12px !important;
+    }
+
+    /* Toast notifications */
+    .toast {
+        max-width: calc(100vw - 32px);
+        left: 16px;
+        right: 16px;
+    }
+}
+
+/* Small mobile devices (< 480px) */
+@media (max-width: 480px) {
+    .stats-grid,
+    .stat-cards {
+        grid-template-columns: 1fr !important;
+    }
+
+    .page-title {
+        font-size: 20px !important;
+    }
+
+    .card-title {
+        font-size: 15px !important;
+    }
+
+    table {
+        font-size: 12px !important;
+    }
+
+    .btn {
+        font-size: 12px !important;
+        padding: 8px 12px !important;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hamburger {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Even more compact stat cards */
+    .stat-card {
+        padding: 12px !important;
+    }
+
+    .stat-value {
+        font-size: 20px !important;
+    }
+
+    /* Smaller modal on very small screens */
+    .modal-content {
+        margin: 8px;
+        width: calc(100vw - 16px) !important;
+    }
+}
+
+/* Landscape mobile devices */
+@media (max-width: 896px) and (orientation: landscape) {
+    .sidebar {
+        width: 240px;
+        left: -240px;
+    }
+
+    .modal-content {
+        max-height: calc(100vh - 20px);
+    }
+
+    .ai-chat-container {
+        height: calc(100vh - 100px);
+    }
+}
+
+/* Touch-friendly improvements for all mobile */
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch targets */
+    button,
+    a,
+    .btn,
+    .nav-item,
+    .clickable {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Remove hover states that don't work on touch */
+    .card:hover,
+    .stat-card:hover {
+        transform: none;
+    }
+
+    /* Better tap highlights */
+    button,
+    a,
+    .btn {
+        -webkit-tap-highlight-color: rgba(102, 126, 234, 0.1);
+    }
+
+    /* Prevent text selection on buttons */
+    .btn,
+    button {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
