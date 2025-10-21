@@ -3,16 +3,20 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
             <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
-                <span class="cac-page-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🚨</span>
+                <span class="cac-page-icon"
+                    style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🚨</span>
                 Incident Tracking
             </h1>
-            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Texas DFPS-compliant • Automated parent notifications</p>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Texas DFPS-compliant • Automated
+                parent notifications</p>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportIncidentReport()" style="padding: 8px 14px;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportIncidentReport()"
+                style="padding: 8px 14px;">
                 <span>📊</span> Export
             </button>
-            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('new-incident')" style="padding: 8px 14px;">
+            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('new-incident')"
+                style="padding: 8px 14px;">
                 <span>+</span> Report
             </button>
         </div>
@@ -20,7 +24,8 @@
 </div>
 
 <!-- Stats Grid - Reduced Height & Width -->
-<div class="cac-stats-grid cac-animate-slideUp" style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
+<div class="cac-stats-grid cac-animate-slideUp"
+    style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
     <div class="cac-stat-card cac-stat-success" style="padding: 14px;">
         <div class="cac-stat-icon" style="font-size: 1.3rem;">✅</div>
         <div class="cac-stat-value" id="incident-free-days" style="font-size: 1.6rem; margin: 4px 0;">--</div>
@@ -48,7 +53,8 @@
     <div class="cac-filter-bar" style="gap: 8px;">
         <div class="cac-filter-group">
             <label style="font-size: 0.7rem; font-weight: 600;">Period</label>
-            <select id="incident-time-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+            <select id="incident-time-filter" class="cac-select" onchange="filterIncidents()"
+                style="font-size: 0.75rem; padding: 6px;">
                 <option value="today">Today</option>
                 <option value="week">Week</option>
                 <option value="month" selected>Month</option>
@@ -57,7 +63,8 @@
         </div>
         <div class="cac-filter-group">
             <label style="font-size: 0.7rem; font-weight: 600;">Severity</label>
-            <select id="incident-severity-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+            <select id="incident-severity-filter" class="cac-select" onchange="filterIncidents()"
+                style="font-size: 0.75rem; padding: 6px;">
                 <option value="all">All</option>
                 <option value="critical">Critical</option>
                 <option value="major">Major</option>
@@ -67,7 +74,8 @@
         </div>
         <div class="cac-filter-group">
             <label style="font-size: 0.7rem; font-weight: 600;">Type</label>
-            <select id="incident-type-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+            <select id="incident-type-filter" class="cac-select" onchange="filterIncidents()"
+                style="font-size: 0.75rem; padding: 6px;">
                 <option value="all">All</option>
                 <option value="injury">Injury</option>
                 <option value="illness">Illness</option>
@@ -76,7 +84,8 @@
         </div>
         <div class="cac-filter-group">
             <label style="font-size: 0.7rem; font-weight: 600;">Status</label>
-            <select id="incident-status-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+            <select id="incident-status-filter" class="cac-select" onchange="filterIncidents()"
+                style="font-size: 0.75rem; padding: 6px;">
                 <option value="all">All</option>
                 <option value="pending">Pending</option>
                 <option value="signed">Signed</option>
@@ -86,8 +95,10 @@
 </div>
 
 <!-- Severity Distribution - Ultra Compact -->
-<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.15s; padding: 12px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.02)); margin-bottom: 20px;">
-    <div class="cac-card-header" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+<div class="cac-card cac-animate-slideUp"
+    style="animation-delay: 0.15s; padding: 12px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.02)); margin-bottom: 20px;">
+    <div class="cac-card-header"
+        style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
         <h3 class="cac-card-title" style="font-size: 0.85rem; font-weight: 700;">
             <span class="cac-card-title-icon" style="font-size: 1rem;">📊</span>
             Distribution
@@ -96,21 +107,24 @@
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
         <div class="cac-severity-card cac-severity-minor" style="padding: 10px; background: rgba(255,255,255,0.7);">
-            <div class="cac-severity-count" id="severity-minor-count" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+            <div class="cac-severity-count" id="severity-minor-count" style="font-size: 1.5rem; margin-bottom: 2px;">0
+            </div>
             <div class="cac-severity-label" style="font-size: 0.7rem; margin-bottom: 6px;">Minor</div>
             <div class="cac-severity-bar" style="height: 3px;">
                 <div class="cac-severity-bar-fill" id="severity-minor-bar" style="width: 0%"></div>
             </div>
         </div>
         <div class="cac-severity-card cac-severity-moderate" style="padding: 10px; background: rgba(255,255,255,0.7);">
-            <div class="cac-severity-count" id="severity-moderate-count" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+            <div class="cac-severity-count" id="severity-moderate-count" style="font-size: 1.5rem; margin-bottom: 2px;">
+                0</div>
             <div class="cac-severity-label" style="font-size: 0.7rem; margin-bottom: 6px;">Moderate</div>
             <div class="cac-severity-bar" style="height: 3px;">
                 <div class="cac-severity-bar-fill" id="severity-moderate-bar" style="width: 0%"></div>
             </div>
         </div>
         <div class="cac-severity-card cac-severity-critical" style="padding: 10px; background: rgba(255,255,255,0.7);">
-            <div class="cac-severity-count" id="severity-critical-count" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+            <div class="cac-severity-count" id="severity-critical-count" style="font-size: 1.5rem; margin-bottom: 2px;">
+                0</div>
             <div class="cac-severity-label" style="font-size: 0.7rem; margin-bottom: 6px;">Critical</div>
             <div class="cac-severity-bar" style="height: 3px;">
                 <div class="cac-severity-bar-fill" id="severity-critical-bar" style="width: 0%"></div>
@@ -120,22 +134,26 @@
 </div>
 
 <!-- Incidents List - Use old selector for compatibility -->
-<div class="cac-card cac-animate-slideUp" id="incidents" style="animation-delay: 0.2s; padding: 0; overflow: hidden; margin-bottom: 0;">
-    <div class="cac-card-header" style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100); display: flex; justify-content: space-between; align-items: center;">
+<div class="cac-card cac-animate-slideUp" id="incidents"
+    style="animation-delay: 0.2s; padding: 0; overflow: hidden; margin-bottom: 0;">
+    <div class="cac-card-header"
+        style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100); display: flex; justify-content: space-between; align-items: center;">
         <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700;">
             <span class="cac-card-title-icon" style="font-size: 1rem;">📅</span>
             Recent Incidents
         </h3>
         <div class="cac-card-actions" style="display: flex; gap: 6px;">
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="toggleIncidentView('list')" style="padding: 6px 12px; font-size: 0.75rem;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="toggleIncidentView('list')"
+                style="padding: 6px 12px; font-size: 0.75rem;">
                 📋 List
             </button>
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="toggleIncidentView('timeline')" style="padding: 6px 12px; font-size: 0.75rem;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="toggleIncidentView('timeline')"
+                style="padding: 6px 12px; font-size: 0.75rem;">
                 📅 Timeline
             </button>
         </div>
     </div>
-    
+
     <!-- Table View (default) -->
     <div class="cac-table-container" style="overflow-x: auto;">
         <table class="data-table cac-table">

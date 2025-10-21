@@ -31,21 +31,21 @@
         <div class="cac-stat-label">Days Incident-Free</div>
         <div class="cac-stat-trend">Current streak</div>
     </div>
-    
+
     <div class="cac-stat-card cac-stat-info">
         <div class="cac-stat-icon">📋</div>
         <div class="cac-stat-value" id="total-incidents">--</div>
         <div class="cac-stat-label">Total Incidents (30 days)</div>
         <div class="cac-stat-trend">All severity levels</div>
     </div>
-    
+
     <div class="cac-stat-card cac-stat-warning">
         <div class="cac-stat-icon">⚠️</div>
         <div class="cac-stat-value" id="pending-signatures">--</div>
         <div class="cac-stat-label">Pending Parent Signatures</div>
         <div class="cac-stat-trend">Action required</div>
     </div>
-    
+
     <div class="cac-stat-card cac-stat-primary">
         <div class="cac-stat-icon">📈</div>
         <div class="cac-stat-value" id="incident-response-time">--</div>
@@ -109,7 +109,7 @@
             Incident Distribution (Last 30 Days)
         </h3>
     </div>
-    
+
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
         <div class="cac-severity-card cac-severity-critical">
             <div class="cac-severity-count" id="critical-count">0</div>
@@ -118,7 +118,7 @@
                 <div class="cac-severity-bar-fill" id="critical-bar" style="width: 0%"></div>
             </div>
         </div>
-        
+
         <div class="cac-severity-card cac-severity-major">
             <div class="cac-severity-count" id="major-count">0</div>
             <div class="cac-severity-label">Major</div>
@@ -126,7 +126,7 @@
                 <div class="cac-severity-bar-fill" id="major-bar" style="width: 0%"></div>
             </div>
         </div>
-        
+
         <div class="cac-severity-card cac-severity-moderate">
             <div class="cac-severity-count" id="moderate-count">0</div>
             <div class="cac-severity-label">Moderate</div>
@@ -134,7 +134,7 @@
                 <div class="cac-severity-bar-fill" id="moderate-bar" style="width: 0%"></div>
             </div>
         </div>
-        
+
         <div class="cac-severity-card cac-severity-minor">
             <div class="cac-severity-count" id="minor-count">0</div>
             <div class="cac-severity-label">Minor</div>
@@ -161,14 +161,14 @@
             </button>
         </div>
     </div>
-    
+
     <!-- Timeline View -->
     <div id="incidents-timeline-view">
         <div id="incidents-timeline" class="cac-timeline">
             <!-- Populated dynamically -->
         </div>
     </div>
-    
+
     <!-- List View -->
     <div id="incidents-list-view" style="display: none;">
         <div class="cac-table-container">
@@ -191,7 +191,7 @@
             </table>
         </div>
     </div>
-    
+
     <!-- Empty State -->
     <div id="incidents-empty" class="cac-empty-state" style="display: none;">
         <div class="cac-empty-icon">🎉</div>
@@ -209,7 +209,7 @@
         </h3>
         <span class="cac-badge cac-badge-warning" id="required-actions-count">0</span>
     </div>
-    
+
     <div id="required-actions-list" class="cac-action-list">
         <!-- Populated dynamically with pending signatures, reviews, etc. -->
     </div>

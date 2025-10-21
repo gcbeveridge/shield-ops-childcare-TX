@@ -3,16 +3,20 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
             <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
-                <span class="cac-page-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">💊</span>
+                <span class="cac-page-icon"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">💊</span>
                 Medication Tracking
             </h1>
-            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Texas DFPS §744.2651-2661 • Real-time compliance monitoring</p>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Texas DFPS §744.2651-2661 • Real-time
+                compliance monitoring</p>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="openModal('import-medication-csv')" style="padding: 8px 14px;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="openModal('import-medication-csv')"
+                style="padding: 8px 14px;">
                 <span>📤</span> Import
             </button>
-            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('add-medication')" style="padding: 8px 14px;">
+            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('add-medication')"
+                style="padding: 8px 14px;">
                 <span>+</span> Add Authorization
             </button>
         </div>
@@ -20,7 +24,8 @@
 </div>
 
 <!-- Stats Grid - Reduced Height & Width -->
-<div class="cac-stats-grid cac-animate-slideUp" style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
+<div class="cac-stats-grid cac-animate-slideUp"
+    style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
     <div class="cac-stat-card cac-stat-primary" style="padding: 14px;">
         <div class="cac-stat-icon" style="font-size: 1.3rem;">💊</div>
         <div class="cac-stat-value" id="med-active-count" style="font-size: 1.6rem; margin: 4px 0;">--</div>
@@ -44,37 +49,44 @@
 </div>
 
 <!-- Texas Requirements - Ultra Compact -->
-<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.1s; padding: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.02)); margin-bottom: 20px;">
-    <div class="cac-card-header" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+<div class="cac-card cac-animate-slideUp"
+    style="animation-delay: 0.1s; padding: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.02)); margin-bottom: 20px;">
+    <div class="cac-card-header"
+        style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
         <h3 class="cac-card-title" style="font-size: 0.85rem; font-weight: 700;">
             <span class="cac-card-title-icon" style="font-size: 1rem;">🛡️</span>
             Texas Requirements
         </h3>
-        <span class="cac-badge cac-badge-success" style="font-size: 0.65rem; padding: 3px 8px; font-weight: 700;">✓ COMPLIANT</span>
+        <span class="cac-badge cac-badge-success" style="font-size: 0.65rem; padding: 3px 8px; font-weight: 700;">✓
+            COMPLIANT</span>
     </div>
     <div class="cac-requirement-grid" style="gap: 8px;">
-        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+        <div class="cac-requirement cac-requirement-success"
+            style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
             <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
             <div class="cac-requirement-content">
                 <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Authorization</h4>
                 <p style="font-size: 0.7rem; line-height: 1.3;">Signed & dated (§744.2653)</p>
             </div>
         </div>
-        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+        <div class="cac-requirement cac-requirement-success"
+            style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
             <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
             <div class="cac-requirement-content">
                 <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Container</h4>
                 <p style="font-size: 0.7rem; line-height: 1.3;">Original, labeled (§744.2655)</p>
             </div>
         </div>
-        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+        <div class="cac-requirement cac-requirement-success"
+            style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
             <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
             <div class="cac-requirement-content">
                 <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Verification</h4>
                 <p style="font-size: 0.7rem; line-height: 1.3;">Dual-staff signatures</p>
             </div>
         </div>
-        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+        <div class="cac-requirement cac-requirement-success"
+            style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
             <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
             <div class="cac-requirement-content">
                 <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Storage</h4>
@@ -85,15 +97,19 @@
 </div>
 
 <!-- Medication Alerts (hidden by default) -->
-<div id="medication-alerts-card" class="cac-card cac-animate-slideUp" style="display: none; animation-delay: 0.12s; padding: 12px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05)); border-left: 4px solid #f59e0b; margin-bottom: 20px;">
+<div id="medication-alerts-card" class="cac-card cac-animate-slideUp"
+    style="display: none; animation-delay: 0.12s; padding: 12px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05)); border-left: 4px solid #f59e0b; margin-bottom: 20px;">
     <div style="display: flex; align-items: flex-start; gap: 12px;">
-        <div style="font-size: 1.4rem; flex-shrink: 0; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🔔</div>
+        <div
+            style="font-size: 1.4rem; flex-shrink: 0; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            🔔</div>
         <div style="flex: 1; min-width: 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <h4 style="font-size: 0.85rem; font-weight: 700; color: #92400e; margin: 0;">
                     Medication Alerts (<span id="alert-count">0</span>)
                 </h4>
-                <button class="cac-btn cac-btn-sm" onclick="dismissAllAlerts()" style="padding: 4px 10px; font-size: 0.7rem; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
+                <button class="cac-btn cac-btn-sm" onclick="dismissAllAlerts()"
+                    style="padding: 4px 10px; font-size: 0.7rem; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
                     Dismiss All
                 </button>
             </div>
@@ -104,10 +120,13 @@
 
 
 <!-- Medication Management Card -->
-<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.15s; padding: 0; overflow: hidden; margin-bottom: 0;">
+<div class="cac-card cac-animate-slideUp"
+    style="animation-delay: 0.15s; padding: 0; overflow: hidden; margin-bottom: 0;">
     <!-- Tabs -->
-    <div class="cac-tabs" style="overflow-x: auto; white-space: nowrap; padding: 12px 16px; border-bottom: 2px solid var(--cac-gray-100);">
-        <button class="cac-tab cac-tab-active" onclick="filterMedications('active')" style="font-size: 0.8rem; padding: 8px 16px;">
+    <div class="cac-tabs"
+        style="overflow-x: auto; white-space: nowrap; padding: 12px 16px; border-bottom: 2px solid var(--cac-gray-100);">
+        <button class="cac-tab cac-tab-active" onclick="filterMedications('active')"
+            style="font-size: 0.8rem; padding: 8px 16px;">
             Active (<span id="med-count-active">0</span>)
         </button>
         <button class="cac-tab" onclick="showDailySchedule()" style="font-size: 0.8rem; padding: 8px 16px;">
@@ -143,26 +162,31 @@
 
     <!-- Administration History View -->
     <div id="administration-history-view" style="display: none; padding: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+        <div
+            style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
             <div>
                 <h3 style="font-size: 0.95rem; font-weight: 600;">📊 Administration History</h3>
                 <p style="font-size: 0.75rem; color: var(--cac-gray-600);">Complete log with dual-staff verification</p>
             </div>
             <div style="display: flex; gap: 6px;">
-                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('csv')" style="padding: 6px 12px; font-size: 0.75rem;">
+                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('csv')"
+                    style="padding: 6px 12px; font-size: 0.75rem;">
                     📥 CSV
                 </button>
-                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('pdf')" style="padding: 6px 12px; font-size: 0.75rem;">
+                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('pdf')"
+                    style="padding: 6px 12px; font-size: 0.75rem;">
                     📄 PDF
                 </button>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="cac-filter-bar" style="padding: 10px; gap: 8px; background: var(--cac-gray-50); border-radius: 6px; margin-bottom: 12px;">
+        <div class="cac-filter-bar"
+            style="padding: 10px; gap: 8px; background: var(--cac-gray-50); border-radius: 6px; margin-bottom: 12px;">
             <div class="cac-filter-group">
                 <label style="font-size: 0.7rem; font-weight: 600;">Date</label>
-                <select id="history-date-range" class="cac-select" onchange="filterHistoryByDate()" style="font-size: 0.75rem; padding: 6px;">
+                <select id="history-date-range" class="cac-select" onchange="filterHistoryByDate()"
+                    style="font-size: 0.75rem; padding: 6px;">
                     <option value="today">Today</option>
                     <option value="week" selected>Week</option>
                     <option value="month">Month</option>
@@ -171,19 +195,22 @@
             </div>
             <div class="cac-filter-group">
                 <label style="font-size: 0.7rem; font-weight: 600;">Child</label>
-                <select id="history-child-filter" class="cac-select" onchange="filterHistory()" style="font-size: 0.75rem; padding: 6px;">
+                <select id="history-child-filter" class="cac-select" onchange="filterHistory()"
+                    style="font-size: 0.75rem; padding: 6px;">
                     <option value="all">All</option>
                 </select>
             </div>
             <div class="cac-filter-group">
                 <label style="font-size: 0.7rem; font-weight: 600;">Medication</label>
-                <select id="history-med-filter" class="cac-select" onchange="filterHistory()" style="font-size: 0.75rem; padding: 6px;">
+                <select id="history-med-filter" class="cac-select" onchange="filterHistory()"
+                    style="font-size: 0.75rem; padding: 6px;">
                     <option value="all">All</option>
                 </select>
             </div>
             <div class="cac-filter-group">
                 <label style="font-size: 0.7rem; font-weight: 600;">Staff</label>
-                <select id="history-staff-filter" class="cac-select" onchange="filterHistory()" style="font-size: 0.75rem; padding: 6px;">
+                <select id="history-staff-filter" class="cac-select" onchange="filterHistory()"
+                    style="font-size: 0.75rem; padding: 6px;">
                     <option value="all">All</option>
                 </select>
             </div>

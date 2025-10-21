@@ -2239,6 +2239,90 @@ async function loadStaffList() {
 
         const staff = response.data || [];
 
+        // Calculate stats for staff overview
+        const totalStaff = staff.length;
+        let compliantCount = 0;
+        let expiringCount = 0;
+        let expiredCount = 0;
+        
+        // Certification counts
+        let cprValid = 0, firstAidValid = 0, backgroundValid = 0, foodHandlerValid = 0;
+        
+        const today = new Date();
+        const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+        
+        staff.forEach(member => {
+            const certs = member.certifications || {};
+            let hasExpired = false;
+            let hasExpiring = false;
+            
+            // Check CPR
+            if (certs.cpr?.expiresAt) {
+                const expDate = new Date(certs.cpr.expiresAt);
+                if (expDate >= today) {
+                    cprValid++;
+                    if (expDate <= thirtyDaysFromNow) hasExpiring = true;
+                } else {
+                    hasExpired = true;
+                }
+            }
+            
+            // Check First Aid
+            if (certs.firstAid?.expiresAt) {
+                const expDate = new Date(certs.firstAid.expiresAt);
+                if (expDate >= today) {
+                    firstAidValid++;
+                    if (expDate <= thirtyDaysFromNow) hasExpiring = true;
+                } else {
+                    hasExpired = true;
+                }
+            }
+            
+            // Check Background
+            if (certs.backgroundCheck?.status === 'Clear') {
+                backgroundValid++;
+            }
+            
+            // Check Food Handler
+            if (certs.foodHandler?.expiresAt) {
+                const expDate = new Date(certs.foodHandler.expiresAt);
+                if (expDate >= today) {
+                    foodHandlerValid++;
+                    if (expDate <= thirtyDaysFromNow) hasExpiring = true;
+                } else {
+                    hasExpired = true;
+                }
+            }
+            
+            // Count staff status
+            if (hasExpired) {
+                expiredCount++;
+            } else if (hasExpiring) {
+                expiringCount++;
+            } else if (cprValid > 0 && firstAidValid > 0 && backgroundValid > 0) {
+                compliantCount++;
+            }
+        });
+        
+        // Update stat cards
+        document.getElementById('staff-total-count').textContent = totalStaff;
+        document.getElementById('staff-compliant-count').textContent = compliantCount;
+        document.getElementById('staff-expiring-count').textContent = expiringCount;
+        document.getElementById('staff-expired-count').textContent = expiredCount;
+        
+        // Update certification overview
+        document.getElementById('cert-cpr-count').textContent = cprValid;
+        document.getElementById('cert-cpr-total').textContent = totalStaff;
+        document.getElementById('cert-firstaid-count').textContent = firstAidValid;
+        document.getElementById('cert-firstaid-total').textContent = totalStaff;
+        document.getElementById('cert-background-count').textContent = backgroundValid;
+        document.getElementById('cert-background-total').textContent = totalStaff;
+        document.getElementById('cert-food-count').textContent = foodHandlerValid;
+        document.getElementById('cert-food-total').textContent = totalStaff;
+        
+        // Update filter button
+        document.getElementById('staff-filter-all').textContent = totalStaff;
+
         // Check if empty and show professional empty state
         if (staff.length === 0) {
             tbody.innerHTML = `
@@ -2286,26 +2370,47 @@ async function loadStaffList() {
             }
         };
 
-        tbody.innerHTML = staff.map(staff => {
+        tbody.innerHTML = staff.map(member => {
+            // Calculate overall status
+            const certs = member.certifications || {};
+            let overallStatus = 'compliant';
+            let statusBadge = '<span class="cac-badge cac-badge-success">✓ Compliant</span>';
+            
+            const today = new Date();
+            const thirtyDays = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+            
+            // Check for expired or expiring certs
+            let hasExpired = false;
+            let hasExpiring = false;
+            
+            [certs.cpr, certs.firstAid, certs.foodHandler].forEach(cert => {
+                if (cert?.expiresAt) {
+                    const expDate = new Date(cert.expiresAt);
+                    if (expDate < today) {
+                        hasExpired = true;
+                    } else if (expDate <= thirtyDays) {
+                        hasExpiring = true;
+                    }
+                }
+            });
+            
+            if (hasExpired) {
+                statusBadge = '<span class="cac-badge cac-badge-danger">❌ Expired</span>';
+            } else if (hasExpiring) {
+                statusBadge = '<span class="cac-badge" style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">⚠️ Expiring</span>';
+            }
+            
             return `
             <tr style="transition: background-color 0.2s ease;">
-                <td><strong style="color: var(--gray-900);">${staff.name}</strong></td>
-                <td style="color: var(--gray-700);">${staff.role}</td>
-                <td>${getCertBadge(staff.certifications?.cpr)}</td>
-                <td>${getCertBadge(staff.certifications?.firstAid)}</td>
-                <td>${getCertBadge(staff.certifications?.cda)}</td>
-                <td>${getCertBadge(staff.certifications?.teachingCertificate)}</td>
-                <td>${getCertBadge(staff.certifications?.foodHandler)}</td>
-                <td><span class="badge ${staff.certifications?.backgroundCheck?.status === 'Clear' ? 'badge-success' : 'badge-warning'}">${staff.certifications?.backgroundCheck?.status || 'Pending'}</span></td>
+                <td><strong style="color: var(--gray-900); font-size: 0.85rem;">${member.name}</strong></td>
+                <td style="color: var(--gray-700); font-size: 0.8rem;">${member.role}</td>
+                <td class="hide-mobile" style="font-size: 0.75rem;">${getCertBadge(certs.cpr)}</td>
+                <td class="hide-mobile" style="font-size: 0.75rem;">${getCertBadge(certs.firstAid)}</td>
+                <td class="hide-mobile" style="font-size: 0.75rem;"><span class="cac-badge ${certs.backgroundCheck?.status === 'Clear' ? 'cac-badge-success' : 'cac-badge-warning'}">${certs.backgroundCheck?.status || 'Pending'}</span></td>
+                <td class="hide-mobile" style="font-size: 0.75rem;">${getCertBadge(certs.foodHandler)}</td>
+                <td style="font-size: 0.75rem;">${statusBadge}</td>
                 <td>
-                    <div class="progress-bar-sm">
-                        <div class="progress-fill" style="width: ${(staff.trainingHours.completed / staff.trainingHours.required * 100).toFixed(0)}%"></div>
-                    </div>
-                    <small style="color: var(--gray-600);">${staff.trainingHours.completed}/${staff.trainingHours.required} hours</small>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-secondary" onclick="viewStaffDetails('${staff.id}')" style="margin-right: 4px;">View</button>
-                    <button class="btn btn-sm btn-primary" onclick="editStaffFromId('${staff.id}')" style="margin-right: 4px;">Edit</button>
+                    <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="viewStaffDetails('${member.id}')" style="padding: 6px 12px; font-size: 0.75rem; margin-right: 4px;">View</button>
                 </td>
             </tr>
         `;
@@ -2353,6 +2458,37 @@ async function editStaffFromId(staffId) {
         console.error('Failed to load staff for editing:', error);
         showError('Failed to load staff details');
     }
+}
+
+function filterStaff(type) {
+    console.log('Filtering staff by:', type);
+    
+    // Update button states
+    const buttons = document.querySelectorAll('#staff-roster .cac-card-actions .cac-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('cac-btn-primary');
+        btn.classList.add('cac-btn-secondary');
+        if ((type === 'all' && btn.textContent.includes('All')) ||
+            (type === 'expiring' && btn.textContent.includes('Expiring'))) {
+            btn.classList.remove('cac-btn-secondary');
+            btn.classList.add('cac-btn-primary');
+        }
+    });
+    
+    // Filter table rows
+    const rows = document.querySelectorAll('#staff-table-body tr');
+    rows.forEach(row => {
+        if (type === 'all') {
+            row.style.display = '';
+        } else if (type === 'expiring') {
+            const statusCell = row.cells[6]; // Status column
+            if (statusCell && (statusCell.textContent.includes('Expiring') || statusCell.textContent.includes('Expired'))) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
 }
 
 async function viewStaffDetails(staffId) {
@@ -2688,26 +2824,26 @@ async function loadIncidentList(filter = 'all') {
         const now = new Date();
         const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
         const recentIncidents = incidents.filter(inc => new Date(inc.occurred_at || inc.dateTime) >= thirtyDaysAgo);
-        
+
         // Days since last incident
-        const sortedIncidents = [...incidents].sort((a, b) => 
+        const sortedIncidents = [...incidents].sort((a, b) =>
             new Date(b.occurred_at || b.dateTime) - new Date(a.occurred_at || a.dateTime)
         );
         const lastIncidentDate = sortedIncidents.length > 0 ? new Date(sortedIncidents[0].occurred_at || sortedIncidents[0].dateTime) : null;
         const daysSafe = lastIncidentDate ? Math.floor((now - lastIncidentDate) / (1000 * 60 * 60 * 24)) : 365;
-        
+
         // Pending signatures
         const pendingSignatures = incidents.filter(inc => !inc.parent_signature && !inc.parentSignature).length;
-        
+
         // Average response time (mock for now)
         const avgResponseTime = "< 15m";
-        
+
         // Update stat cards
         document.getElementById('incident-free-days').textContent = daysSafe;
         document.getElementById('total-incidents').textContent = recentIncidents.length;
         document.getElementById('pending-signatures').textContent = pendingSignatures;
         document.getElementById('incident-response-time').textContent = avgResponseTime;
-        
+
         // Calculate severity distribution
         const severityCounts = { minor: 0, moderate: 0, critical: 0 };
         recentIncidents.forEach(inc => {
@@ -2716,7 +2852,7 @@ async function loadIncidentList(filter = 'all') {
                 severityCounts[severity]++;
             }
         });
-        
+
         // Update severity distribution cards
         const total = recentIncidents.length || 1; // Avoid division by zero
         document.getElementById('severity-minor-count').textContent = severityCounts.minor;
@@ -3077,6 +3213,28 @@ function filterIncidents(type) {
 
     // Load filtered incidents
     loadIncidentList(type.toLowerCase());
+}
+
+function toggleIncidentView(view) {
+    console.log('Toggling incident view to:', view);
+    
+    // Currently we only support table/list view
+    // Timeline view could be implemented later with a different visualization
+    
+    // Update button states
+    const buttons = document.querySelectorAll('.cac-card-actions .cac-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('cac-btn-primary');
+        btn.classList.add('cac-btn-secondary');
+    });
+    
+    // Highlight active button
+    event.target.classList.remove('cac-btn-secondary');
+    event.target.classList.add('cac-btn-primary');
+    
+    if (view === 'timeline') {
+        showNotification('Timeline view coming soon! Currently showing list view.', 'info');
+    }
 }
 
 // MEDICATION TRACKING
