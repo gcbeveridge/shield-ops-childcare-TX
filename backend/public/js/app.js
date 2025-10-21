@@ -99,6 +99,25 @@ async function apiRequest(endpoint, options = {}) {
         console.log(`⚡ API Response (${duration}ms):`, response.status, response.statusText);
 
         if (!response.ok) {
+            // Handle 401 Unauthorized - token is invalid/expired
+            if (response.status === 401) {
+                console.warn('⚠️ 401 Unauthorized - clearing auth and redirecting to login');
+                clearAuthData();
+                
+                // Show login screen
+                const app = document.getElementById('app');
+                const authContainer = document.getElementById('auth-container');
+                const loginScreen = document.getElementById('login-screen');
+                const signupScreen = document.getElementById('signup-screen');
+
+                if (app) app.classList.remove('active');
+                if (authContainer) authContainer.style.display = 'block';
+                if (loginScreen) loginScreen.style.display = 'flex';
+                if (signupScreen) signupScreen.style.display = 'none';
+                
+                throw new Error('Session expired. Please login again.');
+            }
+            
             const error = await response.json().catch(() => ({ error: response.statusText }));
             console.error('API Error response:', error);
             throw new Error(error.error || error.message || 'Request failed');
@@ -641,31 +660,38 @@ async function signup(event) {
 }
 
 function showSignup() {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('signup-screen').style.display = 'flex';
+    const loginScreen = document.getElementById('login-screen');
+    const signupScreen = document.getElementById('signup-screen');
+    
+    if (loginScreen) loginScreen.style.display = 'none';
+    if (signupScreen) signupScreen.style.display = 'flex';
 }
 
 function showLogin() {
-    document.getElementById('signup-screen').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'flex';
+    const signupScreen = document.getElementById('signup-screen');
+    const loginScreen = document.getElementById('login-screen');
+    
+    if (signupScreen) signupScreen.style.display = 'none';
+    if (loginScreen) loginScreen.style.display = 'flex';
 }
 
 function logout() {
     clearAuthData();
 
-    // Hide app and show auth screens
-    document.getElementById('app').classList.remove('active');
-
+    // Hide app and show login screen
+    const app = document.getElementById('app');
     const authContainer = document.getElementById('auth-container');
     const loginScreen = document.getElementById('login-screen');
     const signupScreen = document.getElementById('signup-screen');
 
+    if (app) app.classList.remove('active');
     if (authContainer) authContainer.style.display = 'block';
     if (loginScreen) loginScreen.style.display = 'flex';
     if (signupScreen) signupScreen.style.display = 'none';
-
-    // Reload page to reset everything
-    window.location.reload();
+    
+    // Clear the screen container
+    const screenContainer = document.getElementById('screen-container');
+    if (screenContainer) screenContainer.innerHTML = '';
 }
 
 // Navigation
@@ -1281,31 +1307,10 @@ async function validateAuth() {
         return false;
     }
 
-    try {
-        console.log('📡 Calling /api/auth/me with token...');
-        // Validate token and user/facility still exist
-        const userData = await apiRequest('/auth/me');
-
-        console.log('✅ /api/auth/me successful:', userData);
-
-        // Update AppState with fresh data from server
-        AppState.user = userData.user;
-        AppState.facility = userData.facility;
-        localStorage.setItem('user', JSON.stringify(userData.user));
-        localStorage.setItem('facility', JSON.stringify(userData.facility));
-
-        return true;
-    } catch (error) {
-        console.error('❌ Auth validation failed:', error);
-        console.error('Error details:', {
-            message: error.message,
-            status: error.status,
-            stack: error.stack
-        });
-        // Clear stale auth data
-        clearAuthData();
-        return false;
-    }
+    // If we have token, user, and facility, trust it
+    // The apiRequest will handle 401 errors if token is invalid
+    console.log('✅ Auth data present in localStorage');
+    return true;
 }
 
 // Check if user is already logged in on page load

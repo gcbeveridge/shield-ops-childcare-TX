@@ -116,7 +116,7 @@
                 await window.htmlLoader.loadInto('modals.html', '#modals-container');
                 console.log('✅ Modals loaded from partials/modals.html');
 
-                // Always load auth screens (they will be hidden if user is authenticated)
+                // Load auth screens (they will be hidden if user is authenticated)
                 await window.htmlLoader.loadInto('auth/login.html', '#auth-container');
                 await window.htmlLoader.loadInto('auth/signup.html', '#auth-container', true);
                 console.log('✅ Auth screens loaded');
