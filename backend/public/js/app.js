@@ -545,13 +545,20 @@ function showScreen(screenId) {
     });
 
     // Show selected screen
-    document.getElementById(screenId).classList.add('active');
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+    }
 
-    // Update nav items
+    // Update nav items - find the nav item that matches this screen
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
+        // Check if this nav item is for the current screen
+        const onclick = item.getAttribute('onclick');
+        if (onclick && onclick.includes(`'${screenId}'`)) {
+            item.classList.add('active');
+        }
     });
-    event.currentTarget.classList.add('active');
 }
 
 // =============================================
