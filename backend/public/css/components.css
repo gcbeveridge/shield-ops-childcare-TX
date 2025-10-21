@@ -570,8 +570,8 @@
 /* Quick Actions */
 .quick-actions-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: var(--cac-space-3);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--cac-space-2);
 }
 
 .quick-action-btn {
@@ -579,10 +579,19 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 110px;
+    min-height: 100px;
     gap: var(--cac-space-2);
     text-align: center;
     transition: transform var(--cac-transition-fast), box-shadow var(--cac-transition-base);
+}
+
+.quick-action-btn span:first-child {
+    font-size: 28px;
+    margin-bottom: var(--cac-space-1);
+}
+
+.quick-action-btn span:last-child {
+    font-size: var(--cac-text-sm);
 }
 
 .quick-action-btn:hover {
@@ -1275,25 +1284,25 @@
 
     /* Hero adjustments */
     .cac-hero {
-        padding: var(--cac-space-6) var(--cac-space-4);
-        margin-bottom: var(--cac-space-4);
+        padding: var(--cac-space-5) var(--cac-space-3);
+        margin-bottom: var(--cac-space-3);
     }
 
     .cac-hero-title {
-        font-size: clamp(1.75rem, 5vw, var(--cac-text-3xl));
+        font-size: clamp(1.75rem, 5vw, var(--cac-text-2xl));
     }
 
     .cac-hero-subtitle {
-        font-size: var(--cac-text-base);
+        margin-bottom: var(--cac-space-3);
     }
 
     .cac-hero-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: var(--cac-space-3);
+        gap: var(--cac-space-2);
     }
 
     .cac-hero-stat {
-        padding: var(--cac-space-3);
+        padding: var(--cac-space-2) var(--cac-space-3);
     }
 
     /* Metrics */
@@ -1312,18 +1321,18 @@
 
     /* Quick actions */
     .quick-actions-grid {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: var(--cac-space-3);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--cac-space-2);
     }
 
     .quick-action-btn {
-        min-height: 100px;
-        padding: var(--cac-space-3);
+        min-height: 92px;
+        padding: var(--cac-space-2) var(--cac-space-3);
     }
 
     .quick-action-btn span:first-child {
-        font-size: 28px !important;
-        margin-bottom: var(--cac-space-2) !important;
+        font-size: 26px;
+        margin-bottom: var(--cac-space-2);
     }
 
     .cac-btn-lg {
@@ -1393,7 +1402,7 @@
     }
 
     .quick-action-btn span:first-child {
-        font-size: 24px !important;
+        font-size: 22px;
     }
 }
 
