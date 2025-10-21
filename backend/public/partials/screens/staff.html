@@ -3,16 +3,20 @@
     <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
             <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
-                <span class="cac-page-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">👥</span>
+                <span class="cac-page-icon"
+                    style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">👥</span>
                 Staff Management
             </h1>
-            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Track certifications and training compliance • Texas DFPS requirements</p>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Track certifications and training
+                compliance • Texas DFPS requirements</p>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="openModal('import-staff-csv')" style="padding: 8px 14px;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="openModal('import-staff-csv')"
+                style="padding: 8px 14px;">
                 <span>📤</span> Import
             </button>
-            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('add-staff')" style="padding: 8px 14px;">
+            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('add-staff')"
+                style="padding: 8px 14px;">
                 <span>+</span> Add Staff
             </button>
         </div>
@@ -20,7 +24,8 @@
 </div>
 
 <!-- Stats Grid - Compact -->
-<div class="cac-stats-grid cac-animate-slideUp" style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
+<div class="cac-stats-grid cac-animate-slideUp"
+    style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
     <div class="cac-stat-card cac-stat-primary" style="padding: 14px;">
         <div class="cac-stat-icon" style="font-size: 1.3rem;">👥</div>
         <div class="cac-stat-value" id="staff-total-count" style="font-size: 1.6rem; margin: 4px 0;">--</div>
@@ -44,51 +49,62 @@
 </div>
 
 <!-- Certification Status - Ultra Compact -->
-<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.1s; padding: 12px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.02)); margin-bottom: 20px;">
-    <div class="cac-card-header" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+<div class="cac-card cac-animate-slideUp"
+    style="animation-delay: 0.1s; padding: 12px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.02)); margin-bottom: 20px;">
+    <div class="cac-card-header"
+        style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
         <h3 class="cac-card-title" style="font-size: 0.85rem; font-weight: 700;">
             <span class="cac-card-title-icon" style="font-size: 1rem;">📜</span>
             Certification Overview
         </h3>
-        <span class="cac-badge cac-badge-info" style="font-size: 0.65rem; padding: 3px 8px; font-weight: 700;">Live Status</span>
+        <span class="cac-badge cac-badge-info" style="font-size: 0.65rem; padding: 3px 8px; font-weight: 700;">Live
+            Status</span>
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px;">
         <div class="cac-cert-status" style="padding: 10px; background: rgba(255,255,255,0.7); border-radius: 6px;">
             <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 4px;">CPR</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span id="cert-cpr-count">--</span>/<span id="cert-cpr-total">--</span></div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span id="cert-cpr-count">--</span>/<span
+                    id="cert-cpr-total">--</span></div>
         </div>
         <div class="cac-cert-status" style="padding: 10px; background: rgba(255,255,255,0.7); border-radius: 6px;">
             <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 4px;">First Aid</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span id="cert-firstaid-count">--</span>/<span id="cert-firstaid-total">--</span></div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span
+                    id="cert-firstaid-count">--</span>/<span id="cert-firstaid-total">--</span></div>
         </div>
         <div class="cac-cert-status" style="padding: 10px; background: rgba(255,255,255,0.7); border-radius: 6px;">
             <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 4px;">Background</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span id="cert-background-count">--</span>/<span id="cert-background-total">--</span></div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span
+                    id="cert-background-count">--</span>/<span id="cert-background-total">--</span></div>
         </div>
         <div class="cac-cert-status" style="padding: 10px; background: rgba(255,255,255,0.7); border-radius: 6px;">
             <div style="font-size: 0.7rem; color: #64748b; margin-bottom: 4px;">Food Handler</div>
-            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span id="cert-food-count">--</span>/<span id="cert-food-total">--</span></div>
+            <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;"><span id="cert-food-count">--</span>/<span
+                    id="cert-food-total">--</span></div>
         </div>
     </div>
 </div>
 
 <!-- Staff Roster Table -->
-<div class="cac-card cac-animate-slideUp" id="staff-roster" style="animation-delay: 0.15s; padding: 0; overflow: hidden; margin-bottom: 0;">
-    <div class="cac-card-header" style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100); display: flex; justify-content: space-between; align-items: center;">
+<div class="cac-card cac-animate-slideUp" id="staff-roster"
+    style="animation-delay: 0.15s; padding: 0; overflow: hidden; margin-bottom: 0;">
+    <div class="cac-card-header"
+        style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100); display: flex; justify-content: space-between; align-items: center;">
         <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700;">
             <span class="cac-card-title-icon" style="font-size: 1rem;">📋</span>
             Staff Roster
         </h3>
         <div style="display: flex; gap: 6px;">
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterStaff('all')" style="padding: 6px 12px; font-size: 0.75rem;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterStaff('all')"
+                style="padding: 6px 12px; font-size: 0.75rem;">
                 All (<span id="staff-filter-all">0</span>)
             </button>
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterStaff('expiring')" style="padding: 6px 12px; font-size: 0.75rem;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterStaff('expiring')"
+                style="padding: 6px 12px; font-size: 0.75rem;">
                 ⚠️ Expiring
             </button>
         </div>
     </div>
-    
+
     <div class="cac-table-container" style="overflow-x: auto;">
         <table class="data-table cac-table">
             <thead>

@@ -2244,18 +2244,18 @@ async function loadStaffList() {
         let compliantCount = 0;
         let expiringCount = 0;
         let expiredCount = 0;
-        
+
         // Certification counts
         let cprValid = 0, firstAidValid = 0, backgroundValid = 0, foodHandlerValid = 0;
-        
+
         const today = new Date();
         const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
-        
+
         staff.forEach(member => {
             const certs = member.certifications || {};
             let hasExpired = false;
             let hasExpiring = false;
-            
+
             // Check CPR
             if (certs.cpr?.expiresAt) {
                 const expDate = new Date(certs.cpr.expiresAt);
@@ -2266,7 +2266,7 @@ async function loadStaffList() {
                     hasExpired = true;
                 }
             }
-            
+
             // Check First Aid
             if (certs.firstAid?.expiresAt) {
                 const expDate = new Date(certs.firstAid.expiresAt);
@@ -2277,12 +2277,12 @@ async function loadStaffList() {
                     hasExpired = true;
                 }
             }
-            
+
             // Check Background
             if (certs.backgroundCheck?.status === 'Clear') {
                 backgroundValid++;
             }
-            
+
             // Check Food Handler
             if (certs.foodHandler?.expiresAt) {
                 const expDate = new Date(certs.foodHandler.expiresAt);
@@ -2293,7 +2293,7 @@ async function loadStaffList() {
                     hasExpired = true;
                 }
             }
-            
+
             // Count staff status
             if (hasExpired) {
                 expiredCount++;
@@ -2303,13 +2303,13 @@ async function loadStaffList() {
                 compliantCount++;
             }
         });
-        
+
         // Update stat cards
         document.getElementById('staff-total-count').textContent = totalStaff;
         document.getElementById('staff-compliant-count').textContent = compliantCount;
         document.getElementById('staff-expiring-count').textContent = expiringCount;
         document.getElementById('staff-expired-count').textContent = expiredCount;
-        
+
         // Update certification overview
         document.getElementById('cert-cpr-count').textContent = cprValid;
         document.getElementById('cert-cpr-total').textContent = totalStaff;
@@ -2319,7 +2319,7 @@ async function loadStaffList() {
         document.getElementById('cert-background-total').textContent = totalStaff;
         document.getElementById('cert-food-count').textContent = foodHandlerValid;
         document.getElementById('cert-food-total').textContent = totalStaff;
-        
+
         // Update filter button
         document.getElementById('staff-filter-all').textContent = totalStaff;
 
@@ -2375,14 +2375,14 @@ async function loadStaffList() {
             const certs = member.certifications || {};
             let overallStatus = 'compliant';
             let statusBadge = '<span class="cac-badge cac-badge-success">✓ Compliant</span>';
-            
+
             const today = new Date();
             const thirtyDays = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
-            
+
             // Check for expired or expiring certs
             let hasExpired = false;
             let hasExpiring = false;
-            
+
             [certs.cpr, certs.firstAid, certs.foodHandler].forEach(cert => {
                 if (cert?.expiresAt) {
                     const expDate = new Date(cert.expiresAt);
@@ -2393,13 +2393,13 @@ async function loadStaffList() {
                     }
                 }
             });
-            
+
             if (hasExpired) {
                 statusBadge = '<span class="cac-badge cac-badge-danger">❌ Expired</span>';
             } else if (hasExpiring) {
                 statusBadge = '<span class="cac-badge" style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">⚠️ Expiring</span>';
             }
-            
+
             return `
             <tr style="transition: background-color 0.2s ease;">
                 <td><strong style="color: var(--gray-900); font-size: 0.85rem;">${member.name}</strong></td>
@@ -2462,7 +2462,7 @@ async function editStaffFromId(staffId) {
 
 function filterStaff(type) {
     console.log('Filtering staff by:', type);
-    
+
     // Update button states
     const buttons = document.querySelectorAll('#staff-roster .cac-card-actions .cac-btn');
     buttons.forEach(btn => {
@@ -2474,7 +2474,7 @@ function filterStaff(type) {
             btn.classList.add('cac-btn-primary');
         }
     });
-    
+
     // Filter table rows
     const rows = document.querySelectorAll('#staff-table-body tr');
     rows.forEach(row => {
@@ -3217,21 +3217,21 @@ function filterIncidents(type) {
 
 function toggleIncidentView(view) {
     console.log('Toggling incident view to:', view);
-    
+
     // Currently we only support table/list view
     // Timeline view could be implemented later with a different visualization
-    
+
     // Update button states
     const buttons = document.querySelectorAll('.cac-card-actions .cac-btn');
     buttons.forEach(btn => {
         btn.classList.remove('cac-btn-primary');
         btn.classList.add('cac-btn-secondary');
     });
-    
+
     // Highlight active button
     event.target.classList.remove('cac-btn-secondary');
     event.target.classList.add('cac-btn-primary');
-    
+
     if (view === 'timeline') {
         showNotification('Timeline view coming soon! Currently showing list view.', 'info');
     }
