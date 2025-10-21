@@ -103,7 +103,7 @@ async function apiRequest(endpoint, options = {}) {
             if (response.status === 401) {
                 console.warn('⚠️ 401 Unauthorized - clearing auth and redirecting to login');
                 clearAuthData();
-                
+
                 // Show login screen
                 const app = document.getElementById('app');
                 const authContainer = document.getElementById('auth-container');
@@ -114,10 +114,10 @@ async function apiRequest(endpoint, options = {}) {
                 if (authContainer) authContainer.style.display = 'block';
                 if (loginScreen) loginScreen.style.display = 'flex';
                 if (signupScreen) signupScreen.style.display = 'none';
-                
+
                 throw new Error('Session expired. Please login again.');
             }
-            
+
             const error = await response.json().catch(() => ({ error: response.statusText }));
             console.error('API Error response:', error);
             throw new Error(error.error || error.message || 'Request failed');
@@ -662,7 +662,7 @@ async function signup(event) {
 function showSignup() {
     const loginScreen = document.getElementById('login-screen');
     const signupScreen = document.getElementById('signup-screen');
-    
+
     if (loginScreen) loginScreen.style.display = 'none';
     if (signupScreen) signupScreen.style.display = 'flex';
 }
@@ -670,7 +670,7 @@ function showSignup() {
 function showLogin() {
     const signupScreen = document.getElementById('signup-screen');
     const loginScreen = document.getElementById('login-screen');
-    
+
     if (signupScreen) signupScreen.style.display = 'none';
     if (loginScreen) loginScreen.style.display = 'flex';
 }
@@ -688,7 +688,7 @@ function logout() {
     if (authContainer) authContainer.style.display = 'block';
     if (loginScreen) loginScreen.style.display = 'flex';
     if (signupScreen) signupScreen.style.display = 'none';
-    
+
     // Clear the screen container
     const screenContainer = document.getElementById('screen-container');
     if (screenContainer) screenContainer.innerHTML = '';
