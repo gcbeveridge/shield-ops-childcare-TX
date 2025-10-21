@@ -142,10 +142,10 @@ async function getDashboard(req, res) {
         },
         missingSignatures: {
           count: missingSignatures.length,
-          items: missingSignatures.map(i => ({ 
-            childName: i.child_info?.name || 'Unknown', 
-            incidentDate: i.occurred_at, 
-            id: i.id 
+          items: missingSignatures.map(i => ({
+            childName: i.child_info?.name || 'Unknown',
+            incidentDate: i.occurred_at,
+            id: i.id
           })),
           severity: 'medium'
         }

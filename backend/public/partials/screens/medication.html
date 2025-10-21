@@ -1,248 +1,246 @@
 <div class="page-header">
-                <h1 class="page-title">Medication Tracking 💊</h1>
-                <p class="page-subtitle">Texas-compliant medication administration and documentation</p>
+    <h1 class="page-title">Medication Tracking 💊</h1>
+    <p class="page-subtitle">Texas-compliant medication administration and documentation</p>
+</div>
+
+<div class="card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+        <div>
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Texas Compliance Status</h3>
+            <p style="font-size: 14px; color: var(--gray-700);">All requirements met per §744.2651-2661</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-small btn-secondary-small" onclick="openModal('import-medication-csv')">
+                📤 Import CSV
+            </button>
+            <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add
+                Medication
+                Authorization</button>
+        </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: 700; color: var(--gray-900);" id="med-active-count">--</div>
+            <div style="font-size: 13px; color: var(--gray-700);">Active Authorizations</div>
+        </div>
+        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="med-verification-rate">--%</div>
+            <div style="font-size: 13px; color: var(--gray-700);">Dual-Staff Verification</div>
+        </div>
+        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="med-doses-today">--</div>
+            <div style="font-size: 13px; color: var(--gray-700);">Doses Given Today</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🚨 Critical Texas Requirements</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div
+            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: var(--success); font-size: 24px;">✓</span>
+                <strong style="font-size: 14px;">Parent Authorization Required</strong>
             </div>
-
-            <div class="card"
-                style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
-                    <div>
-                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Texas Compliance Status</h3>
-                        <p style="font-size: 14px; color: var(--gray-700);">All requirements met per §744.2651-2661</p>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button class="btn-small btn-secondary-small" onclick="openModal('import-medication-csv')">
-                            📤 Import CSV
-                        </button>
-                        <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add
-                            Medication
-                            Authorization</button>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                    <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-                        <div style="font-size: 24px; font-weight: 700; color: var(--gray-900);" id="med-active-count">--</div>
-                        <div style="font-size: 13px; color: var(--gray-700);">Active Authorizations</div>
-                    </div>
-                    <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-                        <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="med-verification-rate">--%</div>
-                        <div style="font-size: 13px; color: var(--gray-700);">Dual-Staff Verification</div>
-                    </div>
-                    <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-                        <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="med-doses-today">--</div>
-                        <div style="font-size: 13px; color: var(--gray-700);">Doses Given Today</div>
-                    </div>
-                </div>
+            <div style="font-size: 13px; color: var(--gray-700);">Written/electronic, signed & dated,
+                expires annually (§744.2653)</div>
+        </div>
+        <div
+            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: var(--success); font-size: 24px;">✓</span>
+                <strong style="font-size: 14px;">Original Container Only</strong>
             </div>
-
-            <div class="card">
-                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🚨 Critical Texas Requirements</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div
-                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                            <span style="color: var(--success); font-size: 24px;">✓</span>
-                            <strong style="font-size: 14px;">Parent Authorization Required</strong>
-                        </div>
-                        <div style="font-size: 13px; color: var(--gray-700);">Written/electronic, signed & dated,
-                            expires annually (§744.2653)</div>
-                    </div>
-                    <div
-                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                            <span style="color: var(--success); font-size: 24px;">✓</span>
-                            <strong style="font-size: 14px;">Original Container Only</strong>
-                        </div>
-                        <div style="font-size: 13px; color: var(--gray-700);">Child's name, date brought, cannot be
-                            expired (§744.2655)</div>
-                    </div>
-                    <div
-                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                            <span style="color: var(--success); font-size: 24px;">✓</span>
-                            <strong style="font-size: 14px;">Dual-Staff Verification</strong>
-                        </div>
-                        <div style="font-size: 13px; color: var(--gray-700);">One administers, one witnesses - both sign
-                            log</div>
-                    </div>
-                    <div
-                        style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                            <span style="color: var(--success); font-size: 24px;">✓</span>
-                            <strong style="font-size: 14px;">Secure Storage</strong>
-                        </div>
-                        <div style="font-size: 13px; color: var(--gray-700);">Locked, out of reach, separate from food
-                            (§744.2657)</div>
-                    </div>
-                </div>
+            <div style="font-size: 13px; color: var(--gray-700);">Child's name, date brought, cannot be
+                expired (§744.2655)</div>
+        </div>
+        <div
+            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: var(--success); font-size: 24px;">✓</span>
+                <strong style="font-size: 14px;">Dual-Staff Verification</strong>
             </div>
-
-            <!-- Medication Alerts Card -->
-            <div id="medication-alerts-card" class="card" style="display: none; border-left: 4px solid var(--warning);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <h3 style="font-size: 16px; font-weight: 600; color: var(--warning);">
-                        🔔 Active Medication Alerts (<span id="alert-count">0</span>)
-                    </h3>
-                    <button class="btn-small btn-secondary-small" onclick="dismissAllAlerts()">Dismiss All</button>
-                </div>
-                <div id="medication-alerts-list"></div>
+            <div style="font-size: 13px; color: var(--gray-700);">One administers, one witnesses - both sign
+                log</div>
+        </div>
+        <div
+            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: var(--success); font-size: 24px;">✓</span>
+                <strong style="font-size: 14px;">Secure Storage</strong>
             </div>
+            <div style="font-size: 13px; color: var(--gray-700);">Locked, out of reach, separate from food
+                (§744.2657)</div>
+        </div>
+    </div>
+</div>
 
-            <div class="card">
-                <div class="tabs">
-                    <button class="tab active" onclick="filterMedications('active')">Active Medications (<span
-                            id="med-count-active">0</span>)</button>
-                    <button class="tab" onclick="showDailySchedule()">📅 Today's Schedule</button>
-                    <button class="tab" onclick="filterMedications('today')">Today's Log (<span
-                            id="med-count-today">0</span>)</button>
-                    <button class="tab" onclick="showAdministrationHistory()">📊 Administration History</button>
-                    <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (<span
-                            id="med-count-expired">0</span>)</button>
-                    <button class="tab" onclick="filterMedications('allergies')">Food Allergies (<span
-                            id="med-count-allergies">0</span>)</button>
-                </div>
+<!-- Medication Alerts Card -->
+<div id="medication-alerts-card" class="card" style="display: none; border-left: 4px solid var(--warning);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 600; color: var(--warning);">
+            🔔 Active Medication Alerts (<span id="alert-count">0</span>)
+        </h3>
+        <button class="btn-small btn-secondary-small" onclick="dismissAllAlerts()">Dismiss All</button>
+    </div>
+    <div id="medication-alerts-list"></div>
+</div>
 
-                <!-- Daily Schedule View -->
-                <div id="daily-schedule-view" style="display: none;">
-                    <div style="margin-bottom: 20px;">
-                        <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
-                            📅 Medication Schedule for <span id="schedule-date"></span>
-                        </h3>
-                        <p style="font-size: 14px; color: var(--gray-600);">All scheduled doses for today with real-time
-                            status</p>
-                    </div>
+<div class="card">
+    <div class="tabs">
+        <button class="tab active" onclick="filterMedications('active')">Active Medications (<span
+                id="med-count-active">0</span>)</button>
+        <button class="tab" onclick="showDailySchedule()">📅 Today's Schedule</button>
+        <button class="tab" onclick="filterMedications('today')">Today's Log (<span
+                id="med-count-today">0</span>)</button>
+        <button class="tab" onclick="showAdministrationHistory()">📊 Administration History</button>
+        <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (<span
+                id="med-count-expired">0</span>)</button>
+        <button class="tab" onclick="filterMedications('allergies')">Food Allergies (<span
+                id="med-count-allergies">0</span>)</button>
+    </div>
 
-                    <div id="schedule-timeline" style="margin-top: 24px;">
-                        <!-- Timeline will be populated dynamically -->
-                    </div>
+    <!-- Daily Schedule View -->
+    <div id="daily-schedule-view" style="display: none;">
+        <div style="margin-bottom: 20px;">
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+                📅 Medication Schedule for <span id="schedule-date"></span>
+            </h3>
+            <p style="font-size: 14px; color: var(--gray-600);">All scheduled doses for today with real-time
+                status</p>
+        </div>
 
-                    <div id="schedule-empty" style="display: none; text-align: center; padding: 60px 20px;">
-                        <div style="font-size: 64px; margin-bottom: 16px;">🎉</div>
-                        <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
-                            No Medications Scheduled Today
-                        </h3>
-                        <p style="font-size: 14px; color: var(--gray-600);">
-                            All children are medication-free today!
-                        </p>
-                    </div>
-                </div>
+        <div id="schedule-timeline" style="margin-top: 24px;">
+            <!-- Timeline will be populated dynamically -->
+        </div>
 
-                <!-- Administration History View -->
-                <div id="administration-history-view" style="display: none;">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <div>
-                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
-                                📊 Administration History
-                            </h3>
-                            <p style="font-size: 14px; color: var(--gray-600);">Complete medication log with dual-staff
-                                verification records</p>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('csv')">
-                                📥 Export CSV
-                            </button>
-                            <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('pdf')">
-                                📄 Export PDF
-                            </button>
-                        </div>
-                    </div>
+        <div id="schedule-empty" style="display: none; text-align: center; padding: 60px 20px;">
+            <div style="font-size: 64px; margin-bottom: 16px;">🎉</div>
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
+                No Medications Scheduled Today
+            </h3>
+            <p style="font-size: 14px; color: var(--gray-600);">
+                All children are medication-free today!
+            </p>
+        </div>
+    </div>
 
-                    <!-- Filters -->
-                    <div
-                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
-                        <div>
-                            <label
-                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Date
-                                Range</label>
-                            <select id="history-date-range" class="form-input" onchange="filterHistoryByDate()"
-                                style="font-size: 13px; padding: 8px;">
-                                <option value="today">Today</option>
-                                <option value="week" selected>This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="all">All Time</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label
-                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Child</label>
-                            <select id="history-child-filter" class="form-input" onchange="filterHistory()"
-                                style="font-size: 13px; padding: 8px;">
-                                <option value="all">All Children</option>
-                                <!-- Populated dynamically -->
-                            </select>
-                        </div>
-                        <div>
-                            <label
-                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Medication</label>
-                            <select id="history-med-filter" class="form-input" onchange="filterHistory()"
-                                style="font-size: 13px; padding: 8px;">
-                                <option value="all">All Medications</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label
-                                style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Staff
-                                Member</label>
-                            <select id="history-staff-filter" class="form-input" onchange="filterHistory()"
-                                style="font-size: 13px; padding: 8px;">
-                                <option value="all">All Staff</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- History Timeline -->
-                    <div id="history-timeline">
-                        <!-- Populated dynamically -->
-                    </div>
-
-                    <div id="history-empty" style="display: none; text-align: center; padding: 60px 20px;">
-                        <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
-                        <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
-                            No Administration Records Found
-                        </h3>
-                        <p style="font-size: 14px; color: var(--gray-600);">
-                            Try adjusting your filters or select a different date range
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Medication List Table -->
-                <div id="medication-list-table">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Child Name</th>
-                                <th>Medication</th>
-                                <th>Dosage</th>
-                                <th>Schedule</th>
-                                <th>Authorization</th>
-                                <th>Container Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="medications-table-body">
-                            <!-- Populated dynamically by loadMedicationList() from Supabase -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Today's Administration Log moved to "Today's Log" tab -->
-
-                <div class="card" id="allergy-plans-card">
-                    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🥜 Food Allergy Emergency Plans
-                        (Texas §744.2667-2669)</h3>
-                    <div id="allergy-plans-list">
-                        <!-- Populated dynamically from medications with allergy type -->
-                    </div>
-                    <div id="allergy-plans-empty" style="display: none; text-align: center; padding: 40px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 12px;">✓</div>
-                        <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px;">
-                            No Food Allergies on Record
-                        </h3>
-                        <p style="font-size: 14px; color: var(--gray-600);">
-                            No children currently have documented food allergies requiring emergency plans.
-                        </p>
-                    </div>
-                </div>
+    <!-- Administration History View -->
+    <div id="administration-history-view" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+                    📊 Administration History
+                </h3>
+                <p style="font-size: 14px; color: var(--gray-600);">Complete medication log with dual-staff
+                    verification records</p>
             </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('csv')">
+                    📥 Export CSV
+                </button>
+                <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('pdf')">
+                    📄 Export PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div
+            style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
+            <div>
+                <label
+                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Date
+                    Range</label>
+                <select id="history-date-range" class="form-input" onchange="filterHistoryByDate()"
+                    style="font-size: 13px; padding: 8px;">
+                    <option value="today">Today</option>
+                    <option value="week" selected>This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+            <div>
+                <label
+                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Child</label>
+                <select id="history-child-filter" class="form-input" onchange="filterHistory()"
+                    style="font-size: 13px; padding: 8px;">
+                    <option value="all">All Children</option>
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+            <div>
+                <label
+                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Medication</label>
+                <select id="history-med-filter" class="form-input" onchange="filterHistory()"
+                    style="font-size: 13px; padding: 8px;">
+                    <option value="all">All Medications</option>
+                </select>
+            </div>
+            <div>
+                <label
+                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Staff
+                    Member</label>
+                <select id="history-staff-filter" class="form-input" onchange="filterHistory()"
+                    style="font-size: 13px; padding: 8px;">
+                    <option value="all">All Staff</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- History Timeline -->
+        <div id="history-timeline">
+            <!-- Populated dynamically -->
+        </div>
+
+        <div id="history-empty" style="display: none; text-align: center; padding: 60px 20px;">
+            <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
+            <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
+                No Administration Records Found
+            </h3>
+            <p style="font-size: 14px; color: var(--gray-600);">
+                Try adjusting your filters or select a different date range
+            </p>
+        </div>
+    </div>
+
+    <!-- Medication List Table -->
+    <div id="medication-list-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Child Name</th>
+                    <th>Medication</th>
+                    <th>Dosage</th>
+                    <th>Schedule</th>
+                    <th>Authorization</th>
+                    <th>Container Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="medications-table-body">
+                <!-- Populated dynamically by loadMedicationList() from Supabase -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Today's Administration Log moved to "Today's Log" tab -->
+
+    <div class="card" id="allergy-plans-card">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🥜 Food Allergy Emergency Plans
+            (Texas §744.2667-2669)</h3>
+        <div id="allergy-plans-list">
+            <!-- Populated dynamically from medications with allergy type -->
+        </div>
+        <div id="allergy-plans-empty" style="display: none; text-align: center; padding: 40px 20px;">
+            <div style="font-size: 48px; margin-bottom: 12px;">✓</div>
+            <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px;">
+                No Food Allergies on Record
+            </h3>
+            <p style="font-size: 14px; color: var(--gray-600);">
+                No children currently have documented food allergies requiring emergency plans.
+            </p>
+        </div>
+    </div>
+</div>

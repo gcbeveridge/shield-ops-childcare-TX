@@ -1126,7 +1126,7 @@ async function updateSidebarBadges() {
             const staff = staffResponse.data || [];
             const now = new Date();
             const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-            
+
             let expiringCount = 0;
             staff.forEach(member => {
                 const certs = member.certifications || {};
@@ -1151,7 +1151,7 @@ async function updateSidebarBadges() {
             const docs = docsResponse.data || [];
             const now = new Date();
             const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-            
+
             let alertCount = 0;
             docs.forEach(doc => {
                 if (doc.expiration_date) {
@@ -2635,7 +2635,7 @@ async function loadIncidentList(filter = 'all') {
                 incident.severity === 'moderate' ? 'badge-warning' : 'badge-info';
             const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
             const parentSigned = incident.parent_signature || incident.parentSignature;
-            
+
             return `
                 <tr style="transition: background-color 0.2s ease;">
                     <td style="color: var(--gray-700);">${date.toLocaleDateString()}</td>
@@ -2686,15 +2686,15 @@ async function viewIncidentDetails(incidentId) {
         currentIncidentData = response.data || response;
 
         const incident = currentIncidentData;
-        
+
         // Support both old and new schema
         const dateTime = new Date(incident.occurred_at || incident.dateTime);
         const formattedDate = dateTime.toLocaleDateString();
         const formattedTime = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
+
         // Get child name from either schema
         const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
-        
+
         // Get parent notification status (support both schemas)
         const parentNotified = incident.parent_notified !== undefined ? incident.parent_notified : incident.parentNotified;
         const parentSignature = incident.parent_signature || incident.parentSignature;
@@ -3006,7 +3006,7 @@ function checkMedicationAlerts() {
         if (med.frequency && med.frequency.toLowerCase().includes('daily')) {
             // Try to extract time from frequency string (e.g., "3 times daily (8:00 AM, 12:00 PM, 4:00 PM)")
             const timeMatches = med.frequency.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/gi);
-            
+
             if (timeMatches && timeMatches.length > 0) {
                 // Check each scheduled time
                 timeMatches.forEach(timeStr => {
@@ -3015,11 +3015,11 @@ function checkMedicationAlerts() {
                         let hour = parseInt(timeMatch[1]);
                         const minute = parseInt(timeMatch[2]);
                         const period = timeMatch[3].toUpperCase();
-                        
+
                         // Convert to 24-hour format
                         if (period === 'PM' && hour !== 12) hour += 12;
                         if (period === 'AM' && hour === 12) hour = 0;
-                        
+
                         const scheduleDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
                         const minutesUntilDose = Math.floor((scheduleDate - now) / (1000 * 60));
 
@@ -3509,7 +3509,7 @@ async function loadMedicationList(filter = 'active') {
             filteredMeds = activeMeds;
         } else if (filter === 'expired') {
             const now = new Date();
-            filteredMeds = allMedications.filter(med => 
+            filteredMeds = allMedications.filter(med =>
                 !med.active || (med.end_date && new Date(med.end_date) < now)
             );
         } else if (filter === 'today') {
@@ -3522,7 +3522,7 @@ async function loadMedicationList(filter = 'active') {
         const activeCountTab = document.getElementById('med-count-active');
         const todayCountTab = document.getElementById('med-count-today');
         const expiredCountTab = document.getElementById('med-count-expired');
-        
+
         if (activeCountTab) activeCountTab.textContent = activeMeds.length;
         if (todayCountTab) todayCountTab.textContent = todayDoses;
         if (expiredCountTab) expiredCountTab.textContent = allMedications.length - activeMeds.length;
@@ -3592,7 +3592,7 @@ async function loadMedicationList(filter = 'active') {
             const dosage = med.dosage || '-';
             const frequency = med.frequency || med.schedule || '-';
             const isActive = med.active !== undefined ? med.active : (med.status === 'active');
-            
+
             return `
                 <tr style="transition: background-color 0.2s ease;">
                     <td style="color: var(--gray-700);">${childName}</td>

@@ -1,108 +1,110 @@
 <div class="page-header">
-                    <h1 class="page-title">Document Vault 📁</h1>
-                    <p class="page-subtitle">Centralized storage with automatic expiration tracking</p>
-                </div>
+    <h1 class="page-title">Document Vault 📁</h1>
+    <p class="page-subtitle">Centralized storage with automatic expiration tracking</p>
+</div>
 
-                <!-- Quick Stats Bar -->
-                <div class="card"
-                    style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; margin-bottom: 20px;">
-                    <div
-                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 24px; text-align: center;">
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;" id="doc-total-count">--</div>
-                            <div style="font-size: 13px; opacity: 0.9;">Total Documents</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;" id="doc-required-count">--</div>
-                            <div style="font-size: 13px; opacity: 0.9;">Required</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px; color: #fef3c7;" id="doc-missing-count">--</div>
-                            <div style="font-size: 13px; opacity: 0.9;">Missing</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;" id="doc-compliance-rate">--%</div>
-                            <div style="font-size: 13px; opacity: 0.9;">Compliance</div>
-                        </div>
-                    </div>
-                </div>
+<!-- Quick Stats Bar -->
+<div class="card"
+    style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; margin-bottom: 20px;">
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 24px; text-align: center;">
+        <div>
+            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;" id="doc-total-count">--</div>
+            <div style="font-size: 13px; opacity: 0.9;">Total Documents</div>
+        </div>
+        <div>
+            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;" id="doc-required-count">--</div>
+            <div style="font-size: 13px; opacity: 0.9;">Required</div>
+        </div>
+        <div>
+            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px; color: #fef3c7;" id="doc-missing-count">
+                --</div>
+            <div style="font-size: 13px; opacity: 0.9;">Missing</div>
+        </div>
+        <div>
+            <div style="font-size: 28px; font-weight: 700; margin-bottom: 4px;" id="doc-compliance-rate">--%</div>
+            <div style="font-size: 13px; opacity: 0.9;">Compliance</div>
+        </div>
+    </div>
+</div>
 
-                <div class="card"
-                    style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
-                        <div>
-                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--danger);">⚠️
-                                Expiration Alerts</h3>
-                            <p style="font-size: 14px; color: var(--gray-700);"><span id="doc-alerts-summary">0</span> documents require attention</p>
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button class="btn-small btn-secondary-small" onclick="openModal('inspection-readiness')">📊
-                                Inspection Readiness</button>
-                            <button class="btn-small btn-primary-small" onclick="openModal('upload-document')">+ Upload
-                                Document</button>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-                        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: 700; color: var(--danger);" id="doc-expired-count">--</div>
-                            <div style="font-size: 13px; color: var(--gray-700);">Expired</div>
-                        </div>
-                        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: 700; color: var(--warning);" id="doc-expiring-count">--</div>
-                            <div style="font-size: 13px; color: var(--gray-700);">Expiring in 30 Days</div>
-                        </div>
-                        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-                            <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="doc-current-count">--</div>
-                            <div style="font-size: 13px; color: var(--gray-700);">Current</div>
-                        </div>
-                    </div>
-                </div>
+<div class="card" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+        <div>
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--danger);">⚠️
+                Expiration Alerts</h3>
+            <p style="font-size: 14px; color: var(--gray-700);"><span id="doc-alerts-summary">0</span> documents require
+                attention</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-small btn-secondary-small" onclick="openModal('inspection-readiness')">📊
+                Inspection Readiness</button>
+            <button class="btn-small btn-primary-small" onclick="openModal('upload-document')">+ Upload
+                Document</button>
+        </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: 700; color: var(--danger);" id="doc-expired-count">--</div>
+            <div style="font-size: 13px; color: var(--gray-700);">Expired</div>
+        </div>
+        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: 700; color: var(--warning);" id="doc-expiring-count">--</div>
+            <div style="font-size: 13px; color: var(--gray-700);">Expiring in 30 Days</div>
+        </div>
+        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
+            <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="doc-current-count">--</div>
+            <div style="font-size: 13px; color: var(--gray-700);">Current</div>
+        </div>
+    </div>
+</div>
 
-                <!-- Missing Required Forms Alert -->
-                <div class="card" id="missing-forms-alert" style="display: none;
+<!-- Missing Required Forms Alert -->
+<div class="card" id="missing-forms-alert"
+    style="display: none;
                     background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.05)); cursor: pointer;"
-                    onclick="openModal('missing-forms')">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--warning);">📋
-                                Missing Required Forms</h3>
-                            <p style="font-size: 14px; color: var(--gray-700);"><span id="doc-missing-detail">0</span> required documents are not on file -
-                                Add them now</p>
-                        </div>
-                        <div style="font-size: 32px; color: var(--warning);">→</div>
-                    </div>
-                </div>
+    onclick="openModal('missing-forms')">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--warning);">📋
+                Missing Required Forms</h3>
+            <p style="font-size: 14px; color: var(--gray-700);"><span id="doc-missing-detail">0</span> required
+                documents are not on file -
+                Add them now</p>
+        </div>
+        <div style="font-size: 32px; color: var(--warning);">→</div>
+    </div>
+</div>
 
-                <div class="card">
-                    <div class="tabs">
-                        <button class="tab active" onclick="filterDocuments('all')">All Documents</button>
-                        <button class="tab" onclick="filterDocuments('licenses')">Licensing & Permits</button>
-                        <button class="tab" onclick="filterDocuments('staff')">Staff Records</button>
-                        <button class="tab" onclick="filterDocuments('children')">Children</button>
-                        <button class="tab" onclick="filterDocuments('health')">Health & Safety</button>
-                        <button class="tab" onclick="filterDocuments('inspections')">Facility & Inspections</button>
-                        <button class="tab" onclick="filterDocuments('insurance')">Insurance</button>
-                    </div>
+<div class="card">
+    <div class="tabs">
+        <button class="tab active" onclick="filterDocuments('all')">All Documents</button>
+        <button class="tab" onclick="filterDocuments('licenses')">Licensing & Permits</button>
+        <button class="tab" onclick="filterDocuments('staff')">Staff Records</button>
+        <button class="tab" onclick="filterDocuments('children')">Children</button>
+        <button class="tab" onclick="filterDocuments('health')">Health & Safety</button>
+        <button class="tab" onclick="filterDocuments('inspections')">Facility & Inspections</button>
+        <button class="tab" onclick="filterDocuments('insurance')">Insurance</button>
+    </div>
 
-                    <div style="margin-bottom: 20px;">
-                        <input type="text" id="document-search" class="form-input" placeholder="🔍 Search documents..."
-                            style="max-width: 400px;" onkeyup="searchDocuments()">
-                    </div>
+    <div style="margin-bottom: 20px;">
+        <input type="text" id="document-search" class="form-input" placeholder="🔍 Search documents..."
+            style="max-width: 400px;" onkeyup="searchDocuments()">
+    </div>
 
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Document Name</th>
-                                <th>Category</th>
-                                <th>Owner/Subject</th>
-                                <th>Expiration Date</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Populated by loadDocuments() -->
-                        </tbody>
-                    </table>
-                </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Document Name</th>
+                <th>Category</th>
+                <th>Owner/Subject</th>
+                <th>Expiration Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Populated by loadDocuments() -->
+        </tbody>
+    </table>
+</div>
