@@ -1099,13 +1099,22 @@ function updateFacilityInfo() {
 
 // Validate cached auth data on page load
 async function validateAuth() {
+    console.log('🔍 validateAuth() called');
+    console.log('Token exists:', !!AppState.token);
+    console.log('User exists:', !!AppState.user);
+    console.log('Facility exists:', !!AppState.facility);
+    
     if (!AppState.token || !AppState.user || !AppState.facility) {
+        console.log('❌ Missing auth data in AppState');
         return false;
     }
 
     try {
+        console.log('📡 Calling /api/auth/me with token...');
         // Validate token and user/facility still exist
         const userData = await apiRequest('/auth/me');
+        
+        console.log('✅ /api/auth/me successful:', userData);
 
         // Update AppState with fresh data from server
         AppState.user = userData.user;
@@ -1115,7 +1124,12 @@ async function validateAuth() {
 
         return true;
     } catch (error) {
-        console.warn('Auth validation failed:', error.message);
+        console.error('❌ Auth validation failed:', error);
+        console.error('Error details:', {
+            message: error.message,
+            status: error.status,
+            stack: error.stack
+        });
         // Clear stale auth data
         clearAuthData();
         return false;
