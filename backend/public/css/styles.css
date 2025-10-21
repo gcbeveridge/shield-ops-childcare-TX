@@ -384,6 +384,7 @@ body {
     font-size: 14px;
     font-weight: 500;
     position: relative;
+    text-decoration: none;
 }
 
 .nav-item:hover {

@@ -476,7 +476,18 @@ async function login(event) {
         document.getElementById('app').classList.add('active');
 
         updateFacilityInfo();
-        await loadDashboard();
+        
+        // Initialize router after login
+        if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined' && !window.appRouter) {
+            window.appRouter = new Router(appRoutes);
+            console.log('Router initialized after login');
+        } else if (window.appRouter) {
+            // Router already exists, just navigate to dashboard
+            window.appRouter.go('/dashboard');
+        } else {
+            // Fallback to loading dashboard directly
+            await loadDashboard();
+        }
     } catch (error) {
         showError(error.message || 'Login failed');
     }
@@ -514,7 +525,18 @@ async function signup(event) {
         document.getElementById('app').classList.add('active');
 
         updateFacilityInfo();
-        await loadDashboard();
+        
+        // Initialize router after signup
+        if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined' && !window.appRouter) {
+            window.appRouter = new Router(appRoutes);
+            console.log('Router initialized after signup');
+        } else if (window.appRouter) {
+            // Router already exists, just navigate to dashboard
+            window.appRouter.go('/dashboard');
+        } else {
+            // Fallback to loading dashboard directly
+            await loadDashboard();
+        }
     } catch (error) {
         showError(error.message || 'Signup failed');
     }
@@ -1059,7 +1081,16 @@ window.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app').classList.add('active');
         updateFacilityInfo();
-        await loadDashboard();
+        
+        // Initialize router before loading dashboard
+        if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined') {
+            window.appRouter = new Router(appRoutes);
+            console.log('Router initialized successfully');
+        } else {
+            console.error('Router or appRoutes not loaded. Make sure router.js and routes.js are included before app.js');
+            // Fallback to loading dashboard directly
+            await loadDashboard();
+        }
     } else {
         // Show login screen
         document.getElementById('login-screen').style.display = 'flex';
@@ -4518,3 +4549,9 @@ function showKeyboardShortcuts() {
     }
     modal.style.display = 'flex';
 }
+
+// ===================================
+// Router Initialization
+// ===================================
+// Note: Router is now initialized in the DOMContentLoaded handler above (line ~1055)
+// after authentication is validated. This prevents conflicts with the auth flow.

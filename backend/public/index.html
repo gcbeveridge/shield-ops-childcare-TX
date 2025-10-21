@@ -113,45 +113,45 @@
 
             <div class="nav-menu">
                 <div class="nav-section-title">Overview</div>
-                <div class="nav-item active" onclick="showScreen('dashboard')">
+                <a href="#/dashboard" class="nav-item active">
                     <span>📊</span>
                     <span>Dashboard</span>
-                </div>
+                </a>
 
                 <div class="nav-section-title">Compliance</div>
-                <div class="nav-item" onclick="showScreen('licensing')">
+                <a href="#/compliance" class="nav-item">
                     <span>📋</span>
                     <span>State Licensing</span>
                     <span class="nav-badge">18</span>
-                </div>
+                </a>
 
                 <div class="nav-section-title">Operations</div>
-                <div class="nav-item" onclick="showScreen('training')">
+                <a href="#/training" class="nav-item">
                     <span>📚</span>
                     <span>Training Hub</span>
-                </div>
-                <div class="nav-item" onclick="showScreen('staff')">
+                </a>
+                <a href="#/staff" class="nav-item">
                     <span>👥</span>
                     <span>Staff Management</span>
                     <span class="nav-badge">3</span>
-                </div>
-                <div class="nav-item" onclick="showScreen('incidents')">
+                </a>
+                <a href="#/incidents" class="nav-item">
                     <span>🚨</span>
                     <span>Incident Reports</span>
-                </div>
-                <div class="nav-item" onclick="showScreen('checklist')">
+                </a>
+                <a href="#/checklist" class="nav-item">
                     <span>✓</span>
                     <span>Daily Checklist</span>
-                </div>
-                <div class="nav-item" onclick="showScreen('documents')">
+                </a>
+                <a href="#/documents" class="nav-item">
                     <span>📁</span>
                     <span>Document Vault</span>
                     <span class="nav-badge">5</span>
-                </div>
-                <div class="nav-item" onclick="showScreen('medication')">
+                </a>
+                <a href="#/medication" class="nav-item">
                     <span>💊</span>
                     <span>Medication Tracking</span>
-                </div>
+                </a>
             </div>
 
             <div class="user-menu" onclick="logout()">
@@ -248,7 +248,7 @@
                             <!-- Missing Docs Card -->
                             <div id="priority-missing-docs"
                                 style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); cursor: pointer;"
-                                onclick="showScreen('documents')">
+                                onclick="if (window.appRouter) window.appRouter.go('/documents')">
                                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                                     <div
                                         style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
@@ -270,7 +270,7 @@
                             <!-- Expired Docs Card -->
                             <div id="priority-expired-docs"
                                 style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); cursor: pointer;"
-                                onclick="showScreen('documents')">
+                                onclick="if (window.appRouter) window.appRouter.go('/documents')">
                                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                                     <div
                                         style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
@@ -292,7 +292,7 @@
                             <!-- Missing Signatures Card -->
                             <div id="priority-signatures"
                                 style="background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); border-radius: 12px; padding: 24px; color: white; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); cursor: pointer;"
-                                onclick="showScreen('incidents')">
+                                onclick="if (window.appRouter) window.appRouter.go('/incidents')">
                                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
                                     <div
                                         style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
@@ -335,7 +335,7 @@
                                 <div style="font-size: 12px; opacity: 0.9;">Record dose given</div>
                             </button>
 
-                            <button onclick="showScreen('documents')"
+                            <button onclick="if (window.appRouter) window.appRouter.go('/documents')"
                                 style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; text-align: left; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);"
                                 class="quick-action-btn">
                                 <div style="font-size: 28px; margin-bottom: 8px;">📁</div>
@@ -344,7 +344,7 @@
                                 <div style="font-size: 12px; opacity: 0.9;">Add certificates</div>
                             </button>
 
-                            <button onclick="showScreen('staff')"
+                            <button onclick="if (window.appRouter) window.appRouter.go('/staff')"
                                 style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; padding: 20px; border-radius: 12px; cursor: pointer; text-align: left; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 12px rgba(67, 233, 123, 0.3);"
                                 class="quick-action-btn">
                                 <div style="font-size: 28px; margin-bottom: 8px;">👥</div>
@@ -3391,6 +3391,10 @@
 
     <!-- PapaParse CSV Library -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <!-- Routing System -->
+    <script src="js/router.js"></script>
+    <script src="js/routes.js"></script>
 
     <!-- Main Application JavaScript -->
     <script src="js/app.js"></script>
