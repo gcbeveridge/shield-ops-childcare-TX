@@ -2340,6 +2340,7 @@ html {
    ============================================= */
 
 @media (max-width: 768px) {
+
     /* Layout adjustments */
     .sidebar {
         position: fixed;
@@ -2422,7 +2423,8 @@ html {
         flex-direction: column;
         align-items: flex-start !important;
         gap: 16px;
-        padding-left: 60px; /* Space for hamburger */
+        padding-left: 60px;
+        /* Space for hamburger */
     }
 
     .page-title {
@@ -2523,7 +2525,8 @@ html {
     .form-input,
     .form-select,
     .form-textarea {
-        font-size: 16px !important; /* Prevent zoom on iOS */
+        font-size: 16px !important;
+        /* Prevent zoom on iOS */
     }
 
     .form-label {
@@ -2720,6 +2723,7 @@ html {
 
 /* Small mobile devices (< 480px) */
 @media (max-width: 480px) {
+
     .stats-grid,
     .stat-cards {
         grid-template-columns: 1fr !important;
@@ -2785,6 +2789,7 @@ html {
 
 /* Touch-friendly improvements for all mobile */
 @media (hover: none) and (pointer: coarse) {
+
     /* Increase touch targets */
     button,
     a,
