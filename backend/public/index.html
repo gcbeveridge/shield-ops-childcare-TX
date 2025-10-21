@@ -3342,6 +3342,53 @@
         </div>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Shield AI Chat Assistant -->
+    <div class="ai-chat-fab" id="ai-chat-fab" onclick="toggleAIChat()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            <path d="M9 10h.01M15 10h.01M9.5 14.5s1.5 1.5 3 1.5 3-1.5 3-1.5" />
+        </svg>
+        <span class="ai-badge">AI</span>
+    </div>
+
+    <div class="ai-chat-container" id="ai-chat-container">
+        <div class="ai-chat-header">
+            <div>
+                <h3>🤖 Shield AI</h3>
+                <p>Texas DFPS Compliance Assistant</p>
+            </div>
+            <button class="ai-close-btn" onclick="toggleAIChat()">✕</button>
+        </div>
+        <div class="ai-chat-messages" id="ai-chat-messages">
+            <div class="ai-message ai-message-assistant">
+                <div class="ai-avatar">🤖</div>
+                <div class="ai-content">
+                    <p><strong>Hi! I'm Shield AI.</strong></p>
+                    <p>I can help you with Texas DFPS child care regulations and compliance questions.</p>
+                    <p>Try asking me:</p>
+                    <ul>
+                        <li>"What are the medication administration requirements?"</li>
+                        <li>"How often do staff need CPR certification?"</li>
+                        <li>"What incidents must be reported to DFPS?"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input-container">
+            <textarea id="ai-chat-input" placeholder="Ask about Texas DFPS regulations..." rows="1"
+                onkeydown="handleAIInputKeydown(event)"></textarea>
+            <button class="ai-send-btn" onclick="sendAIMessage()" id="ai-send-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
     <!-- PapaParse CSV Library -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     
