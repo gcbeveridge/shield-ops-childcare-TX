@@ -4,12 +4,12 @@ async function getActiveMedications(req, res) {
   try {
     const { facilityId } = req.params;
 
+    // Fetch all medications for the facility (not just active ones, to allow filtering in frontend)
     const { data: medications, error } = await supabase
       .from('medications')
       .select('*')
       .eq('facility_id', facilityId)
-      .eq('active', true)
-      .order('start_date', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching medications:', error);
@@ -18,6 +18,15 @@ async function getActiveMedications(req, res) {
         message: 'Error fetching medications',
         error: error.message
       });
+    }
+
+    console.log(`Fetched ${medications.length} medications for facility ${facilityId}`);
+    
+    // If no medications found, log it
+    if (medications.length === 0) {
+      console.log('No medications found - database may be empty');
+    } else {
+      console.log('Sample medication:', medications[0]);
     }
 
     res.json({
@@ -161,6 +170,7 @@ async function getMedicationDetails(req, res) {
       .single();
 
     if (medError || !medication) {
+      console.error('Medication not found:', medError);
       return res.status(404).json({
         success: false,
         message: 'Medication not found'
@@ -177,13 +187,16 @@ async function getMedicationDetails(req, res) {
       console.error('Error fetching medication logs:', logsError);
     }
 
+    // Return flat medication data with logs attached
+    const responseData = {
+      ...medication,
+      administrationLog: logs || [],
+      totalDosesGiven: (logs || []).length
+    };
+
     res.json({
       success: true,
-      data: {
-        medication,
-        administrationLogs: logs || [],
-        totalDosesGiven: (logs || []).length
-      }
+      data: responseData
     });
   } catch (error) {
     console.error('Error fetching medication details:', error);

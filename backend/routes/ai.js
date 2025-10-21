@@ -18,10 +18,17 @@ router.post('/ai/ask', authenticateToken, async (req, res) => {
 
     // Get facility context for better responses
     const user = req.user;
-    const facility = await FacilityDB.findById(user.facilityId);
+    let facility = null;
+    
+    try {
+      facility = await FacilityDB.findById(user.facilityId);
+    } catch (dbError) {
+      console.warn('Could not fetch facility context:', dbError.message);
+      // Continue without facility context
+    }
 
     const result = await askComplianceQuestion(question, {
-      facilityName: facility?.name
+      facilityName: facility?.name || 'Unknown Facility'
     });
 
     res.json({
@@ -35,9 +42,20 @@ router.post('/ai/ask', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('AI Ask Error:', error);
+    
+    // Check if it's a network/connection error
+    if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+      return res.status(503).json({
+        success: false,
+        message: 'Database connection unavailable. Please check your internet connection and try again.',
+        error: 'SERVICE_UNAVAILABLE'
+      });
+    }
+    
     res.status(500).json({
       success: false,
-      message: error.message || 'Failed to process question'
+      message: error.message || 'Failed to process question',
+      error: 'AI_SERVICE_ERROR'
     });
   }
 });

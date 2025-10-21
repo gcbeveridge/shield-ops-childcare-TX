@@ -2,6 +2,37 @@
 // API CLIENT & AUTHENTICATION
 // =============================================
 
+// Simple in-memory cache for API responses
+const apiCache = {
+    data: new Map(),
+    set(key, value, ttl = 60000) { // Default 60 second cache
+        this.data.set(key, {
+            value,
+            expiry: Date.now() + ttl
+        });
+    },
+    get(key) {
+        const item = this.data.get(key);
+        if (!item) return null;
+        if (Date.now() > item.expiry) {
+            this.data.delete(key);
+            return null;
+        }
+        return item.value;
+    },
+    invalidate(pattern) {
+        // Invalidate cache entries matching a pattern
+        for (let key of this.data.keys()) {
+            if (key.includes(pattern)) {
+                this.data.delete(key);
+            }
+        }
+    },
+    clear() {
+        this.data.clear();
+    }
+};
+
 // Determine API base URL based on environment
 function getApiBaseUrl() {
     // Just use relative URLs - backend is on same domain
@@ -33,9 +64,20 @@ function clearAuthData() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('facility');
+    apiCache.clear(); // Clear cache on logout
 }
 
 async function apiRequest(endpoint, options = {}) {
+    // Check cache for GET requests (unless skipCache is true)
+    if ((!options.method || options.method === 'GET') && !options.skipCache) {
+        const cacheKey = `${endpoint}${JSON.stringify(options.params || {})}`;
+        const cached = apiCache.get(cacheKey);
+        if (cached) {
+            console.log('✅ Cache hit:', endpoint);
+            return cached;
+        }
+    }
+
     const headers = {
         'Content-Type': 'application/json',
         ...options.headers
@@ -46,13 +88,15 @@ async function apiRequest(endpoint, options = {}) {
     }
 
     try {
-        console.log('API Request:', `${API_BASE_URL}${endpoint}`, options.method || 'GET');
+        const startTime = performance.now();
+        console.log('🌐 API Request:', `${API_BASE_URL}${endpoint}`, options.method || 'GET');
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             ...options,
             headers
         });
 
-        console.log('API Response status:', response.status, response.statusText);
+        const duration = (performance.now() - startTime).toFixed(2);
+        console.log(`⚡ API Response (${duration}ms):`, response.status, response.statusText);
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({ error: response.statusText }));
@@ -61,7 +105,23 @@ async function apiRequest(endpoint, options = {}) {
         }
 
         const data = await response.json();
-        console.log('API Response data:', data);
+        
+        // Cache GET requests
+        if (!options.method || options.method === 'GET') {
+            const cacheKey = `${endpoint}${JSON.stringify(options.params || {})}`;
+            const cacheTTL = options.cacheTTL || 30000; // Default 30 seconds
+            apiCache.set(cacheKey, data, cacheTTL);
+        }
+        
+        // Invalidate related cache on mutations
+        if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method)) {
+            // Extract resource type from endpoint (e.g., /medications/123 -> medications)
+            const resourceMatch = endpoint.match(/\/([^\/]+)/);
+            if (resourceMatch) {
+                apiCache.invalidate(resourceMatch[1]);
+            }
+        }
+        
         return data;
     } catch (error) {
         console.error('API Request failed:', error.message || error);
@@ -3504,6 +3564,14 @@ async function loadMedicationList(filter = 'active') {
         const verificationRate = document.getElementById('med-verification-rate');
         if (verificationRate) verificationRate.textContent = '100%';
 
+        // Calculate allergy medications count
+        const allergyMeds = allMedications.filter(med => 
+            med.medication_type === 'allergy' || 
+            med.medicationType === 'allergy' ||
+            (med.medication_name && med.medication_name.toLowerCase().includes('epipen')) ||
+            (med.medicationName && med.medicationName.toLowerCase().includes('epipen'))
+        );
+
         let filteredMeds = allMedications;
         if (filter === 'active') {
             filteredMeds = activeMeds;
@@ -3516,19 +3584,31 @@ async function loadMedicationList(filter = 'active') {
             filteredMeds = activeMeds.filter(med =>
                 med.frequency && med.frequency.toLowerCase().includes('daily')
             );
+        } else if (filter === 'allergies') {
+            filteredMeds = allergyMeds;
         }
 
-        // Update tab counts
+        // Update tab counts - calculate them based on actual data
+        const now = new Date();
+        const expiredMeds = allMedications.filter(med =>
+            !med.active || (med.end_date && new Date(med.end_date) < now)
+        );
+
         const activeCountTab = document.getElementById('med-count-active');
         const todayCountTab = document.getElementById('med-count-today');
         const expiredCountTab = document.getElementById('med-count-expired');
+        const allergiesCountTab = document.getElementById('med-count-allergies');
 
         if (activeCountTab) activeCountTab.textContent = activeMeds.length;
         if (todayCountTab) todayCountTab.textContent = todayDoses;
-        if (expiredCountTab) expiredCountTab.textContent = allMedications.length - activeMeds.length;
+        if (expiredCountTab) expiredCountTab.textContent = expiredMeds.length;
+        if (allergiesCountTab) allergiesCountTab.textContent = allergyMeds.length;
 
-        const tbody = document.querySelector('#medication .data-table tbody');
-        if (!tbody) return;
+        const tbody = document.querySelector('#medications-table-body');
+        if (!tbody) {
+            console.warn('Medications table body not found');
+            return;
+        }
 
         // Check if empty and show professional empty state
         if (filteredMeds.length === 0) {
@@ -3617,7 +3697,7 @@ async function loadMedicationList(filter = 'active') {
     } catch (error) {
         console.error('Failed to load medications:', error);
         showError('Failed to load medication list');
-        const tbody = document.querySelector('#medication .data-table tbody');
+        const tbody = document.querySelector('#medications-table-body');
         if (tbody) {
             tbody.innerHTML = `
                 <tr>
@@ -3749,6 +3829,11 @@ async function administerMedication(medicationId) {
         const now = new Date();
         const currentTime = now.toTimeString().slice(0, 5);
 
+        // Handle both snake_case (Supabase) and camelCase formats for backward compatibility
+        // child_name is stored directly as a string field, not nested in child_info
+        const childName = med.child_name || med.childName || med.child_info?.name || med.childInfo?.name || 'Unknown Child';
+        const medicationName = med.medication_name || med.medicationName || 'Unknown Medication';
+
         // Populate medication info in the modal
         document.getElementById('admin-med-id').value = medicationId;
         document.getElementById('admin-dosage-given').value = med.dosage;
@@ -3758,11 +3843,11 @@ async function administerMedication(medicationId) {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <div>
                     <label style="font-size: 12px; color: var(--gray-600);">Child</label>
-                    <p style="font-size: 15px; font-weight: 600; margin-top: 4px;">${med.childInfo.name}</p>
+                    <p style="font-size: 15px; font-weight: 600; margin-top: 4px;">${childName}</p>
                 </div>
                 <div>
                     <label style="font-size: 12px; color: var(--gray-600);">Medication</label>
-                    <p style="font-size: 15px; font-weight: 600; margin-top: 4px;">${med.medicationName}</p>
+                    <p style="font-size: 15px; font-weight: 600; margin-top: 4px;">${medicationName}</p>
                 </div>
                 <div>
                     <label style="font-size: 12px; color: var(--gray-600);">Prescribed Dosage</label>
@@ -3770,7 +3855,7 @@ async function administerMedication(medicationId) {
                 </div>
                 <div>
                     <label style="font-size: 12px; color: var(--gray-600);">Schedule</label>
-                    <p style="font-size: 15px; margin-top: 4px;">${med.schedule}</p>
+                    <p style="font-size: 15px; margin-top: 4px;">${med.schedule || med.frequency || 'As needed'}</p>
                 </div>
             </div>
             ${med.instructions ? `
@@ -3857,8 +3942,29 @@ async function viewMedicationDetails(medicationId) {
         currentMedicationData = response.data || response;
 
         const med = currentMedicationData;
-        const startDate = new Date(med.startDate).toLocaleDateString();
-        const endDate = new Date(med.endDate).toLocaleDateString();
+        
+        console.log('📋 Medication details received:', med);
+        console.log('📋 Raw medication object keys:', Object.keys(med));
+        
+        // Handle both snake_case (Supabase) and camelCase formats for backward compatibility
+        // child_name is stored directly as a string field, not nested in child_info
+        const childName = med.child_name || med.childName || med.child_info?.name || med.childInfo?.name || 'Unknown Child';
+        const medicationName = med.medication_name || med.medicationName || 'Unknown Medication';
+        const dosage = med.dosage || '-';
+        const schedule = med.frequency || med.schedule || '-';
+        const instructions = med.special_instructions || med.instructions || '';
+        const status = med.active ? 'active' : (med.status || 'inactive');
+        const parentAuthorization = med.parent_authorization || med.parentAuthorization;
+        
+        // Handle dates properly
+        const startDate = med.start_date || med.startDate 
+            ? new Date(med.start_date || med.startDate).toLocaleDateString() 
+            : 'Not specified';
+        const endDate = med.end_date || med.endDate 
+            ? new Date(med.end_date || med.endDate).toLocaleDateString() 
+            : 'Not specified';
+        
+        console.log('📋 Processed values:', { childName, medicationName, dosage, schedule, startDate, endDate, status });
 
         let administrationLogHTML = '';
         if (med.administrationLog && med.administrationLog.length > 0) {
@@ -3891,19 +3997,19 @@ async function viewMedicationDetails(medicationId) {
             <div style="padding: 0 24px;">
                 <!-- Header -->
                 <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1)); padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">${med.medicationName}</h3>
-                    <p style="font-size: 14px; color: var(--gray-700);">For: ${med.childInfo.name}</p>
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">${medicationName}</h3>
+                    <p style="font-size: 14px; color: var(--gray-700);">For: ${childName}</p>
                 </div>
                 
                 <!-- Details Grid -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
                     <div>
                         <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Dosage</label>
-                        <p style="font-size: 16px; font-weight: 600; margin-top: 4px;">${med.dosage}</p>
+                        <p style="font-size: 16px; font-weight: 600; margin-top: 4px;">${dosage}</p>
                     </div>
                     <div>
                         <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Schedule</label>
-                        <p style="font-size: 16px; margin-top: 4px;">${med.schedule}</p>
+                        <p style="font-size: 16px; margin-top: 4px;">${schedule}</p>
                     </div>
                     <div>
                         <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Start Date</label>
@@ -3915,10 +4021,10 @@ async function viewMedicationDetails(medicationId) {
                     </div>
                 </div>
                 
-                ${med.instructions ? `
+                ${instructions ? `
                 <div style="margin-bottom: 24px;">
                     <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Special Instructions</label>
-                    <p style="font-size: 15px; line-height: 1.6; margin-top: 8px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">${med.instructions}</p>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 8px; padding: 12px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">${instructions}</p>
                 </div>
                 ` : ''}
                 
@@ -3926,10 +4032,10 @@ async function viewMedicationDetails(medicationId) {
                 <div style="margin-bottom: 24px;">
                     <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Authorization Status</label>
                     <div style="margin-top: 8px; padding: 12px; background: var(--gray-50); border-radius: 8px;">
-                        <span class="badge ${med.status === 'active' ? 'badge-success' : 'badge-secondary'}">
-                            ${med.status.charAt(0).toUpperCase() + med.status.slice(1)}
+                        <span class="badge ${status === 'active' ? 'badge-success' : 'badge-secondary'}">
+                            ${status.charAt(0).toUpperCase() + status.slice(1)}
                         </span>
-                        ${med.parentAuthorization ? `
+                        ${parentAuthorization ? `
                             <div style="margin-top: 8px; font-size: 13px; color: var(--gray-700);">
                                 ✓ Parent authorization received
                             </div>
@@ -4631,9 +4737,17 @@ async function sendAIMessage() {
         // Remove loading message
         removeAIMessage(loadingId);
 
-        // Show error
-        addAIMessage('Sorry, I encountered an error. Please try again.', 'assistant');
-        showError(error.message || 'Failed to get AI response');
+        // Show appropriate error message based on error type
+        let errorMessage = 'Sorry, I encountered an error. Please try again.';
+        
+        if (error.message && error.message.includes('Database connection unavailable')) {
+            errorMessage = 'I\'m having trouble connecting to the database right now. Please check your internet connection and try again in a moment.';
+        } else if (error.message && error.message.includes('network')) {
+            errorMessage = 'Network connection issue detected. Please check your internet connection and try again.';
+        }
+        
+        addAIMessage(errorMessage, 'assistant');
+        console.error('AI chat error:', error);
     } finally {
         sendBtn.disabled = false;
     }
