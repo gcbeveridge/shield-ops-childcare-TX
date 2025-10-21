@@ -2684,6 +2684,48 @@ async function loadIncidentList(filter = 'all') {
 
         const incidents = response.data || [];
 
+        // Calculate and populate stats
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+        const recentIncidents = incidents.filter(inc => new Date(inc.occurred_at || inc.dateTime) >= thirtyDaysAgo);
+        
+        // Days since last incident
+        const sortedIncidents = [...incidents].sort((a, b) => 
+            new Date(b.occurred_at || b.dateTime) - new Date(a.occurred_at || a.dateTime)
+        );
+        const lastIncidentDate = sortedIncidents.length > 0 ? new Date(sortedIncidents[0].occurred_at || sortedIncidents[0].dateTime) : null;
+        const daysSafe = lastIncidentDate ? Math.floor((now - lastIncidentDate) / (1000 * 60 * 60 * 24)) : 365;
+        
+        // Pending signatures
+        const pendingSignatures = incidents.filter(inc => !inc.parent_signature && !inc.parentSignature).length;
+        
+        // Average response time (mock for now)
+        const avgResponseTime = "< 15m";
+        
+        // Update stat cards
+        document.getElementById('incident-free-days').textContent = daysSafe;
+        document.getElementById('total-incidents').textContent = recentIncidents.length;
+        document.getElementById('pending-signatures').textContent = pendingSignatures;
+        document.getElementById('incident-response-time').textContent = avgResponseTime;
+        
+        // Calculate severity distribution
+        const severityCounts = { minor: 0, moderate: 0, critical: 0 };
+        recentIncidents.forEach(inc => {
+            const severity = (inc.severity || 'minor').toLowerCase();
+            if (severityCounts.hasOwnProperty(severity)) {
+                severityCounts[severity]++;
+            }
+        });
+        
+        // Update severity distribution cards
+        const total = recentIncidents.length || 1; // Avoid division by zero
+        document.getElementById('severity-minor-count').textContent = severityCounts.minor;
+        document.getElementById('severity-minor-bar').style.width = `${(severityCounts.minor / total) * 100}%`;
+        document.getElementById('severity-moderate-count').textContent = severityCounts.moderate;
+        document.getElementById('severity-moderate-bar').style.width = `${(severityCounts.moderate / total) * 100}%`;
+        document.getElementById('severity-critical-count').textContent = severityCounts.critical;
+        document.getElementById('severity-critical-bar').style.width = `${(severityCounts.critical / total) * 100}%`;
+
         // Check if empty and show professional empty state
         if (incidents.length === 0) {
             tbody.innerHTML = `
@@ -3143,6 +3185,12 @@ function displayMedicationAlerts() {
     const alertsList = document.getElementById('medication-alerts-list');
     const alertCount = document.getElementById('alert-count');
 
+    // Check if elements exist
+    if (!alertsCard || !alertsList || !alertCount) {
+        console.warn('Medication alert elements not found in DOM');
+        return;
+    }
+
     if (medicationAlerts.length === 0) {
         alertsCard.style.display = 'none';
         return;
@@ -3573,14 +3621,22 @@ async function loadMedicationList(filter = 'active') {
         const activeCount = document.getElementById('med-active-count');
         if (activeCount) activeCount.textContent = activeMeds.length;
 
-        // Get today's medication logs count
+        // Get today's medication logs count (optional - endpoint may not exist yet)
         const today = new Date().toISOString().split('T')[0];
         let todayDoses = 0;
         try {
-            const logsResponse = await apiRequest(`/facilities/${AppState.facility.id}/medication-logs?date=${today}`);
+            const logsResponse = await apiRequest(`/facilities/${AppState.facility.id}/medication-logs?date=${today}`, { skipCache: true });
             todayDoses = (logsResponse.data || []).length;
         } catch (e) {
-            console.log('Could not load today\'s medication logs');
+            console.log('Medication logs endpoint not available - using fallback');
+            // Fallback: count administrations from medications
+            todayDoses = allMedications.reduce((count, med) => {
+                const logs = med.administrationLog || med.administration_log || [];
+                return count + logs.filter(log => {
+                    const logDate = new Date(log.timestamp || log.administered_at).toISOString().split('T')[0];
+                    return logDate === today;
+                }).length;
+            }, 0);
         }
         const dosesTodayEl = document.getElementById('med-doses-today');
         if (dosesTodayEl) dosesTodayEl.textContent = todayDoses;

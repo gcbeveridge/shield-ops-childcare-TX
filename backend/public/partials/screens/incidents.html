@@ -1,56 +1,158 @@
-<div class="page-header">
-    <h1 class="page-title">Incident Reports 🚨</h1>
-    <p class="page-subtitle">Document and track all incidents and illnesses</p>
-</div>
-
-<div class="card" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));">
-    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+<!-- Page Header -->
+<div class="cac-page-header cac-animate-slideDown" style="padding: 20px 24px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Pattern Alert</h3>
-            <p style="font-size: 14px; color: var(--gray-700);">3 playground falls reported this month -
-                above average</p>
+            <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
+                <span class="cac-page-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🚨</span>
+                Incident Tracking
+            </h1>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Texas DFPS-compliant • Automated parent notifications</p>
         </div>
-        <button class="btn-small btn-primary-small" onclick="openModal('new-incident')">+ Log New
-            Incident</button>
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--gray-900);">8</div>
-            <div style="font-size: 13px; color: var(--gray-700);">Incidents This Month</div>
-        </div>
-        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--success);">100%</div>
-            <div style="font-size: 13px; color: var(--gray-700);">Parent Notified</div>
-        </div>
-        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--success);">100%</div>
-            <div style="font-size: 13px; color: var(--gray-700);">Signatures Obtained</div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportIncidentReport()" style="padding: 8px 14px;">
+                <span>📊</span> Export
+            </button>
+            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('new-incident')" style="padding: 8px 14px;">
+                <span>+</span> Report
+            </button>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="tabs">
-        <button class="tab active" onclick="filterIncidents('all')">All Incidents</button>
-        <button class="tab" onclick="filterIncidents('injury')">Injuries</button>
-        <button class="tab" onclick="filterIncidents('illness')">Illness</button>
-        <button class="tab" onclick="filterIncidents('behavior')">Behavior</button>
+<!-- Stats Grid - Reduced Height & Width -->
+<div class="cac-stats-grid cac-animate-slideUp" style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
+    <div class="cac-stat-card cac-stat-success" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">✅</div>
+        <div class="cac-stat-value" id="incident-free-days" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Days Safe</div>
     </div>
+    <div class="cac-stat-card cac-stat-info" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">📋</div>
+        <div class="cac-stat-value" id="total-incidents" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">30 Days</div>
+    </div>
+    <div class="cac-stat-card cac-stat-warning" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">⚠️</div>
+        <div class="cac-stat-value" id="pending-signatures" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Pending</div>
+    </div>
+    <div class="cac-stat-card cac-stat-primary" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">⏱️</div>
+        <div class="cac-stat-value" id="incident-response-time" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Response</div>
+    </div>
+</div>
 
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Date/Time</th>
-                <th>Child</th>
-                <th>Type</th>
-                <th>Severity</th>
-                <th>Description</th>
-                <th>Parent Signature</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Populated dynamically by loadIncidentList() from Supabase -->
-        </tbody>
-    </table>
+<!-- Filters - Ultra Compact -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.1s; padding: 10px; margin-bottom: 20px;">
+    <div class="cac-filter-bar" style="gap: 8px;">
+        <div class="cac-filter-group">
+            <label style="font-size: 0.7rem; font-weight: 600;">Period</label>
+            <select id="incident-time-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+                <option value="today">Today</option>
+                <option value="week">Week</option>
+                <option value="month" selected>Month</option>
+                <option value="all">All</option>
+            </select>
+        </div>
+        <div class="cac-filter-group">
+            <label style="font-size: 0.7rem; font-weight: 600;">Severity</label>
+            <select id="incident-severity-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+                <option value="all">All</option>
+                <option value="critical">Critical</option>
+                <option value="major">Major</option>
+                <option value="moderate">Moderate</option>
+                <option value="minor">Minor</option>
+            </select>
+        </div>
+        <div class="cac-filter-group">
+            <label style="font-size: 0.7rem; font-weight: 600;">Type</label>
+            <select id="incident-type-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+                <option value="all">All</option>
+                <option value="injury">Injury</option>
+                <option value="illness">Illness</option>
+                <option value="behavior">Behavior</option>
+            </select>
+        </div>
+        <div class="cac-filter-group">
+            <label style="font-size: 0.7rem; font-weight: 600;">Status</label>
+            <select id="incident-status-filter" class="cac-select" onchange="filterIncidents()" style="font-size: 0.75rem; padding: 6px;">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="signed">Signed</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Severity Distribution - Ultra Compact -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.15s; padding: 12px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.02)); margin-bottom: 20px;">
+    <div class="cac-card-header" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="cac-card-title" style="font-size: 0.85rem; font-weight: 700;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">📊</span>
+            Distribution
+        </h3>
+        <span class="cac-badge cac-badge-info" style="font-size: 0.65rem; padding: 3px 8px;">Last 30 Days</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
+        <div class="cac-severity-card cac-severity-minor" style="padding: 10px; background: rgba(255,255,255,0.7);">
+            <div class="cac-severity-count" id="severity-minor-count" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+            <div class="cac-severity-label" style="font-size: 0.7rem; margin-bottom: 6px;">Minor</div>
+            <div class="cac-severity-bar" style="height: 3px;">
+                <div class="cac-severity-bar-fill" id="severity-minor-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="cac-severity-card cac-severity-moderate" style="padding: 10px; background: rgba(255,255,255,0.7);">
+            <div class="cac-severity-count" id="severity-moderate-count" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+            <div class="cac-severity-label" style="font-size: 0.7rem; margin-bottom: 6px;">Moderate</div>
+            <div class="cac-severity-bar" style="height: 3px;">
+                <div class="cac-severity-bar-fill" id="severity-moderate-bar" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="cac-severity-card cac-severity-critical" style="padding: 10px; background: rgba(255,255,255,0.7);">
+            <div class="cac-severity-count" id="severity-critical-count" style="font-size: 1.5rem; margin-bottom: 2px;">0</div>
+            <div class="cac-severity-label" style="font-size: 0.7rem; margin-bottom: 6px;">Critical</div>
+            <div class="cac-severity-bar" style="height: 3px;">
+                <div class="cac-severity-bar-fill" id="severity-critical-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Incidents List - Use old selector for compatibility -->
+<div class="cac-card cac-animate-slideUp" id="incidents" style="animation-delay: 0.2s; padding: 0; overflow: hidden; margin-bottom: 0;">
+    <div class="cac-card-header" style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100); display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">📅</span>
+            Recent Incidents
+        </h3>
+        <div class="cac-card-actions" style="display: flex; gap: 6px;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="toggleIncidentView('list')" style="padding: 6px 12px; font-size: 0.75rem;">
+                📋 List
+            </button>
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="toggleIncidentView('timeline')" style="padding: 6px 12px; font-size: 0.75rem;">
+                📅 Timeline
+            </button>
+        </div>
+    </div>
+    
+    <!-- Table View (default) -->
+    <div class="cac-table-container" style="overflow-x: auto;">
+        <table class="data-table cac-table">
+            <thead>
+                <tr>
+                    <th style="font-size: 0.8rem; padding: 10px;">Date</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Child</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Type</th>
+                    <th style="font-size: 0.8rem; padding: 10px;" class="hide-mobile">Severity</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Description</th>
+                    <th style="font-size: 0.8rem; padding: 10px;" class="hide-mobile">Status</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populated dynamically by loadIncidentList() -->
+            </tbody>
+        </table>
+    </div>
 </div>

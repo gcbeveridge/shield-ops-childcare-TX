@@ -312,6 +312,12 @@ body {
     padding: 24px 0;
     overflow-y: auto;
     box-shadow: var(--shadow-sm);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .logo-section {
@@ -438,6 +444,7 @@ body {
     flex: 1;
     padding: 32px;
     overflow-y: auto;
+    margin-left: 280px;
 }
 
 .page-header {

@@ -1,246 +1,221 @@
-<div class="page-header">
-    <h1 class="page-title">Medication Tracking 💊</h1>
-    <p class="page-subtitle">Texas-compliant medication administration and documentation</p>
-</div>
-
-<div class="card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));">
-    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+<!-- Page Header -->
+<div class="cac-page-header cac-animate-slideDown" style="padding: 20px 24px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Texas Compliance Status</h3>
-            <p style="font-size: 14px; color: var(--gray-700);">All requirements met per §744.2651-2661</p>
+            <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
+                <span class="cac-page-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">💊</span>
+                Medication Tracking
+            </h1>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Texas DFPS §744.2651-2661 • Real-time compliance monitoring</p>
         </div>
-        <div style="display: flex; gap: 8px;">
-            <button class="btn-small btn-secondary-small" onclick="openModal('import-medication-csv')">
-                📤 Import CSV
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="openModal('import-medication-csv')" style="padding: 8px 14px;">
+                <span>📤</span> Import
             </button>
-            <button class="btn-small btn-primary-small" onclick="openModal('add-medication')">+ Add
-                Medication
-                Authorization</button>
-        </div>
-    </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--gray-900);" id="med-active-count">--</div>
-            <div style="font-size: 13px; color: var(--gray-700);">Active Authorizations</div>
-        </div>
-        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="med-verification-rate">--%</div>
-            <div style="font-size: 13px; color: var(--gray-700);">Dual-Staff Verification</div>
-        </div>
-        <div style="text-align: center; padding: 16px; background: white; border-radius: 8px;">
-            <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="med-doses-today">--</div>
-            <div style="font-size: 13px; color: var(--gray-700);">Doses Given Today</div>
+            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openModal('add-medication')" style="padding: 8px 14px;">
+                <span>+</span> Add Authorization
+            </button>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🚨 Critical Texas Requirements</h3>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div
-            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="color: var(--success); font-size: 24px;">✓</span>
-                <strong style="font-size: 14px;">Parent Authorization Required</strong>
-            </div>
-            <div style="font-size: 13px; color: var(--gray-700);">Written/electronic, signed & dated,
-                expires annually (§744.2653)</div>
-        </div>
-        <div
-            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="color: var(--success); font-size: 24px;">✓</span>
-                <strong style="font-size: 14px;">Original Container Only</strong>
-            </div>
-            <div style="font-size: 13px; color: var(--gray-700);">Child's name, date brought, cannot be
-                expired (§744.2655)</div>
-        </div>
-        <div
-            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="color: var(--success); font-size: 24px;">✓</span>
-                <strong style="font-size: 14px;">Dual-Staff Verification</strong>
-            </div>
-            <div style="font-size: 13px; color: var(--gray-700);">One administers, one witnesses - both sign
-                log</div>
-        </div>
-        <div
-            style="padding: 16px; background: var(--gray-50); border-radius: 8px; border-left: 4px solid var(--success);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="color: var(--success); font-size: 24px;">✓</span>
-                <strong style="font-size: 14px;">Secure Storage</strong>
-            </div>
-            <div style="font-size: 13px; color: var(--gray-700);">Locked, out of reach, separate from food
-                (§744.2657)</div>
-        </div>
+<!-- Stats Grid - Reduced Height & Width -->
+<div class="cac-stats-grid cac-animate-slideUp" style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
+    <div class="cac-stat-card cac-stat-primary" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">💊</div>
+        <div class="cac-stat-value" id="med-active-count" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Active</div>
+    </div>
+    <div class="cac-stat-card cac-stat-success" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">✅</div>
+        <div class="cac-stat-value" id="med-verification-rate" style="font-size: 1.6rem; margin: 4px 0;">--%</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Verified</div>
+    </div>
+    <div class="cac-stat-card cac-stat-info" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">📋</div>
+        <div class="cac-stat-value" id="med-doses-today" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Today</div>
+    </div>
+    <div class="cac-stat-card cac-stat-warning" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">⏰</div>
+        <div class="cac-stat-value" id="med-pending-doses" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Pending</div>
     </div>
 </div>
 
-<!-- Medication Alerts Card -->
-<div id="medication-alerts-card" class="card" style="display: none; border-left: 4px solid var(--warning);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3 style="font-size: 16px; font-weight: 600; color: var(--warning);">
-            🔔 Active Medication Alerts (<span id="alert-count">0</span>)
+<!-- Texas Requirements - Ultra Compact -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.1s; padding: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.02)); margin-bottom: 20px;">
+    <div class="cac-card-header" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="cac-card-title" style="font-size: 0.85rem; font-weight: 700;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">🛡️</span>
+            Texas Requirements
         </h3>
-        <button class="btn-small btn-secondary-small" onclick="dismissAllAlerts()">Dismiss All</button>
+        <span class="cac-badge cac-badge-success" style="font-size: 0.65rem; padding: 3px 8px; font-weight: 700;">✓ COMPLIANT</span>
     </div>
-    <div id="medication-alerts-list"></div>
+    <div class="cac-requirement-grid" style="gap: 8px;">
+        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+            <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
+            <div class="cac-requirement-content">
+                <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Authorization</h4>
+                <p style="font-size: 0.7rem; line-height: 1.3;">Signed & dated (§744.2653)</p>
+            </div>
+        </div>
+        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+            <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
+            <div class="cac-requirement-content">
+                <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Container</h4>
+                <p style="font-size: 0.7rem; line-height: 1.3;">Original, labeled (§744.2655)</p>
+            </div>
+        </div>
+        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+            <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
+            <div class="cac-requirement-content">
+                <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Verification</h4>
+                <p style="font-size: 0.7rem; line-height: 1.3;">Dual-staff signatures</p>
+            </div>
+        </div>
+        <div class="cac-requirement cac-requirement-success" style="padding: 8px 10px; background: rgba(255,255,255,0.7);">
+            <div class="cac-requirement-icon" style="font-size: 1rem;">✓</div>
+            <div class="cac-requirement-content">
+                <h4 style="font-size: 0.8rem; margin-bottom: 2px; font-weight: 600;">Storage</h4>
+                <p style="font-size: 0.7rem; line-height: 1.3;">Locked & secured (§744.2657)</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="card">
-    <div class="tabs">
-        <button class="tab active" onclick="filterMedications('active')">Active Medications (<span
-                id="med-count-active">0</span>)</button>
-        <button class="tab" onclick="showDailySchedule()">📅 Today's Schedule</button>
-        <button class="tab" onclick="filterMedications('today')">Today's Log (<span
-                id="med-count-today">0</span>)</button>
-        <button class="tab" onclick="showAdministrationHistory()">📊 Administration History</button>
-        <button class="tab" onclick="filterMedications('expired')">Expired Authorizations (<span
-                id="med-count-expired">0</span>)</button>
-        <button class="tab" onclick="filterMedications('allergies')">Food Allergies (<span
-                id="med-count-allergies">0</span>)</button>
+<!-- Medication Alerts (hidden by default) -->
+<div id="medication-alerts-card" class="cac-card cac-animate-slideUp" style="display: none; animation-delay: 0.12s; padding: 12px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.05)); border-left: 4px solid #f59e0b; margin-bottom: 20px;">
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+        <div style="font-size: 1.4rem; flex-shrink: 0; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🔔</div>
+        <div style="flex: 1; min-width: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h4 style="font-size: 0.85rem; font-weight: 700; color: #92400e; margin: 0;">
+                    Medication Alerts (<span id="alert-count">0</span>)
+                </h4>
+                <button class="cac-btn cac-btn-sm" onclick="dismissAllAlerts()" style="padding: 4px 10px; font-size: 0.7rem; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">
+                    Dismiss All
+                </button>
+            </div>
+            <div id="medication-alerts-list" style="font-size: 0.75rem;"></div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Medication Management Card -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.15s; padding: 0; overflow: hidden; margin-bottom: 0;">
+    <!-- Tabs -->
+    <div class="cac-tabs" style="overflow-x: auto; white-space: nowrap; padding: 12px 16px; border-bottom: 2px solid var(--cac-gray-100);">
+        <button class="cac-tab cac-tab-active" onclick="filterMedications('active')" style="font-size: 0.8rem; padding: 8px 16px;">
+            Active (<span id="med-count-active">0</span>)
+        </button>
+        <button class="cac-tab" onclick="showDailySchedule()" style="font-size: 0.8rem; padding: 8px 16px;">
+            📅 Schedule
+        </button>
+        <button class="cac-tab" onclick="filterMedications('today')" style="font-size: 0.8rem; padding: 8px 16px;">
+            Log (<span id="med-count-today">0</span>)
+        </button>
+        <button class="cac-tab" onclick="showAdministrationHistory()" style="font-size: 0.8rem; padding: 8px 16px;">
+            📊 History
+        </button>
+        <button class="cac-tab" onclick="filterMedications('expired')" style="font-size: 0.8rem; padding: 8px 16px;">
+            Expired (<span id="med-count-expired">0</span>)
+        </button>
+        <button class="cac-tab" onclick="filterMedications('allergies')" style="font-size: 0.8rem; padding: 8px 16px;">
+            🥜 Allergies (<span id="med-count-allergies">0</span>)
+        </button>
     </div>
 
     <!-- Daily Schedule View -->
-    <div id="daily-schedule-view" style="display: none;">
-        <div style="margin-bottom: 20px;">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
-                📅 Medication Schedule for <span id="schedule-date"></span>
-            </h3>
-            <p style="font-size: 14px; color: var(--gray-600);">All scheduled doses for today with real-time
-                status</p>
+    <div id="daily-schedule-view" style="display: none; padding: 16px;">
+        <div style="margin-bottom: 12px;">
+            <h3 style="font-size: 0.95rem; font-weight: 600;">📅 Schedule for <span id="schedule-date"></span></h3>
+            <p style="font-size: 0.75rem; color: var(--cac-gray-600);">Real-time status tracking</p>
         </div>
-
-        <div id="schedule-timeline" style="margin-top: 24px;">
-            <!-- Timeline will be populated dynamically -->
-        </div>
-
-        <div id="schedule-empty" style="display: none; text-align: center; padding: 60px 20px;">
-            <div style="font-size: 64px; margin-bottom: 16px;">🎉</div>
-            <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
-                No Medications Scheduled Today
-            </h3>
-            <p style="font-size: 14px; color: var(--gray-600);">
-                All children are medication-free today!
-            </p>
+        <div id="schedule-timeline"></div>
+        <div id="schedule-empty" class="cac-empty-state" style="display: none; padding: 40px 20px;">
+            <div class="cac-empty-icon" style="font-size: 2.5rem;">🎉</div>
+            <h3 style="font-size: 0.95rem;">No Medications Scheduled</h3>
+            <p style="font-size: 0.75rem;">All children medication-free today!</p>
         </div>
     </div>
 
     <!-- Administration History View -->
-    <div id="administration-history-view" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div id="administration-history-view" style="display: none; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
             <div>
-                <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
-                    📊 Administration History
-                </h3>
-                <p style="font-size: 14px; color: var(--gray-600);">Complete medication log with dual-staff
-                    verification records</p>
+                <h3 style="font-size: 0.95rem; font-weight: 600;">📊 Administration History</h3>
+                <p style="font-size: 0.75rem; color: var(--cac-gray-600);">Complete log with dual-staff verification</p>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('csv')">
-                    📥 Export CSV
+            <div style="display: flex; gap: 6px;">
+                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('csv')" style="padding: 6px 12px; font-size: 0.75rem;">
+                    📥 CSV
                 </button>
-                <button class="btn-small btn-secondary-small" onclick="exportAdministrationHistory('pdf')">
-                    📄 Export PDF
+                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('pdf')" style="padding: 6px 12px; font-size: 0.75rem;">
+                    📄 PDF
                 </button>
             </div>
         </div>
 
         <!-- Filters -->
-        <div
-            style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; padding: 16px; background: var(--gray-50); border-radius: 8px;">
-            <div>
-                <label
-                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Date
-                    Range</label>
-                <select id="history-date-range" class="form-input" onchange="filterHistoryByDate()"
-                    style="font-size: 13px; padding: 8px;">
+        <div class="cac-filter-bar" style="padding: 10px; gap: 8px; background: var(--cac-gray-50); border-radius: 6px; margin-bottom: 12px;">
+            <div class="cac-filter-group">
+                <label style="font-size: 0.7rem; font-weight: 600;">Date</label>
+                <select id="history-date-range" class="cac-select" onchange="filterHistoryByDate()" style="font-size: 0.75rem; padding: 6px;">
                     <option value="today">Today</option>
-                    <option value="week" selected>This Week</option>
-                    <option value="month">This Month</option>
-                    <option value="all">All Time</option>
+                    <option value="week" selected>Week</option>
+                    <option value="month">Month</option>
+                    <option value="all">All</option>
                 </select>
             </div>
-            <div>
-                <label
-                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Child</label>
-                <select id="history-child-filter" class="form-input" onchange="filterHistory()"
-                    style="font-size: 13px; padding: 8px;">
-                    <option value="all">All Children</option>
-                    <!-- Populated dynamically -->
+            <div class="cac-filter-group">
+                <label style="font-size: 0.7rem; font-weight: 600;">Child</label>
+                <select id="history-child-filter" class="cac-select" onchange="filterHistory()" style="font-size: 0.75rem; padding: 6px;">
+                    <option value="all">All</option>
                 </select>
             </div>
-            <div>
-                <label
-                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Medication</label>
-                <select id="history-med-filter" class="form-input" onchange="filterHistory()"
-                    style="font-size: 13px; padding: 8px;">
-                    <option value="all">All Medications</option>
+            <div class="cac-filter-group">
+                <label style="font-size: 0.7rem; font-weight: 600;">Medication</label>
+                <select id="history-med-filter" class="cac-select" onchange="filterHistory()" style="font-size: 0.75rem; padding: 6px;">
+                    <option value="all">All</option>
                 </select>
             </div>
-            <div>
-                <label
-                    style="font-size: 12px; font-weight: 500; color: var(--gray-700); display: block; margin-bottom: 6px;">Staff
-                    Member</label>
-                <select id="history-staff-filter" class="form-input" onchange="filterHistory()"
-                    style="font-size: 13px; padding: 8px;">
-                    <option value="all">All Staff</option>
+            <div class="cac-filter-group">
+                <label style="font-size: 0.7rem; font-weight: 600;">Staff</label>
+                <select id="history-staff-filter" class="cac-select" onchange="filterHistory()" style="font-size: 0.75rem; padding: 6px;">
+                    <option value="all">All</option>
                 </select>
             </div>
         </div>
 
-        <!-- History Timeline -->
-        <div id="history-timeline">
-            <!-- Populated dynamically -->
-        </div>
-
-        <div id="history-empty" style="display: none; text-align: center; padding: 60px 20px;">
-            <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
-            <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-800); margin-bottom: 8px;">
-                No Administration Records Found
-            </h3>
-            <p style="font-size: 14px; color: var(--gray-600);">
-                Try adjusting your filters or select a different date range
-            </p>
+        <div id="history-timeline"></div>
+        <div id="history-empty" class="cac-empty-state" style="display: none; padding: 40px 20px;">
+            <div class="cac-empty-icon" style="font-size: 2.5rem;">📋</div>
+            <h3 style="font-size: 0.95rem;">No Records Found</h3>
+            <p style="font-size: 0.75rem;">Try adjusting your filters</p>
         </div>
     </div>
 
     <!-- Medication List Table -->
-    <div id="medication-list-table">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Child Name</th>
-                    <th>Medication</th>
-                    <th>Dosage</th>
-                    <th>Schedule</th>
-                    <th>Authorization</th>
-                    <th>Container Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="medications-table-body">
-                <!-- Populated dynamically by loadMedicationList() from Supabase -->
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Today's Administration Log moved to "Today's Log" tab -->
-
-    <div class="card" id="allergy-plans-card">
-        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">🥜 Food Allergy Emergency Plans
-            (Texas §744.2667-2669)</h3>
-        <div id="allergy-plans-list">
-            <!-- Populated dynamically from medications with allergy type -->
-        </div>
-        <div id="allergy-plans-empty" style="display: none; text-align: center; padding: 40px 20px;">
-            <div style="font-size: 48px; margin-bottom: 12px;">✓</div>
-            <h3 style="font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: 6px;">
-                No Food Allergies on Record
-            </h3>
-            <p style="font-size: 14px; color: var(--gray-600);">
-                No children currently have documented food allergies requiring emergency plans.
-            </p>
+    <div id="medication-list-table" style="padding: 0;">
+        <div class="cac-table-container" style="overflow-x: auto;">
+            <table class="cac-table">
+                <thead>
+                    <tr>
+                        <th style="font-size: 0.8rem; padding: 10px;">Child</th>
+                        <th style="font-size: 0.8rem; padding: 10px;">Medication</th>
+                        <th style="font-size: 0.8rem; padding: 10px;" class="hide-mobile">Dosage</th>
+                        <th style="font-size: 0.8rem; padding: 10px;">Schedule</th>
+                        <th style="font-size: 0.8rem; padding: 10px;" class="hide-mobile">Authorization</th>
+                        <th style="font-size: 0.8rem; padding: 10px;">Status</th>
+                        <th style="font-size: 0.8rem; padding: 10px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="medications-table-body">
+                    <!-- Populated dynamically by loadMedicationList() -->
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
