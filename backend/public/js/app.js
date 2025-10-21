@@ -476,7 +476,7 @@ async function login(event) {
         const authContainer = document.getElementById('auth-container');
         const loginScreen = document.getElementById('login-screen');
         const signupScreen = document.getElementById('signup-screen');
-        
+
         if (authContainer) authContainer.style.display = 'none';
         if (loginScreen) loginScreen.style.display = 'none';
         if (signupScreen) signupScreen.style.display = 'none';
@@ -544,7 +544,7 @@ async function signup(event) {
         const authContainer = document.getElementById('auth-container');
         const loginScreen = document.getElementById('login-screen');
         const signupScreen = document.getElementById('signup-screen');
-        
+
         if (authContainer) authContainer.style.display = 'none';
         if (loginScreen) loginScreen.style.display = 'none';
         if (signupScreen) signupScreen.style.display = 'none';
@@ -592,18 +592,18 @@ function showLogin() {
 
 function logout() {
     clearAuthData();
-    
+
     // Hide app and show auth screens
     document.getElementById('app').classList.remove('active');
-    
+
     const authContainer = document.getElementById('auth-container');
     const loginScreen = document.getElementById('login-screen');
     const signupScreen = document.getElementById('signup-screen');
-    
+
     if (authContainer) authContainer.style.display = 'block';
     if (loginScreen) loginScreen.style.display = 'flex';
     if (signupScreen) signupScreen.style.display = 'none';
-    
+
     // Reload page to reset everything
     window.location.reload();
 }
@@ -1129,7 +1129,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     if (isValid) {
         console.log('✅ User is authenticated');
-        
+
         // Hide auth screens (both login and signup)
         const authContainer = document.getElementById('auth-container');
         const loginScreen = document.getElementById('login-screen');
@@ -1170,7 +1170,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         const authContainer = document.getElementById('auth-container');
         const loginScreen = document.getElementById('login-screen');
         const signupScreen = document.getElementById('signup-screen');
-        
+
         if (authContainer) authContainer.style.display = 'block';
         if (loginScreen) loginScreen.style.display = 'flex';
         if (signupScreen) signupScreen.style.display = 'none';
