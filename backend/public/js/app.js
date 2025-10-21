@@ -488,7 +488,7 @@ async function login(event) {
         if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined' && !window.appRouter) {
             window.appRouter = new Router(appRoutes);
             console.log('Router initialized after login');
-            
+
             // Preload screens in background
             window.htmlLoader.preloadAllScreens().catch(err => {
                 console.error('Failed to preload screens:', err);
@@ -549,7 +549,7 @@ async function signup(event) {
         if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined' && !window.appRouter) {
             window.appRouter = new Router(appRoutes);
             console.log('Router initialized after signup');
-            
+
             // Preload screens in background
             window.htmlLoader.preloadAllScreens().catch(err => {
                 console.error('Failed to preload screens:', err);
@@ -1104,24 +1104,24 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (isValid) {
         const loginScreen = document.getElementById('login-screen');
         const app = document.getElementById('app');
-        
+
         if (loginScreen) loginScreen.style.display = 'none';
         if (app) app.classList.add('active');
-        
+
         // Load sidebar if using modular architecture
         const sidebarContainer = document.getElementById('sidebar-container');
         if (sidebarContainer && !sidebarContainer.innerHTML.trim()) {
             await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
             console.log('✅ Sidebar loaded on page load');
         }
-        
+
         updateFacilityInfo();
 
         // Initialize router before loading dashboard
         if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined') {
             window.appRouter = new Router(appRoutes);
             console.log('Router initialized successfully');
-            
+
             // Preload screens in background
             window.htmlLoader.preloadAllScreens().catch(err => {
                 console.error('Failed to preload screens:', err);

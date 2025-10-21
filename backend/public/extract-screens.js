@@ -33,19 +33,19 @@ screens.forEach(({ id, file }) => {
     // Find screen start and end
     const screenRegex = new RegExp(`<div id="${id}" class="screen[^>]*>`, 'g');
     const match = screenRegex.exec(indexContent);
-    
+
     if (!match) {
         console.log(`❌ Screen not found: ${id}`);
         return;
     }
 
     const startIndex = match.index;
-    
+
     // Find the closing div by counting opening and closing divs
     let depth = 0;
     let endIndex = startIndex;
     let inScreen = false;
-    
+
     for (let i = startIndex; i < indexContent.length; i++) {
         if (indexContent.substr(i, 4) === '<div') {
             depth++;
@@ -66,20 +66,20 @@ screens.forEach(({ id, file }) => {
 
     // Extract the screen HTML
     const screenHtml = indexContent.substring(startIndex, endIndex);
-    
+
     // Remove the outer wrapper div (we only want the content inside the screen div)
     // Find the first closing > of the opening div tag
     const firstClosingBracket = screenHtml.indexOf('>');
     // Find the last </div> closing tag
     const lastOpeningBracket = screenHtml.lastIndexOf('</div>');
-    
+
     // Extract only the inner content (without the screen wrapper div)
     const innerContent = screenHtml.substring(firstClosingBracket + 1, lastOpeningBracket).trim();
-    
+
     // Write to file
     const outputPath = path.join(partialsDir, file);
     fs.writeFileSync(outputPath, innerContent, 'utf-8');
-    
+
     const lines = innerContent.split('\n').length;
     console.log(`✅ Extracted ${id} → ${file} (${lines} lines)`);
 });

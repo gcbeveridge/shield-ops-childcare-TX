@@ -171,13 +171,13 @@ class HTMLLoader {
     async loadScreen(screenName, containerId = 'screen-container') {
         const screenPath = `screens/${screenName}.html`;
         const container = document.getElementById(containerId);
-        
+
         if (!container) {
             throw new Error(`Screen container not found: ${containerId}`);
         }
 
         console.log(`HTMLLoader: Loading screen: ${screenName}`);
-        
+
         try {
             const html = await this.loadPartial(screenPath);
             // Wrap the content in a screen div with proper ID and class

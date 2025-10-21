@@ -107,30 +107,30 @@
         (async function initializeApp() {
             try {
                 console.log('🚀 Initializing Shield Ops with modular architecture...');
-                
+
                 // Load modals from original index.html (temporary solution)
                 await loadModals();
-                
+
                 // Load auth screens
                 await window.htmlLoader.loadInto('auth/login.html', '#auth-container');
                 await window.htmlLoader.loadInto('auth/signup.html', '#auth-container', true);
-                
+
                 console.log('✅ Auth screens loaded');
-                
+
                 // Check if user is authenticated
                 const isAuth = await validateAuth();
-                
+
                 if (isAuth) {
                     // Load sidebar for authenticated users
                     await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
                     console.log('✅ Sidebar loaded');
-                    
+
                     // Preload all screens in background for fast navigation
                     window.htmlLoader.preloadAllScreens().then(() => {
                         console.log('✅ All screens preloaded');
                     });
                 }
-                
+
                 console.log('✅ App initialization complete');
             } catch (error) {
                 console.error('❌ App initialization failed:', error);
@@ -143,20 +143,20 @@
                 // Fetch the original index.html to extract modals
                 const response = await fetch('/index.html');
                 const html = await response.text();
-                
+
                 // Extract modals section (from <!-- Add Medication to AI chat)
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
-                
+
                 // Get all modal elements and AI chat
                 const modalsContainer = document.getElementById('modals-container');
-                
+
                 // Extract modals (divs with class="modal")
                 const modalElements = doc.querySelectorAll('.modal');
                 modalElements.forEach(modal => {
                     modalsContainer.appendChild(modal.cloneNode(true));
                 });
-                
+
                 console.log(`✅ Loaded ${modalElements.length} modals`);
             } catch (error) {
                 console.error('❌ Failed to load modals:', error);
