@@ -4,36 +4,35 @@
         <div class="auth-logo">
             <div class="auth-logo-icon">
                 <img src="attached_assets/shield CHAMPION LOGO OYR (4)_1759763234301.png" alt="Shield Ops Logo"
-                    style="width: 120px; height: auto;">
+                    style="width: 120px; height: auto; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.1));">
             </div>
             <h1>Shield Ops</h1>
-            <p>Create Your Account</p>
+            <p>Child Care Safety & Compliance Platform</p>
         </div>
-        <form onsubmit="signup(event)">
+        <form onsubmit="signup(event)" style="margin-top: 40px;">
             <div class="form-group">
                 <label class="form-label">Your Name</label>
-                <input id="signup-name" type="text" class="form-input" placeholder="John Doe" required>
+                <input id="signup-name" type="text" class="form-input" placeholder="Enter your full name" required autocomplete="name">
             </div>
             <div class="form-group">
                 <label class="form-label">Facility Name</label>
-                <input id="signup-facility" type="text" class="form-input" placeholder="Bright Futures Learning Center"
-                    required>
+                <input id="signup-facility" type="text" class="form-input" placeholder="Enter facility name" required autocomplete="organization">
             </div>
             <div class="form-group">
                 <label class="form-label">Location</label>
-                <input id="signup-address" type="text" class="form-input" placeholder="Austin, TX">
+                <input id="signup-address" type="text" class="form-input" placeholder="City, State" autocomplete="address-level2">
             </div>
             <div class="form-group">
-                <label class="form-label">Email</label>
-                <input id="signup-email" type="email" class="form-input" placeholder="you@example.com" required>
+                <label class="form-label">Email Address</label>
+                <input id="signup-email" type="email" class="form-input" placeholder="Enter your email" required autocomplete="email">
             </div>
             <div class="form-group">
                 <label class="form-label">Password</label>
-                <input id="signup-password" type="password" class="form-input" placeholder="••••••••" required>
+                <input id="signup-password" type="password" class="form-input" placeholder="Create a password" required autocomplete="new-password">
             </div>
-            <button type="submit" class="btn btn-primary">Create Account</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; font-size: 15px; font-weight: 600; padding: 14px;">Create Account</button>
         </form>
-        <div class="auth-footer">
+        <div class="auth-footer" style="margin-top: 32px;">
             Already have an account? <a href="javascript:void(0);" onclick="showLogin()">Sign In</a>
         </div>
     </div>
