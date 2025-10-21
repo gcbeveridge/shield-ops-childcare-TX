@@ -105,14 +105,14 @@ async function apiRequest(endpoint, options = {}) {
         }
 
         const data = await response.json();
-        
+
         // Cache GET requests
         if (!options.method || options.method === 'GET') {
             const cacheKey = `${endpoint}${JSON.stringify(options.params || {})}`;
             const cacheTTL = options.cacheTTL || 30000; // Default 30 seconds
             apiCache.set(cacheKey, data, cacheTTL);
         }
-        
+
         // Invalidate related cache on mutations
         if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method)) {
             // Extract resource type from endpoint (e.g., /medications/123 -> medications)
@@ -121,7 +121,7 @@ async function apiRequest(endpoint, options = {}) {
                 apiCache.invalidate(resourceMatch[1]);
             }
         }
-        
+
         return data;
     } catch (error) {
         console.error('API Request failed:', error.message || error);
@@ -3565,8 +3565,8 @@ async function loadMedicationList(filter = 'active') {
         if (verificationRate) verificationRate.textContent = '100%';
 
         // Calculate allergy medications count
-        const allergyMeds = allMedications.filter(med => 
-            med.medication_type === 'allergy' || 
+        const allergyMeds = allMedications.filter(med =>
+            med.medication_type === 'allergy' ||
             med.medicationType === 'allergy' ||
             (med.medication_name && med.medication_name.toLowerCase().includes('epipen')) ||
             (med.medicationName && med.medicationName.toLowerCase().includes('epipen'))
@@ -3942,10 +3942,10 @@ async function viewMedicationDetails(medicationId) {
         currentMedicationData = response.data || response;
 
         const med = currentMedicationData;
-        
+
         console.log('📋 Medication details received:', med);
         console.log('📋 Raw medication object keys:', Object.keys(med));
-        
+
         // Handle both snake_case (Supabase) and camelCase formats for backward compatibility
         // child_name is stored directly as a string field, not nested in child_info
         const childName = med.child_name || med.childName || med.child_info?.name || med.childInfo?.name || 'Unknown Child';
@@ -3955,15 +3955,15 @@ async function viewMedicationDetails(medicationId) {
         const instructions = med.special_instructions || med.instructions || '';
         const status = med.active ? 'active' : (med.status || 'inactive');
         const parentAuthorization = med.parent_authorization || med.parentAuthorization;
-        
+
         // Handle dates properly
-        const startDate = med.start_date || med.startDate 
-            ? new Date(med.start_date || med.startDate).toLocaleDateString() 
+        const startDate = med.start_date || med.startDate
+            ? new Date(med.start_date || med.startDate).toLocaleDateString()
             : 'Not specified';
-        const endDate = med.end_date || med.endDate 
-            ? new Date(med.end_date || med.endDate).toLocaleDateString() 
+        const endDate = med.end_date || med.endDate
+            ? new Date(med.end_date || med.endDate).toLocaleDateString()
             : 'Not specified';
-        
+
         console.log('📋 Processed values:', { childName, medicationName, dosage, schedule, startDate, endDate, status });
 
         let administrationLogHTML = '';
@@ -4739,13 +4739,13 @@ async function sendAIMessage() {
 
         // Show appropriate error message based on error type
         let errorMessage = 'Sorry, I encountered an error. Please try again.';
-        
+
         if (error.message && error.message.includes('Database connection unavailable')) {
             errorMessage = 'I\'m having trouble connecting to the database right now. Please check your internet connection and try again in a moment.';
         } else if (error.message && error.message.includes('network')) {
             errorMessage = 'Network connection issue detected. Please check your internet connection and try again.';
         }
-        
+
         addAIMessage(errorMessage, 'assistant');
         console.error('AI chat error:', error);
     } finally {

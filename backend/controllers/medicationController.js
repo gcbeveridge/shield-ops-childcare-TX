@@ -21,7 +21,7 @@ async function getActiveMedications(req, res) {
     }
 
     console.log(`Fetched ${medications.length} medications for facility ${facilityId}`);
-    
+
     // If no medications found, log it
     if (medications.length === 0) {
       console.log('No medications found - database may be empty');

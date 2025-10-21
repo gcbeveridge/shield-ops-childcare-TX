@@ -19,7 +19,7 @@ router.post('/ai/ask', authenticateToken, async (req, res) => {
     // Get facility context for better responses
     const user = req.user;
     let facility = null;
-    
+
     try {
       facility = await FacilityDB.findById(user.facilityId);
     } catch (dbError) {
@@ -42,7 +42,7 @@ router.post('/ai/ask', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('AI Ask Error:', error);
-    
+
     // Check if it's a network/connection error
     if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
       return res.status(503).json({
@@ -51,7 +51,7 @@ router.post('/ai/ask', authenticateToken, async (req, res) => {
         error: 'SERVICE_UNAVAILABLE'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to process question',
