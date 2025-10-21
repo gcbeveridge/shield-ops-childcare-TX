@@ -472,7 +472,14 @@ async function login(event) {
 
         saveAuthData(data.token, data.user, data.facility);
 
-        document.getElementById('login-screen').style.display = 'none';
+        // Hide all auth screens
+        const authContainer = document.getElementById('auth-container');
+        const loginScreen = document.getElementById('login-screen');
+        const signupScreen = document.getElementById('signup-screen');
+        
+        if (authContainer) authContainer.style.display = 'none';
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (signupScreen) signupScreen.style.display = 'none';
         document.getElementById('app').classList.add('active');
 
         // Load sidebar if using modular architecture
@@ -533,7 +540,14 @@ async function signup(event) {
 
         saveAuthData(data.token, data.user, data.facility);
 
-        document.getElementById('signup-screen').style.display = 'none';
+        // Hide all auth screens
+        const authContainer = document.getElementById('auth-container');
+        const loginScreen = document.getElementById('login-screen');
+        const signupScreen = document.getElementById('signup-screen');
+        
+        if (authContainer) authContainer.style.display = 'none';
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (signupScreen) signupScreen.style.display = 'none';
         document.getElementById('app').classList.add('active');
 
         // Load sidebar if using modular architecture
@@ -578,9 +592,20 @@ function showLogin() {
 
 function logout() {
     clearAuthData();
+    
+    // Hide app and show auth screens
     document.getElementById('app').classList.remove('active');
-    document.getElementById('login-screen').style.display = 'flex';
-    document.getElementById('signup-screen').style.display = 'none';
+    
+    const authContainer = document.getElementById('auth-container');
+    const loginScreen = document.getElementById('login-screen');
+    const signupScreen = document.getElementById('signup-screen');
+    
+    if (authContainer) authContainer.style.display = 'block';
+    if (loginScreen) loginScreen.style.display = 'flex';
+    if (signupScreen) signupScreen.style.display = 'none';
+    
+    // Reload page to reset everything
+    window.location.reload();
 }
 
 // Navigation
@@ -1099,13 +1124,21 @@ async function validateAuth() {
 
 // Check if user is already logged in on page load
 window.addEventListener('DOMContentLoaded', async () => {
+    console.log('🔐 Validating authentication...');
     const isValid = await validateAuth();
 
     if (isValid) {
+        console.log('✅ User is authenticated');
+        
+        // Hide auth screens (both login and signup)
+        const authContainer = document.getElementById('auth-container');
         const loginScreen = document.getElementById('login-screen');
+        const signupScreen = document.getElementById('signup-screen');
         const app = document.getElementById('app');
 
+        if (authContainer) authContainer.style.display = 'none';
         if (loginScreen) loginScreen.style.display = 'none';
+        if (signupScreen) signupScreen.style.display = 'none';
         if (app) app.classList.add('active');
 
         // Load sidebar if using modular architecture
@@ -1120,7 +1153,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         // Initialize router before loading dashboard
         if (typeof Router !== 'undefined' && typeof appRoutes !== 'undefined') {
             window.appRouter = new Router(appRoutes);
-            console.log('Router initialized successfully');
+            console.log('✅ Router initialized successfully');
 
             // Preload screens in background
             window.htmlLoader.preloadAllScreens().catch(err => {
@@ -1132,9 +1165,15 @@ window.addEventListener('DOMContentLoaded', async () => {
             await loadDashboard();
         }
     } else {
+        console.log('❌ User not authenticated - showing login screen');
         // Show login screen
+        const authContainer = document.getElementById('auth-container');
         const loginScreen = document.getElementById('login-screen');
+        const signupScreen = document.getElementById('signup-screen');
+        
+        if (authContainer) authContainer.style.display = 'block';
         if (loginScreen) loginScreen.style.display = 'flex';
+        if (signupScreen) signupScreen.style.display = 'none';
     }
 });
 
