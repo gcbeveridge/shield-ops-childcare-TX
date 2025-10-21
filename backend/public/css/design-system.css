@@ -1,0 +1,254 @@
+/* =============================================
+   SHIELD OPS - CAC DESIGN SYSTEM v2.0
+   Military-Grade Professional Interface
+   ============================================= */
+
+:root {
+    /* Primary Palette - Military Blue */
+    --cac-primary: #1e3a8a;
+    --cac-primary-light: #3b82f6;
+    --cac-primary-dark: #1e40af;
+    --cac-primary-glow: rgba(59, 130, 246, 0.2);
+    
+    /* Secondary Palette - Tactical Gray */
+    --cac-secondary: #475569;
+    --cac-secondary-light: #64748b;
+    --cac-secondary-dark: #334155;
+    
+    /* Accent Colors */
+    --cac-accent-cyan: #06b6d4;
+    --cac-accent-emerald: #10b981;
+    --cac-accent-amber: #f59e0b;
+    --cac-accent-red: #ef4444;
+    
+    /* Status Colors */
+    --cac-success: #10b981;
+    --cac-success-bg: #d1fae5;
+    --cac-warning: #f59e0b;
+    --cac-warning-bg: #fef3c7;
+    --cac-danger: #ef4444;
+    --cac-danger-bg: #fee2e2;
+    --cac-info: #3b82f6;
+    --cac-info-bg: #dbeafe;
+    
+    /* Neutral Palette */
+    --cac-white: #ffffff;
+    --cac-gray-50: #f8fafc;
+    --cac-gray-100: #f1f5f9;
+    --cac-gray-200: #e2e8f0;
+    --cac-gray-300: #cbd5e1;
+    --cac-gray-400: #94a3b8;
+    --cac-gray-500: #64748b;
+    --cac-gray-600: #475569;
+    --cac-gray-700: #334155;
+    --cac-gray-800: #1e293b;
+    --cac-gray-900: #0f172a;
+    --cac-black: #020617;
+    
+    /* Gradients */
+    --cac-gradient-primary: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    --cac-gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #3b82f6 100%);
+    --cac-gradient-success: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    --cac-gradient-warning: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+    --cac-gradient-danger: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    --cac-gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    
+    /* Shadows */
+    --cac-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --cac-shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    --cac-shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+    --cac-shadow-lg: 0 10px 20px -5px rgba(0, 0, 0, 0.15), 0 4px 8px -4px rgba(0, 0, 0, 0.1);
+    --cac-shadow-xl: 0 20px 30px -10px rgba(0, 0, 0, 0.2), 0 8px 16px -8px rgba(0, 0, 0, 0.15);
+    --cac-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --cac-shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+    --cac-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    
+    /* Border Radius */
+    --cac-radius-sm: 6px;
+    --cac-radius-md: 10px;
+    --cac-radius-lg: 16px;
+    --cac-radius-xl: 24px;
+    --cac-radius-full: 9999px;
+    
+    /* Spacing Scale */
+    --cac-space-1: 0.25rem;
+    --cac-space-2: 0.5rem;
+    --cac-space-3: 0.75rem;
+    --cac-space-4: 1rem;
+    --cac-space-5: 1.25rem;
+    --cac-space-6: 1.5rem;
+    --cac-space-8: 2rem;
+    --cac-space-10: 2.5rem;
+    --cac-space-12: 3rem;
+    --cac-space-16: 4rem;
+    --cac-space-20: 5rem;
+    
+    /* Typography Scale */
+    --cac-text-xs: 0.75rem;
+    --cac-text-sm: 0.875rem;
+    --cac-text-base: 1rem;
+    --cac-text-lg: 1.125rem;
+    --cac-text-xl: 1.25rem;
+    --cac-text-2xl: 1.5rem;
+    --cac-text-3xl: 1.875rem;
+    --cac-text-4xl: 2.25rem;
+    --cac-text-5xl: 3rem;
+    --cac-text-6xl: 3.75rem;
+    
+    /* Font Weights */
+    --cac-font-normal: 400;
+    --cac-font-medium: 500;
+    --cac-font-semibold: 600;
+    --cac-font-bold: 700;
+    --cac-font-extrabold: 800;
+    
+    /* Transitions */
+    --cac-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --cac-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --cac-transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Z-Index Layers */
+    --cac-z-base: 0;
+    --cac-z-dropdown: 100;
+    --cac-z-sticky: 200;
+    --cac-z-fixed: 300;
+    --cac-z-modal-backdrop: 400;
+    --cac-z-modal: 500;
+    --cac-z-popover: 600;
+    --cac-z-tooltip: 700;
+}
+
+/* =============================================
+   ENHANCED ANIMATIONS
+   ============================================= */
+
+@keyframes cac-fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes cac-slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cac-slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cac-slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes cac-scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes cac-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes cac-shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+@keyframes cac-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5); }
+}
+
+@keyframes cac-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* =============================================
+   UTILITY CLASSES
+   ============================================= */
+
+.cac-animate-fadeIn { animation: cac-fadeIn 0.4s ease-out; }
+.cac-animate-slideUp { animation: cac-slideUp 0.5s ease-out; }
+.cac-animate-slideDown { animation: cac-slideDown 0.5s ease-out; }
+.cac-animate-slideRight { animation: cac-slideRight 0.5s ease-out; }
+.cac-animate-scaleIn { animation: cac-scaleIn 0.4s ease-out; }
+.cac-animate-pulse { animation: cac-pulse 2s ease-in-out infinite; }
+.cac-animate-glow { animation: cac-glow 2s ease-in-out infinite; }
+.cac-animate-float { animation: cac-float 3s ease-in-out infinite; }
+
+/* Glassmorphism Effect */
+.cac-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cac-glass-dark {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradient Text */
+.cac-gradient-text {
+    background: var(--cac-gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Hover Effects */
+.cac-hover-lift {
+    transition: transform var(--cac-transition-base), box-shadow var(--cac-transition-base);
+}
+
+.cac-hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--cac-shadow-xl);
+}
+
+.cac-hover-scale {
+    transition: transform var(--cac-transition-fast);
+}
+
+.cac-hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.cac-hover-glow {
+    transition: box-shadow var(--cac-transition-base);
+}
+
+.cac-hover-glow:hover {
+    box-shadow: var(--cac-shadow-glow);
+}

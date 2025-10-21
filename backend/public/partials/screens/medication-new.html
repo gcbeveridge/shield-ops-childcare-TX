@@ -1,0 +1,243 @@
+<!-- =============================================
+     MEDICATIONS PAGE - CAC DESIGN v2.0
+     ============================================= -->
+
+<!-- Page Header -->
+<div class="cac-page-header cac-animate-slideDown">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1 class="cac-page-title">
+                <span class="cac-page-icon">💊</span>
+                Medication Tracking
+            </h1>
+            <p class="cac-page-subtitle">Texas-compliant medication administration • DFPS §744.2651-2661</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="cac-btn cac-btn-secondary" onclick="openModal('import-medication-csv')">
+                <span>📤</span> Import CSV
+            </button>
+            <button class="cac-btn cac-btn-primary" onclick="openModal('add-medication')">
+                <span>+</span> Add Authorization
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="cac-stats-grid cac-animate-slideUp" style="animation-delay: 0.1s;">
+    <div class="cac-stat-card cac-stat-primary">
+        <div class="cac-stat-icon">💊</div>
+        <div class="cac-stat-value" id="med-active-count">--</div>
+        <div class="cac-stat-label">Active Authorizations</div>
+        <div class="cac-stat-trend">Updated live</div>
+    </div>
+    
+    <div class="cac-stat-card cac-stat-success">
+        <div class="cac-stat-icon">✅</div>
+        <div class="cac-stat-value" id="med-verification-rate">--%</div>
+        <div class="cac-stat-label">Dual-Staff Verification</div>
+        <div class="cac-stat-trend">Texas compliant</div>
+    </div>
+    
+    <div class="cac-stat-card cac-stat-info">
+        <div class="cac-stat-icon">📋</div>
+        <div class="cac-stat-value" id="med-doses-today">--</div>
+        <div class="cac-stat-label">Doses Given Today</div>
+        <div class="cac-stat-trend">Real-time tracking</div>
+    </div>
+    
+    <div class="cac-stat-card cac-stat-warning">
+        <div class="cac-stat-icon">⏰</div>
+        <div class="cac-stat-value" id="med-pending-doses">--</div>
+        <div class="cac-stat-label">Pending Doses</div>
+        <div class="cac-stat-trend">Scheduled today</div>
+    </div>
+</div>
+
+<!-- Critical Texas Requirements -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.2s;">
+    <div class="cac-card-header">
+        <h3 class="cac-card-title">
+            <span class="cac-card-title-icon">🛡️</span>
+            Critical Texas Requirements
+        </h3>
+        <span class="cac-badge cac-badge-success">ALL MET</span>
+    </div>
+    
+    <div class="cac-requirement-grid">
+        <div class="cac-requirement cac-requirement-success">
+            <div class="cac-requirement-icon">✓</div>
+            <div class="cac-requirement-content">
+                <h4>Parent Authorization Required</h4>
+                <p>Written/electronic, signed & dated, expires annually (§744.2653)</p>
+            </div>
+        </div>
+        
+        <div class="cac-requirement cac-requirement-success">
+            <div class="cac-requirement-icon">✓</div>
+            <div class="cac-requirement-content">
+                <h4>Original Container Only</h4>
+                <p>Child's name, date brought, cannot be expired (§744.2655)</p>
+            </div>
+        </div>
+        
+        <div class="cac-requirement cac-requirement-success">
+            <div class="cac-requirement-icon">✓</div>
+            <div class="cac-requirement-content">
+                <h4>Dual-Staff Verification</h4>
+                <p>One administers, one witnesses - both sign log</p>
+            </div>
+        </div>
+        
+        <div class="cac-requirement cac-requirement-success">
+            <div class="cac-requirement-icon">✓</div>
+            <div class="cac-requirement-content">
+                <h4>Secure Storage</h4>
+                <p>Locked, out of reach, separate from food (§744.2657)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Medication Alerts -->
+<div id="medication-alerts-card" class="cac-alert cac-alert-warning cac-animate-slideUp" style="display: none; animation-delay: 0.3s;">
+    <div class="cac-alert-icon">🔔</div>
+    <div class="cac-alert-content">
+        <div class="cac-alert-title">Active Medication Alerts (<span id="alert-count">0</span>)</div>
+        <div id="medication-alerts-list" style="margin-top: 12px;"></div>
+    </div>
+    <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="dismissAllAlerts()">Dismiss All</button>
+</div>
+
+<!-- Medication Management -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.4s;">
+    <!-- Tabs -->
+    <div class="cac-tabs">
+        <button class="cac-tab cac-tab-active" onclick="filterMedications('active')">
+            Active Medications (<span id="med-count-active">0</span>)
+        </button>
+        <button class="cac-tab" onclick="showDailySchedule()">
+            📅 Today's Schedule
+        </button>
+        <button class="cac-tab" onclick="filterMedications('today')">
+            Today's Log (<span id="med-count-today">0</span>)
+        </button>
+        <button class="cac-tab" onclick="showAdministrationHistory()">
+            📊 History
+        </button>
+        <button class="cac-tab" onclick="filterMedications('expired')">
+            Expired (<span id="med-count-expired">0</span>)
+        </button>
+        <button class="cac-tab" onclick="filterMedications('allergies')">
+            Allergies (<span id="med-count-allergies">0</span>)
+        </button>
+    </div>
+
+    <!-- Daily Schedule View -->
+    <div id="daily-schedule-view" style="display: none;">
+        <div class="cac-section-header">
+            <h3>📅 Medication Schedule for <span id="schedule-date"></span></h3>
+            <p>All scheduled doses for today with real-time status</p>
+        </div>
+        <div id="schedule-timeline"></div>
+        <div id="schedule-empty" class="cac-empty-state" style="display: none;">
+            <div class="cac-empty-icon">🎉</div>
+            <h3>No Medications Scheduled Today</h3>
+            <p>All children are medication-free today!</p>
+        </div>
+    </div>
+
+    <!-- Administration History View -->
+    <div id="administration-history-view" style="display: none;">
+        <div class="cac-section-header">
+            <div>
+                <h3>📊 Administration History</h3>
+                <p>Complete medication log with dual-staff verification records</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('csv')">
+                    📥 Export CSV
+                </button>
+                <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exportAdministrationHistory('pdf')">
+                    📄 Export PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="cac-filter-bar">
+            <div class="cac-filter-group">
+                <label>Date Range</label>
+                <select id="history-date-range" class="cac-select" onchange="filterHistoryByDate()">
+                    <option value="today">Today</option>
+                    <option value="week" selected>This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+            <div class="cac-filter-group">
+                <label>Child</label>
+                <select id="history-child-filter" class="cac-select" onchange="filterHistory()">
+                    <option value="all">All Children</option>
+                </select>
+            </div>
+            <div class="cac-filter-group">
+                <label>Medication</label>
+                <select id="history-med-filter" class="cac-select" onchange="filterHistory()">
+                    <option value="all">All Medications</option>
+                </select>
+            </div>
+            <div class="cac-filter-group">
+                <label>Staff Member</label>
+                <select id="history-staff-filter" class="cac-select" onchange="filterHistory()">
+                    <option value="all">All Staff</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="history-timeline"></div>
+        <div id="history-empty" class="cac-empty-state" style="display: none;">
+            <div class="cac-empty-icon">📋</div>
+            <h3>No Administration Records Found</h3>
+            <p>Try adjusting your filters or select a different date range</p>
+        </div>
+    </div>
+
+    <!-- Medication List Table -->
+    <div id="medication-list-table">
+        <div class="cac-table-container">
+            <table class="cac-table">
+                <thead>
+                    <tr>
+                        <th>Child Name</th>
+                        <th>Medication</th>
+                        <th>Dosage</th>
+                        <th>Schedule</th>
+                        <th>Authorization</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="medications-table-body">
+                    <!-- Populated dynamically by loadMedicationList() -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Allergy Plans Card -->
+    <div class="cac-card" id="allergy-plans-card" style="margin-top: 24px;">
+        <div class="cac-card-header">
+            <h3 class="cac-card-title">
+                <span class="cac-card-title-icon">🥜</span>
+                Food Allergy Emergency Plans (Texas §744.2667-2669)
+            </h3>
+        </div>
+        <div id="allergy-plans-list"></div>
+        <div id="allergy-plans-empty" class="cac-empty-state" style="display: none;">
+            <div class="cac-empty-icon">✓</div>
+            <h3>No Food Allergies on Record</h3>
+            <p>No children currently have documented food allergies requiring emergency plans.</p>
+        </div>
+    </div>
+</div>

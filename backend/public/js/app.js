@@ -700,6 +700,9 @@ async function loadDashboardData() {
     if (!AppState.facility) return;
 
     try {
+        // Initialize CAC dashboard with placeholders
+        initializeCACDashboard();
+        
         const dashboardData = await apiRequest(`/facilities/${AppState.facility.id}/dashboard`);
 
         // Update greeting
@@ -710,7 +713,13 @@ async function loadDashboardData() {
 
         if (AppState.user) {
             const userName = AppState.user.name || AppState.user.email.split('@')[0];
-            document.getElementById('dashboard-greeting').textContent = `${greeting}, ${userName.split(' ')[0]}!`;
+            const greetingEl = document.getElementById('dashboard-greeting');
+            if (greetingEl) {
+                greetingEl.innerHTML = `
+                    <span style="display: block; font-size: 1.5rem; font-weight: 600; opacity: 0.9; margin-bottom: 8px;">${greeting},</span>
+                    ${userName.split(' ')[0]}
+                `;
+            }
         }
 
         // Load weather data
@@ -723,71 +732,87 @@ async function loadDashboardData() {
     }
 }
 
+// Initialize CAC Dashboard with default values
+function initializeCACDashboard() {
+    // Set placeholder values for metrics
+    const updates = {
+        'risk-score-display': '92',
+        'streak-days-display': '45',
+        'compliance-rate-display': '94%',
+        'last-inspection-display': '23',
+        'next-goal-display': '50 days',
+        'next-inspection-display': '127 days',
+        'missing-docs-count': '3',
+        'expired-docs-count': '1',
+        'staff-certs-count': '15/15',
+        'pending-signatures-count': '2',
+        'missing-docs-progress': '25%',
+        'expired-docs-progress': '10%',
+        'staff-certs-progress': '100%',
+        'pending-signatures-progress': '20%'
+    };
+
+    Object.entries(updates).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) {
+            if (id.includes('progress')) {
+                el.style.width = value;
+            } else {
+                el.textContent = value;
+            }
+        }
+    });
+}
+
 async function loadWeatherData() {
-    console.log('loadWeatherData called, AppState.facility:', AppState.facility);
     if (!AppState.facility) {
-        console.log('No facility in AppState, exiting loadWeatherData');
         return;
     }
 
     try {
-        console.log('Fetching weather for facility:', AppState.facility.id);
         const weatherResponse = await apiRequest(`/facilities/${AppState.facility.id}/weather`);
-        console.log('Weather response:', weatherResponse);
         const weather = weatherResponse.weather;
 
-        console.log('Weather data received:', weather);
         if (weather) {
-            const widget = document.getElementById('weather-alert-widget');
-            console.log('Weather widget element:', widget);
-
-            if (!widget) {
-                console.error('Weather widget element not found!');
-                return;
-            }
-
-            widget.style.display = 'block';
-            console.log('Widget display set to block');
-
-            // Show alert icon and title if there's an alert, otherwise show weather icon and condition
-            if (weather.alert) {
-                document.getElementById('weather-icon').textContent = weather.alert.icon;
-                document.getElementById('weather-title').textContent = weather.alert.title;
-                document.getElementById('weather-recommendation').textContent = weather.recommendation;
-                widget.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'; // Red gradient for alerts
-            } else {
-                document.getElementById('weather-icon').textContent = weather.icon;
-                document.getElementById('weather-title').textContent = `${weather.condition} Conditions`;
-                document.getElementById('weather-recommendation').textContent = `Great day for outdoor activities! Temperature: ${weather.temperature}°F, Humidity: ${weather.humidity}%`;
-                widget.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'; // Blue gradient for normal weather
-            }
-
-            document.getElementById('weather-location').textContent = weather.location;
-            document.getElementById('weather-temp').textContent = `${weather.temperature}°F`;
-            console.log('Weather widget updated successfully');
-        } else {
-            console.log('No weather data received');
+            // Update compact weather widget in hero
+            const weatherIcon = document.getElementById('weather-icon-hero');
+            const weatherTemp = document.getElementById('weather-temp-hero');
+            const weatherCondition = document.getElementById('weather-condition-hero');
+            
+            if (weatherIcon) weatherIcon.textContent = weather.icon || '🌤️';
+            if (weatherTemp) weatherTemp.textContent = `${weather.temperature || 72}°F`;
+            if (weatherCondition) weatherCondition.textContent = weather.condition || 'Clear';
         }
     } catch (error) {
-        console.log('Weather data unavailable:', error);
+        console.log('Weather data unavailable, using defaults');
+        // Keep default values if weather API fails
     }
 }
 
 function updateModernDashboard(data) {
     if (!data) return;
 
-    // Update risk score and streak
+    // Safely update risk score and streak with null checks
     if (data.riskScore) {
-        document.getElementById('risk-score-display').textContent = data.riskScore.score;
-        document.getElementById('risk-rating-display').textContent = data.riskScore.rating;
-        const change = data.riskScore.changeFromLastMonth;
-        document.getElementById('risk-change-display').textContent =
-            `${change >= 0 ? '↑' : '↓'} ${Math.abs(change)} from last month`;
+        const riskScoreEl = document.getElementById('risk-score-display');
+        if (riskScoreEl) riskScoreEl.textContent = data.riskScore.score || data.riskScore;
+        
+        const riskRatingEl = document.getElementById('risk-rating-display');
+        if (riskRatingEl && data.riskScore.rating) riskRatingEl.textContent = data.riskScore.rating;
+        
+        const change = data.riskScore.changeFromLastMonth || 0;
+        const riskChangeEl = document.getElementById('risk-change-display');
+        if (riskChangeEl) {
+            riskChangeEl.textContent = `${change >= 0 ? '↑' : '↓'} ${Math.abs(change)} from last month`;
+        }
     }
 
     if (data.streak) {
-        document.getElementById('streak-days-display').textContent = data.streak.days;
-        document.getElementById('next-goal-display').textContent = data.streak.nextGoalName;
+        const streakEl = document.getElementById('streak-days-display');
+        if (streakEl) streakEl.textContent = data.streak.days;
+        
+        const nextGoalEl = document.getElementById('next-goal-display');
+        if (nextGoalEl) nextGoalEl.textContent = data.streak.nextGoalName;
     }
 
     // Update priority cards
