@@ -315,12 +315,10 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: conic-gradient(
-        var(--cac-primary) 0deg,
-        var(--cac-primary) calc(var(--progress, 75) * 3.6deg),
-        var(--cac-gray-200) calc(var(--progress, 75) * 3.6deg),
-        var(--cac-gray-200) 360deg
-    );
+    background: conic-gradient(var(--cac-primary) 0deg,
+            var(--cac-primary) calc(var(--progress, 75) * 3.6deg),
+            var(--cac-gray-200) calc(var(--progress, 75) * 3.6deg),
+            var(--cac-gray-200) 360deg);
     position: relative;
     display: flex;
     align-items: center;
@@ -352,15 +350,15 @@
     .cac-hero-title {
         font-size: var(--cac-text-3xl);
     }
-    
+
     .cac-hero-stats {
         grid-template-columns: 1fr;
     }
-    
+
     .cac-metric-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .cac-toast-container {
         left: 12px;
         right: 12px;

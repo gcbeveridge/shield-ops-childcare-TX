@@ -8,56 +8,65 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
             <div>
                 <h1 class="cac-hero-title" id="dashboard-greeting">
-                    <span style="display: block; font-size: 1.5rem; font-weight: 600; opacity: 0.9; margin-bottom: 8px;">Welcome back,</span>
+                    <span
+                        style="display: block; font-size: 1.5rem; font-weight: 600; opacity: 0.9; margin-bottom: 8px;">Welcome
+                        back,</span>
                     Command Center
                 </h1>
                 <p class="cac-hero-subtitle">Mission-ready dashboard • Real-time compliance monitoring</p>
             </div>
             <div style="display: flex; align-items: center; gap: 16px;">
-                <div id="weather-widget-compact" style="background: rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
+                <div id="weather-widget-compact"
+                    style="background: rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <span id="weather-icon-hero" style="font-size: 32px;">🌤️</span>
                         <div>
-                            <div style="font-size: 24px; font-weight: 700; color: white;" id="weather-temp-hero">72°F</div>
-                            <div style="font-size: 12px; opacity: 0.8; color: white;" id="weather-condition-hero">Clear</div>
+                            <div style="font-size: 24px; font-weight: 700; color: white;" id="weather-temp-hero">72°F
+                            </div>
+                            <div style="font-size: 12px; opacity: 0.8; color: white;" id="weather-condition-hero">Clear
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Hero Stats -->
         <div class="cac-hero-stats">
             <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.1s;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                     <span style="font-size: 32px;">🛡️</span>
-                    <span class="cac-badge cac-badge-success" style="background: rgba(16, 185, 129, 0.2); color: white;">OPTIMAL</span>
+                    <span class="cac-badge cac-badge-success"
+                        style="background: rgba(16, 185, 129, 0.2); color: white;">OPTIMAL</span>
                 </div>
                 <div class="cac-hero-stat-value" id="risk-score-display">--</div>
                 <div class="cac-hero-stat-label">Safety Score</div>
                 <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;" id="risk-change-display">--</div>
             </div>
-            
+
             <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.2s;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                     <span style="font-size: 32px;">🔥</span>
-                    <span class="cac-badge cac-badge-warning" style="background: rgba(245, 158, 11, 0.2); color: white;">ACTIVE</span>
+                    <span class="cac-badge cac-badge-warning"
+                        style="background: rgba(245, 158, 11, 0.2); color: white;">ACTIVE</span>
                 </div>
                 <div class="cac-hero-stat-value" id="streak-days-display">--</div>
                 <div class="cac-hero-stat-label">Days Incident-Free</div>
-                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Next milestone: <strong id="next-goal-display">100</strong></div>
+                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Next milestone: <strong
+                        id="next-goal-display">100</strong></div>
             </div>
-            
+
             <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.3s;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                     <span style="font-size: 32px;">✅</span>
-                    <span class="cac-badge cac-badge-info" style="background: rgba(59, 130, 246, 0.2); color: white;">ON TRACK</span>
+                    <span class="cac-badge cac-badge-info" style="background: rgba(59, 130, 246, 0.2); color: white;">ON
+                        TRACK</span>
                 </div>
                 <div class="cac-hero-stat-value" id="compliance-rate-display">--</div>
                 <div class="cac-hero-stat-label">Compliance Rate</div>
                 <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Texas DFPS Certified</div>
             </div>
-            
+
             <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.4s;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                     <span style="font-size: 32px;">⏱️</span>
@@ -65,7 +74,8 @@
                 </div>
                 <div class="cac-hero-stat-value" id="last-inspection-display">--</div>
                 <div class="cac-hero-stat-label">Days Since Inspection</div>
-                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Next due: <strong id="next-inspection-display">TBD</strong></div>
+                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Next due: <strong
+                        id="next-inspection-display">TBD</strong></div>
             </div>
         </div>
     </div>
@@ -84,7 +94,8 @@
 
 <!-- Key Metrics Grid -->
 <div class="cac-metric-grid cac-animate-slideUp" style="animation-delay: 0.5s;">
-    <div class="cac-metric cac-metric-danger cac-hover-lift" onclick="if (window.appRouter) window.appRouter.go('/documents')">
+    <div class="cac-metric cac-metric-danger cac-hover-lift"
+        onclick="if (window.appRouter) window.appRouter.go('/documents')">
         <div class="cac-metric-header">
             <div>
                 <div class="cac-metric-label">MISSING DOCUMENTS</div>
@@ -95,10 +106,12 @@
         <div class="cac-progress cac-progress-danger" style="margin-top: 12px;">
             <div class="cac-progress-bar" id="missing-docs-progress" style="width: 0%;"></div>
         </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="missing-docs-detail">Critical compliance documents needed</div>
+        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="missing-docs-detail">Critical
+            compliance documents needed</div>
     </div>
-    
-    <div class="cac-metric cac-metric-warning cac-hover-lift" onclick="if (window.appRouter) window.appRouter.go('/documents')">
+
+    <div class="cac-metric cac-metric-warning cac-hover-lift"
+        onclick="if (window.appRouter) window.appRouter.go('/documents')">
         <div class="cac-metric-header">
             <div>
                 <div class="cac-metric-label">EXPIRED DOCUMENTS</div>
@@ -109,10 +122,12 @@
         <div class="cac-progress cac-progress-warning" style="margin-top: 12px;">
             <div class="cac-progress-bar" id="expired-docs-progress" style="width: 0%;"></div>
         </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="expired-docs-detail">Requires immediate renewal</div>
+        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="expired-docs-detail">Requires
+            immediate renewal</div>
     </div>
-    
-    <div class="cac-metric cac-metric-success cac-hover-lift" onclick="if (window.appRouter) window.appRouter.go('/staff')">
+
+    <div class="cac-metric cac-metric-success cac-hover-lift"
+        onclick="if (window.appRouter) window.appRouter.go('/staff')">
         <div class="cac-metric-header">
             <div>
                 <div class="cac-metric-label">STAFF CERTIFICATIONS</div>
@@ -123,9 +138,10 @@
         <div class="cac-progress cac-progress-success" style="margin-top: 12px;">
             <div class="cac-progress-bar" id="staff-certs-progress" style="width: 0%;"></div>
         </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="staff-certs-detail">All staff members certified</div>
+        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="staff-certs-detail">All staff
+            members certified</div>
     </div>
-    
+
     <div class="cac-metric cac-hover-lift" onclick="if (window.appRouter) window.appRouter.go('/incidents')">
         <div class="cac-metric-header">
             <div>
@@ -137,7 +153,8 @@
         <div class="cac-progress" style="margin-top: 12px;">
             <div class="cac-progress-bar" id="pending-signatures-progress" style="width: 0%;"></div>
         </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="pending-signatures-detail">Incident reports awaiting parent signature</div>
+        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="pending-signatures-detail">
+            Incident reports awaiting parent signature</div>
     </div>
 </div>
 
@@ -150,22 +167,26 @@
         </h2>
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-        <button onclick="openModal('new-incident')" class="cac-btn cac-btn-primary cac-btn-lg cac-hover-lift" style="flex-direction: column; height: 120px; justify-content: center;">
+        <button onclick="openModal('new-incident')" class="cac-btn cac-btn-primary cac-btn-lg cac-hover-lift"
+            style="flex-direction: column; height: 120px; justify-content: center;">
             <span style="font-size: 32px; margin-bottom: 8px;">🚨</span>
             <span>Log Incident</span>
         </button>
-        
-        <button onclick="openModal('add-medication')" class="cac-btn cac-btn-lg cac-hover-lift" style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+
+        <button onclick="openModal('add-medication')" class="cac-btn cac-btn-lg cac-hover-lift"
+            style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
             <span style="font-size: 32px; margin-bottom: 8px;">💊</span>
             <span>Add Medication</span>
         </button>
-        
-        <button onclick="openModal('upload-document')" class="cac-btn cac-btn-lg cac-hover-lift" style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+
+        <button onclick="openModal('upload-document')" class="cac-btn cac-btn-lg cac-hover-lift"
+            style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
             <span style="font-size: 32px; margin-bottom: 8px;">📁</span>
             <span>Upload Document</span>
         </button>
-        
-        <button onclick="openModal('add-staff')" class="cac-btn cac-btn-lg cac-hover-lift" style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+
+        <button onclick="openModal('add-staff')" class="cac-btn cac-btn-lg cac-hover-lift"
+            style="flex-direction: column; height: 120px; justify-content: center; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
             <span style="font-size: 32px; margin-bottom: 8px;">👥</span>
             <span>Add Staff</span>
         </button>
@@ -180,7 +201,8 @@
             Recent Activity
         </h2>
         <div class="cac-card-actions">
-            <button class="cac-btn cac-btn-sm cac-btn-ghost" onclick="if (window.appRouter) window.appRouter.go('/incidents')">
+            <button class="cac-btn cac-btn-sm cac-btn-ghost"
+                onclick="if (window.appRouter) window.appRouter.go('/incidents')">
                 View All →
             </button>
         </div>
@@ -196,17 +218,17 @@
 </div>
 
 <style>
-/* Quick Action Button Hover Effects */
-.quick-action-btn {
-    transition: transform 0.2s, box-shadow 0.3s;
-}
+    /* Quick Action Button Hover Effects */
+    .quick-action-btn {
+        transition: transform 0.2s, box-shadow 0.3s;
+    }
 
-.quick-action-btn:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
-}
+    .quick-action-btn:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+    }
 
-.quick-action-btn:active {
-    transform: translateY(-2px) scale(1);
-}
+    .quick-action-btn:active {
+        transform: translateY(-2px) scale(1);
+    }
 </style>

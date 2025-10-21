@@ -702,7 +702,7 @@ async function loadDashboardData() {
     try {
         // Initialize CAC dashboard with placeholders
         initializeCACDashboard();
-        
+
         const dashboardData = await apiRequest(`/facilities/${AppState.facility.id}/dashboard`);
 
         // Update greeting
@@ -778,7 +778,7 @@ async function loadWeatherData() {
             const weatherIcon = document.getElementById('weather-icon-hero');
             const weatherTemp = document.getElementById('weather-temp-hero');
             const weatherCondition = document.getElementById('weather-condition-hero');
-            
+
             if (weatherIcon) weatherIcon.textContent = weather.icon || '🌤️';
             if (weatherTemp) weatherTemp.textContent = `${weather.temperature || 72}°F`;
             if (weatherCondition) weatherCondition.textContent = weather.condition || 'Clear';
@@ -796,10 +796,10 @@ function updateModernDashboard(data) {
     if (data.riskScore) {
         const riskScoreEl = document.getElementById('risk-score-display');
         if (riskScoreEl) riskScoreEl.textContent = data.riskScore.score || data.riskScore;
-        
+
         const riskRatingEl = document.getElementById('risk-rating-display');
         if (riskRatingEl && data.riskScore.rating) riskRatingEl.textContent = data.riskScore.rating;
-        
+
         const change = data.riskScore.changeFromLastMonth || 0;
         const riskChangeEl = document.getElementById('risk-change-display');
         if (riskChangeEl) {
@@ -810,7 +810,7 @@ function updateModernDashboard(data) {
     if (data.streak) {
         const streakEl = document.getElementById('streak-days-display');
         if (streakEl) streakEl.textContent = data.streak.days;
-        
+
         const nextGoalEl = document.getElementById('next-goal-display');
         if (nextGoalEl) nextGoalEl.textContent = data.streak.nextGoalName;
     }
