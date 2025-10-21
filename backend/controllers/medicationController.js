@@ -1,16 +1,24 @@
-const db = require('../config/database');
-const Medication = require('../models/Medication');
-const MedicationLog = require('../models/MedicationLog');
+const supabase = require('../config/supabase');
 
 async function getActiveMedications(req, res) {
   try {
     const { facilityId } = req.params;
 
-    let medications = await db.list(`medication:${facilityId}:`);
+    const { data: medications, error } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('facility_id', facilityId)
+      .eq('active', true)
+      .order('start_date', { ascending: true });
 
-    medications = medications.filter(med => med.status === 'active');
-
-    medications.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+    if (error) {
+      console.error('Error fetching medications:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Error fetching medications',
+        error: error.message
+      });
+    }
 
     res.json({
       success: true,
@@ -30,26 +38,45 @@ async function createMedication(req, res) {
   try {
     const { facilityId } = req.params;
 
-    const medication = new Medication({
-      ...req.body,
-      facilityId
-    });
+    // Transform data to match Supabase schema
+    const medicationData = {
+      facility_id: facilityId,
+      child_name: req.body.childName,
+      medication_name: req.body.medicationName,
+      dosage: req.body.dosage,
+      route: req.body.route,
+      frequency: req.body.frequency || req.body.schedule, // Support both field names
+      start_date: req.body.startDate,
+      end_date: req.body.endDate,
+      parent_authorization: req.body.parentAuthorization,
+      prescriber_info: req.body.prescriberInfo || {
+        name: req.body.prescribedBy || 'Not specified',
+        clinic: '',
+        phone: ''
+      },
+      special_instructions: req.body.specialInstructions,
+      active: true
+    };
 
-    const errors = medication.validate();
-    if (errors.length > 0) {
-      return res.status(400).json({
+    const { data: medication, error } = await supabase
+      .from('medications')
+      .insert(medicationData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating medication:', error);
+      return res.status(500).json({
         success: false,
-        message: 'Validation failed',
-        errors
+        message: 'Error creating medication authorization',
+        error: error.message
       });
     }
-
-    await db.set(`medication:${facilityId}:${medication.id}`, medication.toJSON());
 
     res.status(201).json({
       success: true,
       message: 'Medication authorization created successfully',
-      data: medication.toJSON()
+      data: medication
     });
   } catch (error) {
     console.error('Error creating medication:', error);
@@ -64,43 +91,55 @@ async function administerDose(req, res) {
   try {
     const { medicationId } = req.params;
 
-    const medication = await db.getByPrefix(`medication:`, (key, value) => value.id === medicationId);
+    // Check if medication exists and is active
+    const { data: medication, error: medError } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('id', medicationId)
+      .single();
 
-    if (!medication) {
+    if (medError || !medication) {
       return res.status(404).json({
         success: false,
         message: 'Medication not found'
       });
     }
 
-    if (medication.status !== 'active') {
+    if (!medication.active) {
       return res.status(400).json({
         success: false,
         message: 'Cannot administer dose for inactive medication'
       });
     }
 
-    const log = new MedicationLog({
-      ...req.body,
-      medicationId,
-      facilityId: medication.facilityId
-    });
+    // Create medication log
+    const logData = {
+      medication_id: medicationId,
+      administered_at: req.body.administeredAt || new Date().toISOString(),
+      administered_by: req.body.administeredBy,
+      verified_by: req.body.verifiedBy,
+      notes: req.body.notes || ''
+    };
 
-    const errors = log.validate();
-    if (errors.length > 0) {
-      return res.status(400).json({
+    const { data: log, error: logError } = await supabase
+      .from('medication_logs')
+      .insert(logData)
+      .select()
+      .single();
+
+    if (logError) {
+      console.error('Error logging medication:', logError);
+      return res.status(500).json({
         success: false,
-        message: 'Validation failed',
-        errors
+        message: 'Error logging medication administration',
+        error: logError.message
       });
     }
-
-    await db.set(`medication-log:${medication.facilityId}:${log.id}`, log.toJSON());
 
     res.status(201).json({
       success: true,
       message: 'Medication dose logged successfully (Texas §744.2655 compliant)',
-      data: log.toJSON()
+      data: log
     });
   } catch (error) {
     console.error('Error administering medication:', error);
@@ -115,28 +154,35 @@ async function getMedicationDetails(req, res) {
   try {
     const { medicationId } = req.params;
 
-    const medication = await db.getByPrefix(`medication:`, (key, value) => value.id === medicationId);
+    const { data: medication, error: medError } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('id', medicationId)
+      .single();
 
-    if (!medication) {
+    if (medError || !medication) {
       return res.status(404).json({
         success: false,
         message: 'Medication not found'
       });
     }
 
-    const logs = await db.getByPrefix(`medication-log:${medication.facilityId}:`, (key, value) =>
-      value.medicationId === medicationId
-    );
+    const { data: logs, error: logsError } = await supabase
+      .from('medication_logs')
+      .select('*')
+      .eq('medication_id', medicationId)
+      .order('administered_at', { ascending: false });
 
-    const logsArray = Array.isArray(logs) ? logs : (logs ? [logs] : []);
-    logsArray.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+    if (logsError) {
+      console.error('Error fetching medication logs:', logsError);
+    }
 
     res.json({
       success: true,
       data: {
         medication,
-        administrationLogs: logsArray,
-        totalDosesGiven: logsArray.length
+        administrationLogs: logs || [],
+        totalDosesGiven: (logs || []).length
       }
     });
   } catch (error) {

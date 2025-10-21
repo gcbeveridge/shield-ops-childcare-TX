@@ -33,10 +33,10 @@ async function getDashboard(req, res) {
     const today = new Date();
     const todayString = today.toISOString().split('T')[0];
     const todayIncidents = incidents.filter(inc =>
-      inc.dateTime && inc.dateTime.startsWith(todayString)
+      inc.occurred_at && inc.occurred_at.startsWith(todayString)
     );
 
-    const completeRequirements = compliance.filter(c => c.status === 'complete').length;
+    const completeRequirements = compliance.filter(c => c.completed).length;
     const totalRequirements = TEXAS_COMPLIANCE_REQUIREMENTS.length;
 
     // Calculate priority alerts
@@ -48,13 +48,13 @@ async function getDashboard(req, res) {
 
     // Expired documents
     const expiredDocs = documents.filter(doc => {
-      if (!doc.expirationDate) return false;
-      return new Date(doc.expirationDate) < today;
+      if (!doc.expiration_date) return false;
+      return new Date(doc.expiration_date) < today;
     });
 
     // Missing signatures
     const missingSignatures = incidents.filter(inc =>
-      inc.parentNotified && !inc.parentSignature
+      inc.parent_notified && !inc.parent_signature
     );
 
     // Expiring certifications (within 30 days)
@@ -105,10 +105,10 @@ async function getDashboard(req, res) {
 
     // Days since last incident
     const sortedIncidents = incidents.sort((a, b) =>
-      new Date(b.dateTime) - new Date(a.dateTime)
+      new Date(b.occurred_at) - new Date(a.occurred_at)
     );
     const daysSinceIncident = sortedIncidents.length > 0
-      ? Math.floor((today - new Date(sortedIncidents[0].dateTime)) / (1000 * 60 * 60 * 24))
+      ? Math.floor((today - new Date(sortedIncidents[0].occurred_at)) / (1000 * 60 * 60 * 24))
       : 0;
 
     const dashboardData = {
@@ -137,12 +137,16 @@ async function getDashboard(req, res) {
         },
         expiredDocs: {
           count: expiredDocs.length,
-          items: expiredDocs.map(d => ({ title: d.title, expiredDate: d.expirationDate })),
+          items: expiredDocs.map(d => ({ title: d.name, expiredDate: d.expiration_date })),
           severity: 'high'
         },
         missingSignatures: {
           count: missingSignatures.length,
-          items: missingSignatures.map(i => ({ childName: i.childName, incidentDate: i.dateTime, id: i.id })),
+          items: missingSignatures.map(i => ({ 
+            childName: i.child_info?.name || 'Unknown', 
+            incidentDate: i.occurred_at, 
+            id: i.id 
+          })),
           severity: 'medium'
         }
       },
@@ -162,11 +166,11 @@ async function getDashboard(req, res) {
       },
       recentIncidents: incidents.slice(0, 5).map(inc => ({
         id: inc.id,
-        childName: inc.childName,
-        type: inc.incidentType,
+        childName: inc.child_info?.name || 'Unknown',
+        type: inc.type,
         description: inc.description,
-        occurredAt: inc.dateTime,
-        parentNotified: inc.parentNotified
+        occurredAt: inc.occurred_at,
+        parentNotified: inc.parent_notified
       })),
       upcomingExpirations: expiringCerts.slice(0, 5),
       actionItems: [
@@ -179,7 +183,7 @@ async function getDashboard(req, res) {
       ]
     };
 
-    res.json(dashboardData);
+    res.json({ data: dashboardData });
   } catch (error) {
     console.error('Dashboard error:', error);
     res.status(500).json({ error: 'Failed to fetch dashboard data' });
