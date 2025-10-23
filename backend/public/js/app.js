@@ -5021,7 +5021,7 @@ async function downloadDocument(docId) {
     try {
         // Create download URL with auth token
         const downloadUrl = `${API_BASE_URL}/documents/${docId}/download`;
-        
+
         // Fetch with auth token
         const response = await fetch(downloadUrl, {
             method: 'GET',
@@ -5047,7 +5047,7 @@ async function downloadDocument(docId) {
 
         // Get the blob data
         const blob = await response.blob();
-        
+
         // Create download link
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -5055,11 +5055,11 @@ async function downloadDocument(docId) {
         a.download = filename;
         document.body.appendChild(a);
         a.click();
-        
+
         // Cleanup
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
+
         showSuccess('Document downloaded successfully');
     } catch (error) {
         console.error('Failed to download document:', error);
