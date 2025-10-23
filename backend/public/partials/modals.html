@@ -991,6 +991,168 @@
                             premises at all times</small>
                     </div>
                 </div>
+
+                <!-- Background Check -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="staff-has-background" onchange="toggleCertificationFields('background')">
+                        Background Check (Required by Texas §745.621)
+                    </label>
+                    <div id="background-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select id="staff-background-status" class="form-input">
+                                <option value="">Select status...</option>
+                                <option value="cleared">Cleared</option>
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="expired">Expired</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Completion Date</label>
+                            <input id="staff-background-date" type="date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Check Types Completed</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="staff-bg-dfps">
+                                    <span>DFPS Central Registry</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="staff-bg-fbi">
+                                    <span>FBI Fingerprint Check</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="staff-bg-state">
+                                    <span>State Criminal History</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="staff-bg-sex-offender">
+                                    <span>Sex Offender Registry</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Expiration Date</label>
+                            <input id="staff-background-expiration" type="date" class="form-input">
+                        </div>
+                        <small class="form-help">Background checks must be updated every 2 years per Texas regulations</small>
+                    </div>
+                </div>
+
+                <!-- TB Test -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="staff-has-tb" onchange="toggleCertificationFields('tb')">
+                        TB Test/Screening (Required by §745.633)
+                    </label>
+                    <div id="tb-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                        <div class="form-group">
+                            <label class="form-label">Last Test Date</label>
+                            <input id="staff-tb-last-date" type="date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Test Result</label>
+                            <select id="staff-tb-result" class="form-input">
+                                <option value="">Select result...</option>
+                                <option value="negative">Negative</option>
+                                <option value="positive-treated">Positive (Treated)</option>
+                                <option value="exempt">Exempt (Chest X-Ray)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Next Test Due</label>
+                            <input id="staff-tb-next-due" type="date" class="form-input">
+                        </div>
+                        <small class="form-help">Annual TB screening required for all staff</small>
+                    </div>
+                </div>
+
+                <!-- Pre-service Training -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="staff-has-preservice" onchange="toggleCertificationFields('preservice')">
+                        Pre-Service Training (§745.1903 - 24 hours required)
+                    </label>
+                    <div id="preservice-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                        <div class="form-group">
+                            <label class="form-label">Hours Completed</label>
+                            <input id="staff-preservice-hours" type="number" class="form-input" placeholder="0-24" min="0" max="24">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Completion Date</label>
+                            <input id="staff-preservice-completion" type="date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Training Topics Covered</label>
+                            <textarea id="staff-preservice-topics" class="form-input" rows="3" placeholder="e.g., Child Development, Health & Safety, Nutrition..."></textarea>
+                        </div>
+                        <small class="form-help">24 hours of pre-service training required before working with children</small>
+                    </div>
+                </div>
+
+                <!-- Annual Training -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="staff-has-annual" onchange="toggleCertificationFields('annual')">
+                        Annual Training Progress (§745.1905 - 24 hours/year)
+                    </label>
+                    <div id="annual-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                        <div class="form-group">
+                            <label class="form-label">Current Year Hours Completed</label>
+                            <input id="staff-annual-hours" type="number" class="form-input" placeholder="0-24" min="0" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Training Year</label>
+                            <select id="staff-annual-year" class="form-input">
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                            </select>
+                        </div>
+                        <div style="margin-top: 12px; padding: 12px; background: var(--gray-50); border-radius: 6px; font-size: 13px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                <span>Progress:</span>
+                                <span><strong id="annual-progress-text">0 / 24 hours</strong></span>
+                            </div>
+                            <div style="height: 8px; background: var(--gray-200); border-radius: 4px; overflow: hidden;">
+                                <div id="annual-progress-bar" style="height: 100%; background: var(--success); width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <small class="form-help">24 hours of annual training required per calendar year</small>
+                    </div>
+                </div>
+
+                <!-- Health Statement -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <input type="checkbox" id="staff-has-health" onchange="toggleCertificationFields('health')">
+                        Health Statement (§745.631)
+                    </label>
+                    <div id="health-fields" style="display: none; margin-top: 12px; padding-left: 24px;">
+                        <div class="form-group">
+                            <label class="form-label">On File</label>
+                            <select id="staff-health-status" class="form-input">
+                                <option value="">Select status...</option>
+                                <option value="current">Current - On File</option>
+                                <option value="expired">Expired</option>
+                                <option value="pending">Pending Submission</option>
+                                <option value="missing">Missing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Statement Date</label>
+                            <input id="staff-health-date" type="date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Physician Name</label>
+                            <input id="staff-health-physician" type="text" class="form-input" placeholder="Dr. Name">
+                        </div>
+                        <small class="form-help">Health statement required within 30 days of employment, updated as needed</small>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-footer">

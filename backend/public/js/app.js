@@ -2798,6 +2798,41 @@ async function addStaff(event) {
                 type: document.getElementById('staff-cpr-type').value,
                 provider: document.getElementById('staff-cpr-provider').value.trim(),
                 expirationDate: document.getElementById('staff-cpr-expiration').value
+            },
+            backgroundCheck: {
+                has: document.getElementById('staff-has-background').checked,
+                status: document.getElementById('staff-background-status').value,
+                date: document.getElementById('staff-background-date').value,
+                expirationDate: document.getElementById('staff-background-expiration').value,
+                types: {
+                    dfps: document.getElementById('staff-bg-dfps')?.checked || false,
+                    fbi: document.getElementById('staff-bg-fbi')?.checked || false,
+                    state: document.getElementById('staff-bg-state')?.checked || false,
+                    sexOffender: document.getElementById('staff-bg-sex-offender')?.checked || false
+                }
+            },
+            tbTest: {
+                has: document.getElementById('staff-has-tb').checked,
+                lastDate: document.getElementById('staff-tb-last-date').value,
+                result: document.getElementById('staff-tb-result').value,
+                nextDue: document.getElementById('staff-tb-next-due').value
+            },
+            preServiceTraining: {
+                has: document.getElementById('staff-has-preservice').checked,
+                hours: document.getElementById('staff-preservice-hours').value,
+                completionDate: document.getElementById('staff-preservice-completion').value,
+                topics: document.getElementById('staff-preservice-topics').value.trim()
+            },
+            annualTraining: {
+                has: document.getElementById('staff-has-annual').checked,
+                currentHours: document.getElementById('staff-annual-hours').value,
+                year: document.getElementById('staff-annual-year').value
+            },
+            healthStatement: {
+                has: document.getElementById('staff-has-health').checked,
+                status: document.getElementById('staff-health-status').value,
+                date: document.getElementById('staff-health-date').value,
+                physician: document.getElementById('staff-health-physician').value.trim()
             }
         }
     };
@@ -2815,7 +2850,7 @@ async function addStaff(event) {
         document.getElementById('add-staff-form').reset();
 
         // Reset certification checkboxes and hide fields
-        ['cda', 'teaching', 'food', 'cpr'].forEach(type => {
+        ['cda', 'teaching', 'food', 'cpr', 'background', 'tb', 'preservice', 'annual', 'health'].forEach(type => {
             const checkbox = document.getElementById(`staff-has-${type}`);
             const fields = document.getElementById(`${type}-fields`);
             if (checkbox) checkbox.checked = false;
@@ -5112,6 +5147,36 @@ document.addEventListener('DOMContentLoaded', () => {
         textarea.addEventListener('input', function () {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+    }
+
+    // Annual training progress bar updater
+    const annualHoursInput = document.getElementById('staff-annual-hours');
+    if (annualHoursInput) {
+        annualHoursInput.addEventListener('input', function() {
+            const hours = parseInt(this.value) || 0;
+            const required = 24;
+            const percentage = Math.min((hours / required) * 100, 100);
+            
+            const progressBar = document.getElementById('annual-progress-bar');
+            const progressText = document.getElementById('annual-progress-text');
+            
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+                
+                // Change color based on progress
+                if (percentage >= 100) {
+                    progressBar.style.background = 'var(--success)';
+                } else if (percentage >= 75) {
+                    progressBar.style.background = 'var(--warning)';
+                } else {
+                    progressBar.style.background = 'var(--primary)';
+                }
+            }
+            
+            if (progressText) {
+                progressText.textContent = `${hours} / ${required} hours`;
+            }
         });
     }
 });
