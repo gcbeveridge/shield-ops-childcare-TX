@@ -58,6 +58,9 @@ app.use('/api', aiRoutes);
 // Serve static files from public folder - AFTER API routes
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve templates folder for CSV downloads
+app.use('/templates', express.static(path.join(__dirname, '..', 'templates')));
+
 // Catch-all for non-API routes - serve index.html for SPA
 app.use((req, res, next) => {
   if (!req.path.startsWith('/api')) {

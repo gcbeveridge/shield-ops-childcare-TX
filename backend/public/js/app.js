@@ -5153,17 +5153,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Annual training progress bar updater
     const annualHoursInput = document.getElementById('staff-annual-hours');
     if (annualHoursInput) {
-        annualHoursInput.addEventListener('input', function() {
+        annualHoursInput.addEventListener('input', function () {
             const hours = parseInt(this.value) || 0;
             const required = 24;
             const percentage = Math.min((hours / required) * 100, 100);
-            
+
             const progressBar = document.getElementById('annual-progress-bar');
             const progressText = document.getElementById('annual-progress-text');
-            
+
             if (progressBar) {
                 progressBar.style.width = percentage + '%';
-                
+
                 // Change color based on progress
                 if (percentage >= 100) {
                     progressBar.style.background = 'var(--success)';
@@ -5173,7 +5173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     progressBar.style.background = 'var(--primary)';
                 }
             }
-            
+
             if (progressText) {
                 progressText.textContent = `${hours} / ${required} hours`;
             }
