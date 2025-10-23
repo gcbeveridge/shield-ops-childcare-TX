@@ -165,6 +165,7 @@ CREATE TABLE training_completions (
 );
 
 -- Documents table
+-- Documents table
 CREATE TABLE documents (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
@@ -172,9 +173,15 @@ CREATE TABLE documents (
   category VARCHAR(100) NOT NULL,
   file_name VARCHAR(255) NOT NULL,
   file_path VARCHAR(500) NOT NULL,
+  file_size INTEGER,
+  mime_type VARCHAR(100),
+  storage_bucket VARCHAR(100) DEFAULT 'documents',
+  storage_path VARCHAR(500),
   uploaded_by VARCHAR(255) NOT NULL,
   uploaded_at TIMESTAMP DEFAULT NOW(),
   expiration_date DATE,
+  tags TEXT[],
+  description TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

@@ -1,51 +1,76 @@
-const db = require('../config/database');
-const Document = require('../models/Document');
-const path = require('path');
-const fs = require('fs').promises;
+const supabase = require('../config/supabase');
+const { v4: uuidv4 } = require('uuid');
+
+/**
+ * Document Controller - Supabase Storage Edition
+ * Uses Supabase Storage buckets for cloud-based file persistence
+ * 
+ * Files are stored in: documents/{facilityId}/{unique-filename}
+ * Metadata is stored in: documents table
+ */
 
 async function listDocuments(req, res) {
   try {
     const { facilityId } = req.params;
     const { category, expiringOnly } = req.query;
 
-    let documents = await db.list(`document:${facilityId}:`);
+    console.log('Fetching documents for facility:', facilityId);
 
-    documents = documents.map(doc => {
-      const docInstance = new Document(doc);
+    // Build query
+    let query = supabase
+      .from('documents')
+      .select('*')
+      .eq('facility_id', facilityId)
+      .order('created_at', { ascending: false });
+
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    const { data: documents, error } = await query;
+
+    if (error) {
+      console.error('Supabase error:', error);
+      throw error;
+    }
+
+    console.log('Documents fetched:', documents?.length || 0);
+
+    // Add expiration status to each document
+    const documentsWithStatus = documents.map(doc => {
+      const expirationStatus = getExpirationStatus(doc.expiration_date);
       return {
         ...doc,
-        expirationStatus: docInstance.getExpirationStatus()
+        expirationStatus
       };
     });
 
-    if (category) {
-      documents = documents.filter(doc => doc.category.toLowerCase() === category.toLowerCase());
-    }
-
+    // Filter by expiring status if requested
+    let filteredDocs = documentsWithStatus;
     if (expiringOnly === 'true') {
-      documents = documents.filter(doc => {
-        return doc.expirationStatus === 'expiring_soon' || doc.expirationStatus === 'expired';
-      });
+      filteredDocs = documentsWithStatus.filter(doc =>
+        doc.expirationStatus === 'expiring_soon' || doc.expirationStatus === 'expired'
+      );
     }
 
-    documents.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    const byCategory = documents.reduce((acc, doc) => {
+    // Group by category
+    const byCategory = filteredDocs.reduce((acc, doc) => {
       if (!acc[doc.category]) acc[doc.category] = [];
       acc[doc.category].push(doc);
       return acc;
     }, {});
 
-    const expiringCount = documents.filter(doc => {
-      return doc.expirationStatus === 'expiring_soon' || doc.expirationStatus === 'expired';
-    }).length;
+    // Calculate summary stats
+    const expiringCount = documentsWithStatus.filter(doc =>
+      doc.expirationStatus === 'expiring_soon' || doc.expirationStatus === 'expired'
+    ).length;
 
     res.json({
       success: true,
-      data: documents,
+      data: filteredDocs,
       byCategory,
       summary: {
-        total: documents.length,
+        total: filteredDocs.length,
         expiringSoon: expiringCount
       }
     });
@@ -53,7 +78,8 @@ async function listDocuments(req, res) {
     console.error('Error listing documents:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching documents'
+      message: 'Error fetching documents',
+      error: error.message
     });
   }
 }
@@ -70,45 +96,80 @@ async function uploadDocument(req, res) {
       });
     }
 
-    const document = new Document({
+    console.log('Uploading document to Supabase Storage:', {
       facilityId,
-      category,
-      name,
-      description,
       fileName: req.file.originalname,
-      filePath: req.file.path,
-      fileSize: req.file.size,
-      mimeType: req.file.mimetype,
-      uploadedBy: req.user?.name || req.user?.email || 'System',
-      expirationDate: expirationDate || null,
-      tags: tags ? (Array.isArray(tags) ? tags : tags.split(',').map(t => t.trim())) : []
+      size: req.file.size
     });
 
-    const errors = document.validate();
-    if (errors.length > 0) {
-      await fs.unlink(req.file.path);
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors
+    // Generate unique file path in storage
+    const fileExt = req.file.originalname.split('.').pop();
+    const fileName = `${Date.now()}-${uuidv4()}.${fileExt}`;
+    const storagePath = `${facilityId}/${fileName}`;
+
+    // Upload file to Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('documents')
+      .upload(storagePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false
       });
+
+    if (uploadError) {
+      console.error('Supabase storage upload error:', uploadError);
+      throw new Error(`Upload failed: ${uploadError.message}`);
     }
 
-    await db.set(`document:${facilityId}:${document.id}`, document.toJSON());
+    console.log('File uploaded to storage:', uploadData.path);
+
+    // Get public URL (even for private buckets, this gives the path)
+    const { data: urlData } = supabase.storage
+      .from('documents')
+      .getPublicUrl(storagePath);
+
+    // Save document metadata to database
+    const documentData = {
+      facility_id: facilityId,
+      name: name || req.file.originalname,
+      category: category || 'Other',
+      description: description || null,
+      file_name: req.file.originalname,
+      file_path: urlData.publicUrl, // Store full URL for reference
+      file_size: req.file.size,
+      mime_type: req.file.mimetype,
+      storage_bucket: 'documents',
+      storage_path: storagePath,
+      uploaded_by: req.user?.name || req.user?.email || 'System',
+      expiration_date: expirationDate || null,
+      tags: tags ? (Array.isArray(tags) ? tags : [tags]) : null
+    };
+
+    const { data: document, error: dbError } = await supabase
+      .from('documents')
+      .insert(documentData)
+      .select()
+      .single();
+
+    if (dbError) {
+      console.error('Database error saving document:', dbError);
+      // Attempt to delete the uploaded file
+      await supabase.storage.from('documents').remove([storagePath]);
+      throw new Error(`Database error: ${dbError.message}`);
+    }
+
+    console.log('Document metadata saved to database:', document.id);
 
     res.status(201).json({
       success: true,
-      message: 'Document uploaded successfully',
-      data: document.toJSON()
+      message: 'Document uploaded successfully to cloud storage',
+      data: document
     });
   } catch (error) {
     console.error('Error uploading document:', error);
-    if (req.file) {
-      await fs.unlink(req.file.path).catch(() => { });
-    }
     res.status(500).json({
       success: false,
-      message: 'Error uploading document'
+      message: 'Error uploading document',
+      error: error.message
     });
   }
 }
@@ -117,30 +178,34 @@ async function getDocument(req, res) {
   try {
     const { documentId } = req.params;
 
-    const document = await db.getByPrefix(`document:`, (key, value) => value.id === documentId);
+    const { data: document, error } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('id', documentId)
+      .single();
 
-    if (!document) {
+    if (error || !document) {
       return res.status(404).json({
         success: false,
         message: 'Document not found'
       });
     }
 
-    const docInstance = new Document(document);
-    const documentWithStatus = {
-      ...document,
-      expirationStatus: docInstance.getExpirationStatus()
-    };
+    const expirationStatus = getExpirationStatus(document.expiration_date);
 
     res.json({
       success: true,
-      data: documentWithStatus
+      data: {
+        ...document,
+        expirationStatus
+      }
     });
   } catch (error) {
     console.error('Error fetching document:', error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching document'
+      message: 'Error fetching document',
+      error: error.message
     });
   }
 }
@@ -149,37 +214,134 @@ async function downloadDocument(req, res) {
   try {
     const { documentId } = req.params;
 
-    const document = await db.getByPrefix(`document:`, (key, value) => value.id === documentId);
+    // Get document metadata from database
+    const { data: document, error: dbError } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('id', documentId)
+      .single();
 
-    if (!document) {
+    if (dbError || !document) {
       return res.status(404).json({
         success: false,
         message: 'Document not found'
       });
     }
 
-    try {
-      await fs.access(document.filePath);
-    } catch {
+    if (!document.storage_path) {
       return res.status(404).json({
         success: false,
-        message: 'File not found on server'
+        message: 'Document file path not found'
       });
     }
 
-    res.download(document.filePath, document.fileName);
+    console.log('Downloading file from storage:', document.storage_path);
+
+    // Download file from Supabase Storage
+    const { data: fileData, error: storageError } = await supabase.storage
+      .from('documents')
+      .download(document.storage_path);
+
+    if (storageError || !fileData) {
+      console.error('Storage download error:', storageError);
+      return res.status(404).json({
+        success: false,
+        message: 'File not found in storage',
+        error: storageError?.message
+      });
+    }
+
+    // Convert blob to buffer
+    const buffer = Buffer.from(await fileData.arrayBuffer());
+
+    // Set appropriate headers
+    res.setHeader('Content-Type', document.mime_type || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${document.file_name}"`);
+    res.setHeader('Content-Length', buffer.length);
+
+    // Send file
+    res.send(buffer);
   } catch (error) {
     console.error('Error downloading document:', error);
     res.status(500).json({
       success: false,
-      message: 'Error downloading document'
+      message: 'Error downloading document',
+      error: error.message
     });
   }
+}
+
+async function deleteDocument(req, res) {
+  try {
+    const { documentId } = req.params;
+
+    // Get document metadata
+    const { data: document, error: fetchError } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('id', documentId)
+      .single();
+
+    if (fetchError || !document) {
+      return res.status(404).json({
+        success: false,
+        message: 'Document not found'
+      });
+    }
+
+    // Delete file from storage
+    if (document.storage_path) {
+      const { error: storageError } = await supabase.storage
+        .from('documents')
+        .remove([document.storage_path]);
+
+      if (storageError) {
+        console.error('Error deleting file from storage:', storageError);
+        // Continue anyway to delete database record
+      }
+    }
+
+    // Delete database record
+    const { error: deleteError } = await supabase
+      .from('documents')
+      .delete()
+      .eq('id', documentId);
+
+    if (deleteError) {
+      throw new Error(`Database delete error: ${deleteError.message}`);
+    }
+
+    res.json({
+      success: true,
+      message: 'Document deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting document',
+      error: error.message
+    });
+  }
+}
+
+// Helper function to determine expiration status
+function getExpirationStatus(expirationDate) {
+  if (!expirationDate) return 'none';
+
+  const today = new Date();
+  const expDate = new Date(expirationDate);
+  const daysUntilExpiration = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+  if (daysUntilExpiration < 0) return 'expired';
+  if (daysUntilExpiration <= 30) return 'expiring_soon';
+  return 'valid';
 }
 
 module.exports = {
   listDocuments,
   uploadDocument,
   getDocument,
-  downloadDocument
+  downloadDocument,
+  deleteDocument
 };

@@ -1,8 +1,7 @@
 const multer = require('multer');
-const path = require('path');
 
-// Use memory storage for Supabase Storage uploads
-// Files are stored as Buffer objects in req.file.buffer
+// Configure multer for memory storage (files stored in memory as Buffer)
+// This is needed for Supabase Storage upload
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
