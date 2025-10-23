@@ -3,7 +3,8 @@
 -- ⚠️ WARNING: Only run this on a FRESH/EMPTY Supabase database
 -- ⚠️ This will DROP and recreate all tables, destroying existing data!
 
--- Enable UUID extension
+-- Enable UUID extension (use gen_random_uuid() which is built-in to Supabase/PostgreSQL 13+)
+-- uuid-ossp is also enabled as fallback
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ⚠️ DANGER: Drop existing tables (for clean migration)
@@ -23,7 +24,7 @@ DROP TABLE IF EXISTS facilities CASCADE;
 
 -- Facilities table
 CREATE TABLE facilities (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(255) NOT NULL,
   address JSONB NOT NULL,
   phone VARCHAR(20),
@@ -38,7 +39,7 @@ CREATE TABLE facilities (
 
 -- Users table
 CREATE TABLE users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -50,7 +51,7 @@ CREATE TABLE users (
 
 -- Staff table
 CREATE TABLE staff (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255),
@@ -64,7 +65,7 @@ CREATE TABLE staff (
 
 -- Incidents table
 CREATE TABLE incidents (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   type VARCHAR(50) NOT NULL,
   severity VARCHAR(20) NOT NULL,
@@ -82,7 +83,7 @@ CREATE TABLE incidents (
 
 -- Medications table
 CREATE TABLE medications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   child_name VARCHAR(255) NOT NULL,
   medication_name VARCHAR(255) NOT NULL,
@@ -101,7 +102,7 @@ CREATE TABLE medications (
 
 -- Medication logs table
 CREATE TABLE medication_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   medication_id UUID REFERENCES medications(id) ON DELETE CASCADE,
   administered_at TIMESTAMP NOT NULL,
   administered_by VARCHAR(255) NOT NULL,
@@ -112,7 +113,7 @@ CREATE TABLE medication_logs (
 
 -- Compliance items table
 CREATE TABLE compliance_items (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   requirement VARCHAR(255) NOT NULL,
   category VARCHAR(100) NOT NULL,
@@ -128,7 +129,7 @@ CREATE TABLE compliance_items (
 
 -- Daily checklists table
 CREATE TABLE daily_checklists (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   date DATE NOT NULL,
   task VARCHAR(255) NOT NULL,
@@ -143,7 +144,7 @@ CREATE TABLE daily_checklists (
 
 -- Training modules table
 CREATE TABLE training_modules (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   title VARCHAR(255) NOT NULL,
   description TEXT,
@@ -154,7 +155,7 @@ CREATE TABLE training_modules (
 
 -- Training completions table
 CREATE TABLE training_completions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
   staff_id UUID REFERENCES staff(id) ON DELETE CASCADE,
   completed_at TIMESTAMP NOT NULL,
@@ -165,7 +166,7 @@ CREATE TABLE training_completions (
 
 -- Documents table
 CREATE TABLE documents (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   name VARCHAR(255) NOT NULL,
   category VARCHAR(100) NOT NULL,
