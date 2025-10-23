@@ -586,6 +586,9 @@ async function login(event) {
             await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
             console.log('✅ Sidebar loaded after login');
         }
+        
+        // Update sidebar user info after login
+        updateSidebarUserInfo();
 
         updateFacilityInfo();
 
@@ -654,6 +657,9 @@ async function signup(event) {
             await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
             console.log('✅ Sidebar loaded after signup');
         }
+        
+        // Update sidebar user info after signup
+        updateSidebarUserInfo();
 
         updateFacilityInfo();
 
@@ -1318,6 +1324,31 @@ function updateBadge(badgeId, count) {
     }
 }
 
+// Update sidebar user info
+function updateSidebarUserInfo() {
+    if (!AppState.user) return;
+    
+    const userName = AppState.user.name || AppState.user.email.split('@')[0];
+    const userNameEl = document.getElementById('sidebar-user-name');
+    const userAvatarEl = document.getElementById('sidebar-user-avatar');
+    
+    if (userNameEl) {
+        userNameEl.textContent = userName;
+    }
+    
+    if (userAvatarEl) {
+        // Get initials from name
+        const nameParts = userName.split(' ');
+        let initials = '';
+        if (nameParts.length >= 2) {
+            initials = nameParts[0][0] + nameParts[1][0];
+        } else {
+            initials = userName.substring(0, 2);
+        }
+        userAvatarEl.textContent = initials.toUpperCase();
+    }
+}
+
 // Validate cached auth data on page load
 async function validateAuth() {
     console.log('🔍 validateAuth() called');
@@ -1363,6 +1394,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (sidebarContainer && !sidebarContainer.innerHTML.trim()) {
             await window.htmlLoader.loadInto('sidebar.html', '#sidebar-container');
             console.log('✅ Sidebar loaded on page load');
+            // Update sidebar user info after loading
+            updateSidebarUserInfo();
         }
 
         updateFacilityInfo();
