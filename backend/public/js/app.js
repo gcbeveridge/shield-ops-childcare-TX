@@ -5019,8 +5019,48 @@ function confirmDeleteDocument() {
 
 async function downloadDocument(docId) {
     try {
-        const data = await apiRequest(`/documents/${docId}/download`);
-        window.open(data.downloadUrl, '_blank');
+        // Create download URL with auth token
+        const downloadUrl = `${API_BASE_URL}/documents/${docId}/download`;
+        
+        // Fetch with auth token
+        const response = await fetch(downloadUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${AppState.token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Download failed: ${response.statusText}`);
+        }
+
+        // Get filename from Content-Disposition header if available
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = 'document';
+        if (contentDisposition) {
+            // Match both quoted and unquoted filenames
+            const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/i);
+            if (filenameMatch && filenameMatch[1]) {
+                filename = filenameMatch[1].replace(/['"]/g, '').trim();
+            }
+        }
+
+        // Get the blob data
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        showSuccess('Document downloaded successfully');
     } catch (error) {
         console.error('Failed to download document:', error);
         showError('Failed to download document');

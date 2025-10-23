@@ -74,6 +74,50 @@ BEGIN
     END IF;
 END $$;
 
+-- Add file_size column if not exists
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'documents' AND column_name = 'file_size'
+    ) THEN
+        ALTER TABLE documents ADD COLUMN file_size INTEGER;
+    END IF;
+END $$;
+
+-- Add mime_type column if not exists
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'documents' AND column_name = 'mime_type'
+    ) THEN
+        ALTER TABLE documents ADD COLUMN mime_type VARCHAR(100);
+    END IF;
+END $$;
+
+-- Add description column if not exists
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'documents' AND column_name = 'description'
+    ) THEN
+        ALTER TABLE documents ADD COLUMN description TEXT;
+    END IF;
+END $$;
+
+-- Add tags column if not exists
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'documents' AND column_name = 'tags'
+    ) THEN
+        ALTER TABLE documents ADD COLUMN tags TEXT[];
+    END IF;
+END $$;
+
 -- =====================================================
 -- VERIFICATION QUERY
 -- =====================================================
@@ -82,13 +126,13 @@ END $$;
 SELECT 
     'Storage bucket "documents" should be created in Supabase Dashboard > Storage' as step_1,
     'Run the CREATE POLICY statements above' as step_2,
-    'Columns storage_path and storage_bucket added to documents table' as step_3;
+    'All new columns added to documents table' as step_3;
 
 -- Check if columns were added
 SELECT column_name, data_type 
 FROM information_schema.columns 
 WHERE table_name = 'documents' 
-  AND column_name IN ('storage_path', 'storage_bucket')
+  AND column_name IN ('storage_path', 'storage_bucket', 'file_size', 'mime_type', 'description', 'tags')
 ORDER BY column_name;
 
 -- =====================================================
