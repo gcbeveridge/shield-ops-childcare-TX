@@ -3332,22 +3332,95 @@ function filterIncidents(type) {
 function toggleIncidentView(view) {
     console.log('Toggling incident view to:', view);
 
-    // Currently we only support table/list view
-    // Timeline view could be implemented later with a different visualization
+    const listView = document.getElementById('incidents-list-view');
+    const timelineView = document.getElementById('incidents-timeline-view');
+
+    if (view === 'list') {
+        listView.style.display = 'block';
+        timelineView.style.display = 'none';
+    } else if (view === 'timeline') {
+        listView.style.display = 'none';
+        timelineView.style.display = 'block';
+    }
 
     // Update button states
     const buttons = document.querySelectorAll('.cac-card-actions .cac-btn');
     buttons.forEach(btn => {
-        btn.classList.remove('cac-btn-primary');
-        btn.classList.add('cac-btn-secondary');
+        const btnText = btn.textContent.toLowerCase();
+        if (btnText.includes(view)) {
+            btn.classList.remove('cac-btn-secondary');
+            btn.classList.add('cac-btn-primary');
+        } else {
+            btn.classList.remove('cac-btn-primary');
+            btn.classList.add('cac-btn-secondary');
+        }
     });
+}
 
-    // Highlight active button
-    event.target.classList.remove('cac-btn-secondary');
-    event.target.classList.add('cac-btn-primary');
+async function exportIncidentReport() {
+    try {
+        showNotification('Preparing incident report...', 'info');
 
-    if (view === 'timeline') {
-        showNotification('Timeline view coming soon! Currently showing list view.', 'info');
+        // Get all incidents for the facility
+        const response = await apiRequest(`/facilities/${AppState.facility.id}/incidents`);
+        const incidents = response.data || response;
+
+        if (!incidents || incidents.length === 0) {
+            showError('No incidents to export');
+            return;
+        }
+
+        // Create CSV content
+        const headers = ['Date', 'Time', 'Child Name', 'Type', 'Severity', 'Location', 'Description', 'Immediate Actions', 'Reported By', 'Parent Notified', 'Parent Signed'];
+        
+        const csvRows = [headers.join(',')];
+
+        incidents.forEach(incident => {
+            const dateTime = new Date(incident.occurred_at || incident.dateTime);
+            const date = dateTime.toLocaleDateString();
+            const time = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
+            const reportedBy = incident.reported_by || incident.reportedBy || 'Unknown';
+            const immediateActions = incident.immediate_actions || incident.immediateActions || 'None';
+            const parentNotified = incident.parent_notified || incident.parentNotified ? 'Yes' : 'No';
+            const parentSigned = incident.parent_signature || incident.parentSignature ? 'Yes' : 'No';
+
+            const row = [
+                date,
+                time,
+                `"${childName}"`,
+                incident.type,
+                incident.severity,
+                `"${incident.location || ''}"`,
+                `"${incident.description.replace(/"/g, '""')}"`,
+                `"${immediateActions.replace(/"/g, '""')}"`,
+                `"${reportedBy}"`,
+                parentNotified,
+                parentSigned
+            ];
+
+            csvRows.push(row.join(','));
+        });
+
+        const csvContent = csvRows.join('\n');
+
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `incident-report-${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showSuccess(`✓ Exported ${incidents.length} incident report(s)`);
+    } catch (error) {
+        console.error('Failed to export incident report:', error);
+        showError('Failed to export incident report. Please try again.');
     }
 }
 
