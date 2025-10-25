@@ -3423,8 +3423,6 @@ function toggleIncidentView(view) {
 
 async function exportIncidentReport() {
     try {
-        showNotification('Preparing incident report...', 'info');
-
         // Get all incidents for the facility
         const response = await apiRequest(`/facilities/${AppState.facility.id}/incidents`);
         const incidents = response.data || response;
