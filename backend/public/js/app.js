@@ -3363,22 +3363,55 @@ function filterIncidents(type) {
 function toggleIncidentView(view) {
     console.log('Toggling incident view to:', view);
 
+    // Check if using new screen (with separate view containers) or old screen (single table)
     const listView = document.getElementById('incidents-list-view');
     const timelineView = document.getElementById('incidents-timeline-view');
+    const tableContainer = document.querySelector('#incidents .cac-table-container');
+    const incidentsCard = document.getElementById('incidents');
 
-    if (view === 'list') {
-        listView.style.display = 'block';
-        timelineView.style.display = 'none';
-    } else if (view === 'timeline') {
-        listView.style.display = 'none';
-        timelineView.style.display = 'block';
+    if (listView && timelineView) {
+        // New screen with separate containers
+        if (view === 'list') {
+            listView.style.display = 'block';
+            timelineView.style.display = 'none';
+        } else if (view === 'timeline') {
+            listView.style.display = 'none';
+            timelineView.style.display = 'block';
+        }
+    } else if (tableContainer && incidentsCard) {
+        // Old screen - create timeline container dynamically if needed
+        let timelineContainer = document.getElementById('incidents-timeline');
+        
+        if (view === 'list') {
+            // Show table, hide timeline
+            tableContainer.style.display = 'block';
+            if (timelineContainer) {
+                timelineContainer.style.display = 'none';
+            }
+        } else if (view === 'timeline') {
+            // Hide table, show/create timeline
+            tableContainer.style.display = 'none';
+            
+            if (!timelineContainer) {
+                // Create timeline container if it doesn't exist
+                timelineContainer = document.createElement('div');
+                timelineContainer.id = 'incidents-timeline';
+                timelineContainer.style.padding = '20px';
+                incidentsCard.appendChild(timelineContainer);
+                
+                // Reload the incident list to populate the timeline
+                loadIncidentList(currentIncidentFilter);
+            } else {
+                timelineContainer.style.display = 'block';
+            }
+        }
     }
 
     // Update button states
     const buttons = document.querySelectorAll('.cac-card-actions .cac-btn');
     buttons.forEach(btn => {
         const btnText = btn.textContent.toLowerCase();
-        if (btnText.includes(view)) {
+        if (btnText.includes(view) || (view === 'list' && btnText.includes('📋')) || (view === 'timeline' && btnText.includes('📅'))) {
             btn.classList.remove('cac-btn-secondary');
             btn.classList.add('cac-btn-primary');
         } else {
