@@ -3055,8 +3055,14 @@ async function viewIncidentDetails(incidentId) {
         const formattedDate = dateTime.toLocaleDateString();
         const formattedTime = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        // Get child name from either schema
+        // Get child name - database uses snake_case
         const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
+
+        // Get reported by - database uses snake_case
+        const reportedBy = incident.reported_by || incident.reportedBy || '—';
+
+        // Get immediate actions - database uses snake_case
+        const immediateActions = incident.immediate_actions || incident.immediateActions || 'None specified';
 
         // Get parent notification status (support both schemas)
         const parentNotified = incident.parent_notified !== undefined ? incident.parent_notified : incident.parentNotified;
@@ -3094,7 +3100,7 @@ async function viewIncidentDetails(incidentId) {
                     </div>
                     <div>
                         <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Reported By</label>
-                        <p style="font-size: 16px; margin-top: 4px;">${incident.reportedBy || '—'}</p>
+                        <p style="font-size: 16px; margin-top: 4px;">${reportedBy}</p>
                     </div>
                 </div>
                 
@@ -3105,7 +3111,7 @@ async function viewIncidentDetails(incidentId) {
                 
                 <div style="margin-bottom: 24px;">
                     <label style="font-size: 12px; color: var(--gray-600); text-transform: uppercase;">Immediate Action Taken</label>
-                    <p style="font-size: 15px; line-height: 1.6; margin-top: 8px; padding: 12px; background: var(--gray-50); border-radius: 8px;">${incident.immediateActions || 'None specified'}</p>
+                    <p style="font-size: 15px; line-height: 1.6; margin-top: 8px; padding: 12px; background: var(--gray-50); border-radius: 8px;">${immediateActions}</p>
                 </div>
                 
                 <!-- Parent Notification -->
@@ -3155,12 +3161,17 @@ function printIncidentReport() {
 
     // Create printable version
     const printWindow = window.open('', '_blank');
-    const dateTime = new Date(currentIncidentData.dateTime);
+    
+    // Support both schemas
+    const dateTime = new Date(currentIncidentData.occurred_at || currentIncidentData.dateTime);
+    const childName = currentIncidentData.child_info?.name || currentIncidentData.childInfo?.name || 'Unknown';
+    const reportedBy = currentIncidentData.reported_by || currentIncidentData.reportedBy || 'Unknown';
+    const immediateActions = currentIncidentData.immediate_actions || currentIncidentData.immediateActions || 'None';
 
     printWindow.document.write(`
         <html>
             <head>
-                <title>Incident Report - ${currentIncidentData.childInfo.name}</title>
+                <title>Incident Report - ${childName}</title>
                 <style>
                     body { font-family: Arial, sans-serif; padding: 40px; }
                     h1 { color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }
@@ -3174,7 +3185,7 @@ function printIncidentReport() {
                 <h1>Incident Report</h1>
                 <div class="section">
                     <div class="label">Child Name</div>
-                    <div class="value">${currentIncidentData.childInfo.name}</div>
+                    <div class="value">${childName}</div>
                 </div>
                 <div class="section">
                     <div class="label">Date & Time</div>
@@ -3190,11 +3201,11 @@ function printIncidentReport() {
                 </div>
                 <div class="section">
                     <div class="label">Immediate Action Taken</div>
-                    <div class="value">${currentIncidentData.immediateActions || 'None'}</div>
+                    <div class="value">${immediateActions}</div>
                 </div>
                 <div class="section">
                     <div class="label">Reported By</div>
-                    <div class="value">${currentIncidentData.reportedBy}</div>
+                    <div class="value">${reportedBy}</div>
                 </div>
                 <div class="signature-line">
                     Parent/Guardian Signature
@@ -3212,14 +3223,17 @@ function printIncidentReport() {
 function confirmDeleteIncident() {
     if (!currentIncidentData) return;
 
+    // Support both snake_case and camelCase
+    const childName = currentIncidentData.child_info?.name || currentIncidentData.childInfo?.name || 'this child';
+
     deleteContext = {
         type: 'incidents',
         id: currentIncidentData.id,
-        name: `incident for ${currentIncidentData.childInfo.name}`
+        name: `incident for ${childName}`
     };
 
     document.getElementById('delete-confirm-message').textContent =
-        `Are you sure you want to delete this incident report for ${currentIncidentData.childInfo.name}?`;
+        `Are you sure you want to delete this incident report for ${childName}?`;
 
     closeModal('incident-details');
     openModal('delete-confirm');
