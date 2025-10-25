@@ -2905,9 +2905,6 @@ let currentIncidentFilter = 'all';
 
 async function loadIncidentList(filter = 'all') {
     try {
-        // Show skeleton while loading
-        showTableSkeleton('#incidents .data-table', 5, 7);
-
         currentIncidentFilter = filter;
         let url = `/facilities/${AppState.facility.id}/incidents`;
         if (filter && filter !== 'all') {
@@ -2915,9 +2912,6 @@ async function loadIncidentList(filter = 'all') {
         }
 
         const response = await apiRequest(url);
-        const tbody = document.querySelector('#incidents .data-table tbody');
-        if (!tbody) return;
-
         const incidents = response.data || [];
 
         // Calculate and populate stats
@@ -2939,13 +2933,18 @@ async function loadIncidentList(filter = 'all') {
         const avgResponseTime = "< 15m";
 
         // Update stat cards
-        document.getElementById('incident-free-days').textContent = daysSafe;
-        document.getElementById('total-incidents').textContent = recentIncidents.length;
-        document.getElementById('pending-signatures').textContent = pendingSignatures;
-        document.getElementById('incident-response-time').textContent = avgResponseTime;
+        const incidentFreeDaysEl = document.getElementById('incident-free-days');
+        const totalIncidentsEl = document.getElementById('total-incidents');
+        const pendingSignaturesEl = document.getElementById('pending-signatures');
+        const incidentResponseTimeEl = document.getElementById('incident-response-time');
+        
+        if (incidentFreeDaysEl) incidentFreeDaysEl.textContent = daysSafe;
+        if (totalIncidentsEl) totalIncidentsEl.textContent = recentIncidents.length;
+        if (pendingSignaturesEl) pendingSignaturesEl.textContent = pendingSignatures;
+        if (incidentResponseTimeEl) incidentResponseTimeEl.textContent = avgResponseTime;
 
         // Calculate severity distribution
-        const severityCounts = { minor: 0, moderate: 0, critical: 0 };
+        const severityCounts = { minor: 0, moderate: 0, major: 0, critical: 0 };
         recentIncidents.forEach(inc => {
             const severity = (inc.severity || 'minor').toLowerCase();
             if (severityCounts.hasOwnProperty(severity)) {
@@ -2955,89 +2954,105 @@ async function loadIncidentList(filter = 'all') {
 
         // Update severity distribution cards
         const total = recentIncidents.length || 1; // Avoid division by zero
-        document.getElementById('severity-minor-count').textContent = severityCounts.minor;
-        document.getElementById('severity-minor-bar').style.width = `${(severityCounts.minor / total) * 100}%`;
-        document.getElementById('severity-moderate-count').textContent = severityCounts.moderate;
-        document.getElementById('severity-moderate-bar').style.width = `${(severityCounts.moderate / total) * 100}%`;
-        document.getElementById('severity-critical-count').textContent = severityCounts.critical;
-        document.getElementById('severity-critical-bar').style.width = `${(severityCounts.critical / total) * 100}%`;
+        
+        const criticalCountEl = document.getElementById('critical-count');
+        const criticalBarEl = document.getElementById('critical-bar');
+        const majorCountEl = document.getElementById('major-count');
+        const majorBarEl = document.getElementById('major-bar');
+        const moderateCountEl = document.getElementById('moderate-count');
+        const moderateBarEl = document.getElementById('moderate-bar');
+        const minorCountEl = document.getElementById('minor-count');
+        const minorBarEl = document.getElementById('minor-bar');
+        
+        if (criticalCountEl) criticalCountEl.textContent = severityCounts.critical;
+        if (criticalBarEl) criticalBarEl.style.width = `${(severityCounts.critical / total) * 100}%`;
+        if (majorCountEl) majorCountEl.textContent = severityCounts.major;
+        if (majorBarEl) majorBarEl.style.width = `${(severityCounts.major / total) * 100}%`;
+        if (moderateCountEl) moderateCountEl.textContent = severityCounts.moderate;
+        if (moderateBarEl) moderateBarEl.style.width = `${(severityCounts.moderate / total) * 100}%`;
+        if (minorCountEl) minorCountEl.textContent = severityCounts.minor;
+        if (minorBarEl) minorBarEl.style.width = `${(severityCounts.minor / total) * 100}%`;
 
-        // Check if empty and show professional empty state
+        // Update table view
+        const tbody = document.getElementById('incidents-table-body');
+        const timelineContainer = document.getElementById('incidents-timeline');
+        const emptyState = document.getElementById('incidents-empty');
+        
+        // Check if empty
         if (incidents.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" style="text-align: center; padding: 60px 20px;">
-                        <div style="max-width: 450px; margin: 0 auto;">
-                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.2; margin-bottom: 20px;">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg>
-                            <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">
-                                ${filter === 'all' ? 'No Incidents Reported' : `No ${filter} Incidents`}
-                            </h3>
-                            <p style="font-size: 14px; color: var(--gray-500); margin-bottom: 24px;">
-                                ${filter === 'all'
-                    ? 'Great news! No incidents have been reported yet. When incidents occur, they will be documented here for compliance and tracking.'
-                    : `No ${filter} incidents found. Try selecting "All Incidents" or report a new incident if needed.`}
-                            </p>
-                            ${filter === 'all' ? `
-                                <button class="btn btn-primary" onclick="openModal('report-incident')" style="padding: 10px 24px;">
-                                    <span style="margin-right: 8px;">📝</span> Report Incident
-                                </button>
-                            ` : ''}
-                        </div>
-                    </td>
-                </tr>
-            `;
+            if (tbody) tbody.innerHTML = '';
+            if (timelineContainer) timelineContainer.innerHTML = '';
+            if (emptyState) emptyState.style.display = 'block';
             return;
         }
 
-        tbody.innerHTML = incidents.map(incident => {
-            const date = new Date(incident.occurred_at || incident.dateTime);
-            const severityClass = incident.severity === 'critical' ? 'badge-danger' :
-                incident.severity === 'moderate' ? 'badge-warning' : 'badge-info';
-            const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
-            const parentSigned = incident.parent_signature || incident.parentSignature;
+        if (emptyState) emptyState.style.display = 'none';
 
-            return `
-                <tr style="transition: background-color 0.2s ease;">
-                    <td style="color: var(--gray-700);">${date.toLocaleDateString()}</td>
-                    <td><strong style="color: var(--gray-900);">${childName}</strong></td>
-                    <td><span class="badge ${incident.type === 'injury' ? 'badge-danger' : incident.type === 'illness' ? 'badge-warning' : 'badge-info'}">${incident.type.charAt(0).toUpperCase() + incident.type.slice(1)}</span></td>
-                    <td><span class="badge ${severityClass}">${incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)}</span></td>
-                    <td style="color: var(--gray-700);">${incident.description.substring(0, 50)}...</td>
-                    <td><span class="badge ${parentSigned ? 'badge-success' : 'badge-warning'}">${parentSigned ? 'Signed' : 'Pending'}</span></td>
-                    <td><button class="btn btn-sm btn-secondary" onclick="viewIncidentDetails('${incident.id}')">View</button></td>
-                </tr>
-            `;
-        }).join('');
+        // Populate table view
+        if (tbody) {
+            tbody.innerHTML = incidents.map(incident => {
+                const date = new Date(incident.occurred_at || incident.dateTime);
+                const severityClass = incident.severity === 'critical' ? 'badge-danger' :
+                    incident.severity === 'major' ? 'badge-warning' :
+                    incident.severity === 'moderate' ? 'badge-warning' : 'badge-info';
+                const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
+                const reportedBy = incident.reported_by || incident.reportedBy || 'Unknown';
+                const parentSigned = incident.parent_signature || incident.parentSignature;
 
-        // Make table sortable
-        makeSortable('#incidents .data-table');
+                return `
+                    <tr>
+                        <td>${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                        <td><strong>${childName}</strong></td>
+                        <td><span class="cac-badge cac-badge-${incident.type === 'injury' ? 'danger' : incident.type === 'illness' ? 'warning' : 'info'}">${incident.type.charAt(0).toUpperCase() + incident.type.slice(1)}</span></td>
+                        <td><span class="cac-badge ${severityClass}">${incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)}</span></td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${incident.description}</td>
+                        <td>${reportedBy}</td>
+                        <td><span class="cac-badge ${parentSigned ? 'cac-badge-success' : 'cac-badge-warning'}">${parentSigned ? 'Signed' : 'Pending'}</span></td>
+                        <td><button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="viewIncidentDetails('${incident.id}')">View</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Populate timeline view
+        if (timelineContainer) {
+            timelineContainer.innerHTML = incidents.map(incident => {
+                const date = new Date(incident.occurred_at || incident.dateTime);
+                const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
+                const reportedBy = incident.reported_by || incident.reportedBy || 'Unknown';
+                const parentSigned = incident.parent_signature || incident.parentSignature;
+                
+                const severityIcon = incident.severity === 'critical' ? '🔴' :
+                    incident.severity === 'major' ? '🟠' :
+                    incident.severity === 'moderate' ? '🟡' : '🟢';
+
+                return `
+                    <div class="cac-timeline-item">
+                        <div class="cac-timeline-marker ${incident.severity}"></div>
+                        <div class="cac-timeline-content">
+                            <div class="cac-timeline-header">
+                                <div>
+                                    <span class="cac-timeline-icon">${severityIcon}</span>
+                                    <strong>${childName}</strong> - ${incident.type.charAt(0).toUpperCase() + incident.type.slice(1)}
+                                    <span class="cac-badge cac-badge-${incident.severity === 'critical' ? 'danger' : incident.severity === 'major' ? 'warning' : incident.severity === 'moderate' ? 'warning' : 'info'}" style="margin-left: 8px;">${incident.severity}</span>
+                                </div>
+                                <span class="cac-timeline-time">${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <p class="cac-timeline-description">${incident.description}</p>
+                            <div class="cac-timeline-meta">
+                                <span>📍 ${incident.location || 'Location not specified'}</span>
+                                <span>👤 Reported by ${reportedBy}</span>
+                                <span>${parentSigned ? '✅ Parent Signed' : '⏳ Awaiting Signature'}</span>
+                            </div>
+                            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="viewIncidentDetails('${incident.id}')" style="margin-top: 12px;">View Details</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     } catch (error) {
         console.error('Failed to load incidents:', error);
         showError('Failed to load incident list');
-        const tbody = document.querySelector('#incidents .data-table tbody');
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" style="text-align: center; padding: 60px 20px;">
-                        <div style="max-width: 400px; margin: 0 auto;">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--danger); margin-bottom: 16px;">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="12"></line>
-                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                            </svg>
-                            <h3 style="font-size: 16px; font-weight: 600; color: var(--danger); margin-bottom: 8px;">Failed to Load Incidents</h3>
-                            <p style="font-size: 14px; color: var(--gray-600); margin-bottom: 16px;">There was an error loading incidents. Please try again.</p>
-                            <button class="btn btn-secondary" onclick="loadIncidentList('${currentIncidentFilter || 'all'}')" style="padding: 8px 20px;">
-                                <span style="margin-right: 6px;">🔄</span> Retry
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
     }
 }
 
