@@ -2973,14 +2973,31 @@ async function loadIncidentList(filter = 'all') {
         if (minorCountEl) minorCountEl.textContent = severityCounts.minor;
         if (minorBarEl) minorBarEl.style.width = `${(severityCounts.minor / total) * 100}%`;
 
-        // Update table view
-        const tbody = document.getElementById('incidents-table-body');
+        // Update table view - support both old and new incident screens
+        const tbody = document.getElementById('incidents-table-body') || document.querySelector('#incidents .data-table tbody');
         const timelineContainer = document.getElementById('incidents-timeline');
         const emptyState = document.getElementById('incidents-empty');
 
         // Check if empty
         if (incidents.length === 0) {
-            if (tbody) tbody.innerHTML = '';
+            if (tbody) {
+                // Show empty state in table
+                const colspan = tbody.closest('table')?.querySelectorAll('thead th').length || 7;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${colspan}" style="text-align: center; padding: 60px 20px;">
+                            <div style="max-width: 450px; margin: 0 auto;">
+                                <h3 style="font-size: 18px; font-weight: 600; color: var(--gray-700); margin-bottom: 8px;">
+                                    No Incidents Reported
+                                </h3>
+                                <p style="font-size: 14px; color: var(--gray-500); margin-bottom: 24px;">
+                                    Great news! No incidents have been reported yet.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
             if (timelineContainer) timelineContainer.innerHTML = '';
             if (emptyState) emptyState.style.display = 'block';
             return;
@@ -3001,14 +3018,13 @@ async function loadIncidentList(filter = 'all') {
 
                 return `
                     <tr>
-                        <td>${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                        <td>${date.toLocaleDateString()}</td>
                         <td><strong>${childName}</strong></td>
-                        <td><span class="cac-badge cac-badge-${incident.type === 'injury' ? 'danger' : incident.type === 'illness' ? 'warning' : 'info'}">${incident.type.charAt(0).toUpperCase() + incident.type.slice(1)}</span></td>
-                        <td><span class="cac-badge ${severityClass}">${incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)}</span></td>
+                        <td><span class="badge ${incident.type === 'injury' ? 'badge-danger' : incident.type === 'illness' ? 'badge-warning' : 'badge-info'}">${incident.type.charAt(0).toUpperCase() + incident.type.slice(1)}</span></td>
+                        <td><span class="badge ${severityClass}">${incident.severity.charAt(0).toUpperCase() + incident.severity.slice(1)}</span></td>
                         <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${incident.description}</td>
-                        <td>${reportedBy}</td>
-                        <td><span class="cac-badge ${parentSigned ? 'cac-badge-success' : 'cac-badge-warning'}">${parentSigned ? 'Signed' : 'Pending'}</span></td>
-                        <td><button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="viewIncidentDetails('${incident.id}')">View</button></td>
+                        <td><span class="badge ${parentSigned ? 'badge-success' : 'badge-warning'}">${parentSigned ? 'Signed' : 'Pending'}</span></td>
+                        <td><button class="btn btn-sm btn-secondary" onclick="viewIncidentDetails('${incident.id}')">View</button></td>
                     </tr>
                 `;
             }).join('');
