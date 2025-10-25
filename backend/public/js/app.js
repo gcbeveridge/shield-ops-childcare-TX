@@ -2937,7 +2937,7 @@ async function loadIncidentList(filter = 'all') {
         const totalIncidentsEl = document.getElementById('total-incidents');
         const pendingSignaturesEl = document.getElementById('pending-signatures');
         const incidentResponseTimeEl = document.getElementById('incident-response-time');
-        
+
         if (incidentFreeDaysEl) incidentFreeDaysEl.textContent = daysSafe;
         if (totalIncidentsEl) totalIncidentsEl.textContent = recentIncidents.length;
         if (pendingSignaturesEl) pendingSignaturesEl.textContent = pendingSignatures;
@@ -2954,7 +2954,7 @@ async function loadIncidentList(filter = 'all') {
 
         // Update severity distribution cards
         const total = recentIncidents.length || 1; // Avoid division by zero
-        
+
         const criticalCountEl = document.getElementById('critical-count');
         const criticalBarEl = document.getElementById('critical-bar');
         const majorCountEl = document.getElementById('major-count');
@@ -2963,7 +2963,7 @@ async function loadIncidentList(filter = 'all') {
         const moderateBarEl = document.getElementById('moderate-bar');
         const minorCountEl = document.getElementById('minor-count');
         const minorBarEl = document.getElementById('minor-bar');
-        
+
         if (criticalCountEl) criticalCountEl.textContent = severityCounts.critical;
         if (criticalBarEl) criticalBarEl.style.width = `${(severityCounts.critical / total) * 100}%`;
         if (majorCountEl) majorCountEl.textContent = severityCounts.major;
@@ -2977,7 +2977,7 @@ async function loadIncidentList(filter = 'all') {
         const tbody = document.getElementById('incidents-table-body');
         const timelineContainer = document.getElementById('incidents-timeline');
         const emptyState = document.getElementById('incidents-empty');
-        
+
         // Check if empty
         if (incidents.length === 0) {
             if (tbody) tbody.innerHTML = '';
@@ -2994,7 +2994,7 @@ async function loadIncidentList(filter = 'all') {
                 const date = new Date(incident.occurred_at || incident.dateTime);
                 const severityClass = incident.severity === 'critical' ? 'badge-danger' :
                     incident.severity === 'major' ? 'badge-warning' :
-                    incident.severity === 'moderate' ? 'badge-warning' : 'badge-info';
+                        incident.severity === 'moderate' ? 'badge-warning' : 'badge-info';
                 const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
                 const reportedBy = incident.reported_by || incident.reportedBy || 'Unknown';
                 const parentSigned = incident.parent_signature || incident.parentSignature;
@@ -3021,10 +3021,10 @@ async function loadIncidentList(filter = 'all') {
                 const childName = incident.child_info?.name || incident.childInfo?.name || 'Unknown';
                 const reportedBy = incident.reported_by || incident.reportedBy || 'Unknown';
                 const parentSigned = incident.parent_signature || incident.parentSignature;
-                
+
                 const severityIcon = incident.severity === 'critical' ? '🔴' :
                     incident.severity === 'major' ? '🟠' :
-                    incident.severity === 'moderate' ? '🟡' : '🟢';
+                        incident.severity === 'moderate' ? '🟡' : '🟢';
 
                 return `
                     <div class="cac-timeline-item">
