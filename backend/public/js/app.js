@@ -3381,7 +3381,7 @@ function toggleIncidentView(view) {
     } else if (tableContainer && incidentsCard) {
         // Old screen - create timeline container dynamically if needed
         let timelineContainer = document.getElementById('incidents-timeline');
-        
+
         if (view === 'list') {
             // Show table, hide timeline
             tableContainer.style.display = 'block';
@@ -3391,14 +3391,14 @@ function toggleIncidentView(view) {
         } else if (view === 'timeline') {
             // Hide table, show/create timeline
             tableContainer.style.display = 'none';
-            
+
             if (!timelineContainer) {
                 // Create timeline container if it doesn't exist
                 timelineContainer = document.createElement('div');
                 timelineContainer.id = 'incidents-timeline';
                 timelineContainer.style.padding = '20px';
                 incidentsCard.appendChild(timelineContainer);
-                
+
                 // Reload the incident list to populate the timeline
                 loadIncidentList(currentIncidentFilter);
             } else {
