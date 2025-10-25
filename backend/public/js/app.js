@@ -3161,7 +3161,7 @@ function printIncidentReport() {
 
     // Create printable version
     const printWindow = window.open('', '_blank');
-    
+
     // Support both schemas
     const dateTime = new Date(currentIncidentData.occurred_at || currentIncidentData.dateTime);
     const childName = currentIncidentData.child_info?.name || currentIncidentData.childInfo?.name || 'Unknown';
@@ -3372,7 +3372,7 @@ async function exportIncidentReport() {
 
         // Create CSV content
         const headers = ['Date', 'Time', 'Child Name', 'Type', 'Severity', 'Location', 'Description', 'Immediate Actions', 'Reported By', 'Parent Notified', 'Parent Signed'];
-        
+
         const csvRows = [headers.join(',')];
 
         incidents.forEach(incident => {
@@ -3408,11 +3408,11 @@ async function exportIncidentReport() {
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        
+
         link.setAttribute('href', url);
         link.setAttribute('download', `incident-report-${new Date().toISOString().split('T')[0]}.csv`);
         link.style.visibility = 'hidden';
-        
+
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
