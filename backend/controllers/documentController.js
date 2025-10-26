@@ -275,6 +275,8 @@ async function deleteDocument(req, res) {
     try {
         const { documentId } = req.params;
 
+        console.log('Attempting to delete document:', documentId);
+
         // Get document metadata
         const { data: document, error: fetchError } = await supabase
             .from('documents')
@@ -282,22 +284,40 @@ async function deleteDocument(req, res) {
             .eq('id', documentId)
             .single();
 
-        if (fetchError || !document) {
+        if (fetchError) {
+            console.error('Error fetching document:', fetchError);
+            return res.status(404).json({
+                success: false,
+                message: 'Document not found',
+                error: fetchError.message
+            });
+        }
+
+        if (!document) {
             return res.status(404).json({
                 success: false,
                 message: 'Document not found'
             });
         }
 
-        // Delete file from storage
-        if (document.storage_path) {
-            const { error: storageError } = await supabase.storage
-                .from('documents')
-                .remove([document.storage_path]);
+        console.log('Document found, deleting from storage and database...');
 
-            if (storageError) {
-                console.error('Error deleting file from storage:', storageError);
-                // Continue anyway to delete database record
+        // Delete file from storage first
+        if (document.storage_path) {
+            try {
+                const { error: storageError } = await supabase.storage
+                    .from('documents')
+                    .remove([document.storage_path]);
+
+                if (storageError) {
+                    console.error('Error deleting file from storage:', storageError);
+                    // Continue anyway to delete database record
+                } else {
+                    console.log('File deleted from storage successfully');
+                }
+            } catch (storageErr) {
+                console.error('Storage deletion exception:', storageErr);
+                // Continue to delete database record
             }
         }
 
@@ -308,8 +328,15 @@ async function deleteDocument(req, res) {
             .eq('id', documentId);
 
         if (deleteError) {
-            throw new Error(`Database delete error: ${deleteError.message}`);
+            console.error('Database delete error:', deleteError);
+            return res.status(500).json({
+                success: false,
+                message: 'Error deleting document from database',
+                error: deleteError.message
+            });
         }
+
+        console.log('Document deleted successfully');
 
         res.json({
             success: true,

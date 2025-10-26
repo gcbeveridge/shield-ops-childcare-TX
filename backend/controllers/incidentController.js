@@ -182,9 +182,56 @@ async function addParentSignature(req, res) {
   }
 }
 
+async function deleteIncident(req, res) {
+  try {
+    const { incidentId } = req.params;
+
+    // First check if incident exists
+    const { data: incident, error: fetchError } = await supabase
+      .from('incidents')
+      .select('*')
+      .eq('id', incidentId)
+      .single();
+
+    if (fetchError || !incident) {
+      return res.status(404).json({
+        success: false,
+        message: 'Incident not found'
+      });
+    }
+
+    // Delete the incident
+    const { error: deleteError } = await supabase
+      .from('incidents')
+      .delete()
+      .eq('id', incidentId);
+
+    if (deleteError) {
+      console.error('Error deleting incident:', deleteError);
+      return res.status(500).json({
+        success: false,
+        message: 'Error deleting incident',
+        error: deleteError.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Incident deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting incident:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting incident'
+    });
+  }
+}
+
 module.exports = {
   getAllIncidents,
   createIncident,
   getIncidentById,
-  addParentSignature
+  addParentSignature,
+  deleteIncident
 };

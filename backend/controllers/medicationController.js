@@ -287,10 +287,57 @@ async function bulkImportMedications(req, res) {
   }
 }
 
+async function deleteMedication(req, res) {
+  try {
+    const { medicationId } = req.params;
+
+    // First check if medication exists
+    const { data: medication, error: fetchError } = await supabase
+      .from('medications')
+      .select('*')
+      .eq('id', medicationId)
+      .single();
+
+    if (fetchError || !medication) {
+      return res.status(404).json({
+        success: false,
+        message: 'Medication not found'
+      });
+    }
+
+    // Delete the medication
+    const { error: deleteError } = await supabase
+      .from('medications')
+      .delete()
+      .eq('id', medicationId);
+
+    if (deleteError) {
+      console.error('Error deleting medication:', deleteError);
+      return res.status(500).json({
+        success: false,
+        message: 'Error deleting medication',
+        error: deleteError.message
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Medication deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting medication:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting medication'
+    });
+  }
+}
+
 module.exports = {
   getActiveMedications,
   createMedication,
   administerDose,
   getMedicationDetails,
-  bulkImportMedications
+  bulkImportMedications,
+  deleteMedication
 };

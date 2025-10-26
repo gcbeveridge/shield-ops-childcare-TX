@@ -6,12 +6,14 @@ const {
   listDocuments,
   uploadDocument,
   getDocument,
-  downloadDocument
+  downloadDocument,
+  deleteDocument
 } = require('../controllers/documentController');
 
 router.get('/facilities/:facilityId/documents', authenticateToken, listDocuments);
 router.post('/facilities/:facilityId/documents/upload', authenticateToken, upload.single('file'), uploadDocument);
 router.get('/documents/:documentId', authenticateToken, getDocument);
 router.get('/documents/:documentId/download', authenticateToken, downloadDocument);
+router.delete('/documents/:documentId', authenticateToken, deleteDocument);
 
 module.exports = router;

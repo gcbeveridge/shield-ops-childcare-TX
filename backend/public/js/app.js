@@ -3076,8 +3076,12 @@ let currentIncidentData = null;
 
 async function viewIncidentDetails(incidentId) {
     try {
+        console.log('Loading incident with ID:', incidentId);
         const response = await apiRequest(`/incidents/${incidentId}`);
         currentIncidentData = response.data || response;
+        
+        console.log('Incident data loaded:', currentIncidentData);
+        console.log('Incident ID from data:', currentIncidentData.id);
 
         const incident = currentIncidentData;
 
@@ -3252,7 +3256,13 @@ function printIncidentReport() {
 }
 
 function confirmDeleteIncident() {
-    if (!currentIncidentData) return;
+    if (!currentIncidentData) {
+        console.error('No incident data available for deletion');
+        return;
+    }
+
+    console.log('Confirming delete for incident:', currentIncidentData);
+    console.log('Incident ID to delete:', currentIncidentData.id);
 
     // Support both snake_case and camelCase
     const childName = currentIncidentData.child_info?.name || currentIncidentData.childInfo?.name || 'this child';
@@ -3262,6 +3272,8 @@ function confirmDeleteIncident() {
         id: currentIncidentData.id,
         name: `incident for ${childName}`
     };
+
+    console.log('Delete context set:', deleteContext);
 
     document.getElementById('delete-confirm-message').textContent =
         `Are you sure you want to delete this incident report for ${childName}?`;
@@ -4552,14 +4564,18 @@ function administerFromDetails() {
 function confirmDeleteMedication() {
     if (!currentMedicationData) return;
 
+    // Handle both snake_case (Supabase) and camelCase formats
+    const childName = currentMedicationData.child_name || currentMedicationData.childName || 'Unknown Child';
+    const medicationName = currentMedicationData.medication_name || currentMedicationData.medicationName || 'Unknown Medication';
+
     deleteContext = {
         type: 'medications',
         id: currentMedicationData.id,
-        name: `${currentMedicationData.medicationName} for ${currentMedicationData.childInfo.name}`
+        name: `${medicationName} for ${childName}`
     };
 
     document.getElementById('delete-confirm-message').textContent =
-        `Are you sure you want to delete the medication authorization for ${currentMedicationData.medicationName}?`;
+        `Are you sure you want to delete the medication authorization for ${medicationName}?`;
 
     closeModal('medication-details');
     openModal('delete-confirm');

@@ -6,7 +6,8 @@ const {
   createMedication,
   administerDose,
   getMedicationDetails,
-  bulkImportMedications
+  bulkImportMedications,
+  deleteMedication
 } = require('../controllers/medicationController');
 
 router.get('/facilities/:facilityId/medications', authenticateToken, getActiveMedications);
@@ -14,5 +15,6 @@ router.post('/facilities/:facilityId/medications', authenticateToken, createMedi
 router.post('/facilities/:facilityId/medications/bulk', authenticateToken, bulkImportMedications);
 router.post('/medications/:medicationId/administer', authenticateToken, administerDose);
 router.get('/medications/:medicationId', authenticateToken, getMedicationDetails);
+router.delete('/medications/:medicationId', authenticateToken, deleteMedication);
 
 module.exports = router;
