@@ -3079,7 +3079,7 @@ async function viewIncidentDetails(incidentId) {
         console.log('Loading incident with ID:', incidentId);
         const response = await apiRequest(`/incidents/${incidentId}`);
         currentIncidentData = response.data || response;
-        
+
         console.log('Incident data loaded:', currentIncidentData);
         console.log('Incident ID from data:', currentIncidentData.id);
 
