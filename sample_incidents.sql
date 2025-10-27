@@ -46,7 +46,7 @@ INSERT INTO incidents (
   created_at,
   updated_at
 ) VALUES (
-  'your-facility-id-here',
+  '00000000-0000-0000-0000-000000000001',
   'Medical',
   'critical',
   '{"name": "Marcus Thompson", "age": "3 years", "classroom": "Toddler Room A", "allergies": "wheat"}'::jsonb,

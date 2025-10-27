@@ -3368,11 +3368,11 @@ function filterIncidents() {
 
     // Get all incidents from the current loaded data
     const rows = document.querySelectorAll('#incidents tbody tr');
-    
+
     rows.forEach(row => {
         // Skip empty state rows
         if (row.querySelector('td[colspan]')) return;
-        
+
         const cells = row.querySelectorAll('td');
         if (cells.length < 6) return;
 
@@ -3381,10 +3381,10 @@ function filterIncidents() {
         const typeText = cells[2].textContent.trim().toLowerCase();
         const severityText = cells[3].textContent.trim().toLowerCase();
         const statusText = cells[5].textContent.trim().toLowerCase();
-        
+
         const incidentDate = new Date(dateText);
         const now = new Date();
-        
+
         // Apply time filter
         let timeMatch = true;
         if (timeFilter === '7days') {
@@ -3397,13 +3397,13 @@ function filterIncidents() {
             const ninetyDaysAgo = new Date(now.getTime() - (90 * 24 * 60 * 60 * 1000));
             timeMatch = incidentDate >= ninetyDaysAgo;
         }
-        
+
         // Apply severity filter
         const severityMatch = severityFilter === 'all' || severityText.includes(severityFilter.toLowerCase());
-        
+
         // Apply type filter
         const typeMatch = typeFilter === 'all' || typeText.includes(typeFilter.toLowerCase());
-        
+
         // Apply status filter
         let statusMatch = true;
         if (statusFilter === 'signed') {
@@ -3411,7 +3411,7 @@ function filterIncidents() {
         } else if (statusFilter === 'pending') {
             statusMatch = statusText.includes('pending');
         }
-        
+
         // Show/hide row based on all filters
         if (timeMatch && severityMatch && typeMatch && statusMatch) {
             row.style.display = '';
@@ -3419,12 +3419,12 @@ function filterIncidents() {
             row.style.display = 'none';
         }
     });
-    
+
     // Count visible rows
-    const visibleRows = Array.from(rows).filter(row => 
+    const visibleRows = Array.from(rows).filter(row =>
         row.style.display !== 'none' && !row.querySelector('td[colspan]')
     ).length;
-    
+
     console.log(`Filtered: ${visibleRows} incidents visible`);
 }
 
