@@ -1,172 +1,185 @@
 <!-- Hidden file input for smart import -->
-<input type="file" id="smart-import-file" style="display: none;" 
-  accept=".csv,.xlsx,.xls,.pdf,.txt"
-  onchange="handleSmartImportFile(event)">
+<input type="file" id="smart-import-file" style="display: none;" accept=".csv,.xlsx,.xls,.pdf,.txt"
+    onchange="handleSmartImportFile(event)">
 
 <!-- Smart Import Welcome Modal -->
 <div id="smart-import-welcome" class="modal">
-  <div class="modal-content" style="max-width: 550px;">
-    <div class="modal-header">
-      <h2 style="font-size: 1.4rem;">
-        <span style="font-size: 1.6rem;">🤖</span> AI-Powered Smart Import
-      </h2>
-      <span class="modal-close" onclick="closeModal('smart-import-welcome')">&times;</span>
-    </div>
-    <div class="modal-body" style="padding: 25px;">
-      <div style="margin-bottom: 20px;">
-        <p style="font-size: 1rem; color: var(--gray-700); line-height: 1.6; margin-bottom: 15px;">
-          Upload any file format and our AI will intelligently extract and organize your data!
-        </p>
-      </div>
-
-      <!-- Supported Formats -->
-      <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.02)); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--gray-800);">
-          📁 Supported Formats
-        </h3>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.9rem;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.2rem;">📊</span>
-            <span>CSV & Excel Files</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.2rem;">📄</span>
-            <span>PDF Documents</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.2rem;">📝</span>
-            <span>Text Files</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 1.2rem;">✨</span>
-            <span>Any Format!</span>
-          </div>
+    <div class="modal-content" style="max-width: 550px;">
+        <div class="modal-header">
+            <h2 style="font-size: 1.4rem;">
+                <span style="font-size: 1.6rem;">🤖</span> AI-Powered Smart Import
+            </h2>
+            <span class="modal-close" onclick="closeModal('smart-import-welcome')">&times;</span>
         </div>
-      </div>
+        <div class="modal-body" style="padding: 25px;">
+            <div style="margin-bottom: 20px;">
+                <p style="font-size: 1rem; color: var(--gray-700); line-height: 1.6; margin-bottom: 15px;">
+                    Upload any file format and our AI will intelligently extract and organize your data!
+                </p>
+            </div>
 
-      <!-- How It Works -->
-      <div style="background: var(--gray-50); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-        <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--gray-800);">
-          ⚡ How It Works
-        </h3>
-        <ol style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.8; color: var(--gray-700);">
-          <li>Upload your file (any format)</li>
-          <li>AI extracts and structures the data</li>
-          <li>Review and edit before importing</li>
-          <li>Import with one click!</li>
-        </ol>
-      </div>
+            <!-- Supported Formats -->
+            <div
+                style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(99, 102, 241, 0.02)); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--gray-800);">
+                    📁 Supported Formats
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.9rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">📊</span>
+                        <span>CSV & Excel Files</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">📄</span>
+                        <span>PDF Documents</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">📝</span>
+                        <span>Text Files</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.2rem;">✨</span>
+                        <span>Any Format!</span>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Sample Files -->
-      <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.02)); border-radius: 12px; padding: 15px;">
-        <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">
-          <strong>💡 Pro Tip:</strong> Want to test? Check the <code style="background: var(--gray-800); color: var(--gray-100); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">templates/</code> folder for sample files!
-        </p>
-      </div>
+            <!-- How It Works -->
+            <div style="background: var(--gray-50); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; color: var(--gray-800);">
+                    ⚡ How It Works
+                </h3>
+                <ol style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.8; color: var(--gray-700);">
+                    <li>Upload your file (any format)</li>
+                    <li>AI extracts and structures the data</li>
+                    <li>Review and edit before importing</li>
+                    <li>Import with one click!</li>
+                </ol>
+            </div>
+
+            <!-- Sample Files -->
+            <div
+                style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.02)); border-radius: 12px; padding: 15px;">
+                <p style="margin: 0; font-size: 0.85rem; color: var(--gray-600);">
+                    <strong>💡 Pro Tip:</strong> Want to test? Check the <code
+                        style="background: var(--gray-800); color: var(--gray-100); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem;">templates/</code>
+                    folder for sample files!
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer"
+            style="padding: 15px 25px; border-top: 1px solid var(--gray-200); background: var(--gray-50);">
+            <button class="cac-btn cac-btn-secondary" onclick="closeModal('smart-import-welcome')">
+                Cancel
+            </button>
+            <button class="cac-btn cac-btn-success" onclick="selectSmartImportFile()"
+                style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <span>📤</span> Choose File
+            </button>
+        </div>
     </div>
-    <div class="modal-footer" style="padding: 15px 25px; border-top: 1px solid var(--gray-200); background: var(--gray-50);">
-      <button class="cac-btn cac-btn-secondary" onclick="closeModal('smart-import-welcome')">
-        Cancel
-      </button>
-      <button class="cac-btn cac-btn-success" onclick="selectSmartImportFile()" 
-        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-        <span>📤</span> Choose File
-      </button>
-    </div>
-  </div>
 </div>
 
 <!-- Processing Modal -->
 <div id="smart-import-processing" class="modal">
-  <div class="modal-content" style="max-width: 400px; text-align: center;">
-    <div style="padding: 40px 20px;">
-      <div id="processing-spinner" class="spinner" style="margin: 0 auto 20px; width: 50px; height: 50px;"></div>
-      <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Processing Your File</h3>
-      <p id="processing-status-text" style="color: var(--gray-600); font-size: 0.95rem;">
-        Uploading...
-      </p>
-      <div style="margin-top: 20px; padding: 15px; background: var(--gray-50); border-radius: 8px; font-size: 0.85rem; color: var(--gray-600);">
-        <strong>💡 Pro Tip:</strong> Our AI can read messy spreadsheets, PDFs, and even handwritten rosters!
-      </div>
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div style="padding: 40px 20px;">
+            <div id="processing-spinner" class="spinner" style="margin: 0 auto 20px; width: 50px; height: 50px;"></div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Processing Your File</h3>
+            <p id="processing-status-text" style="color: var(--gray-600); font-size: 0.95rem;">
+                Uploading...
+            </p>
+            <div
+                style="margin-top: 20px; padding: 15px; background: var(--gray-50); border-radius: 8px; font-size: 0.85rem; color: var(--gray-600);">
+                <strong>💡 Pro Tip:</strong> Our AI can read messy spreadsheets, PDFs, and even handwritten rosters!
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- Verification Modal -->
 <div id="smart-import-verify" class="modal">
-  <div class="modal-content" style="max-width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
-    <div class="modal-header">
-      <h2 id="verify-title">Verify Data</h2>
-      <span class="modal-close" onclick="cancelSmartImport()">&times;</span>
-    </div>
-    <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 20px;">
-      <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.05)); border-left: 4px solid var(--primary-blue); border-radius: 8px;">
-        <p id="verify-subtitle" style="margin: 0; font-size: 0.95rem; color: var(--gray-700);">
-          Review the extracted data below. You can edit any field or remove incorrect rows.
-        </p>
-      </div>
+    <div class="modal-content"
+        style="max-width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="modal-header">
+            <h2 id="verify-title">Verify Data</h2>
+            <span class="modal-close" onclick="cancelSmartImport()">&times;</span>
+        </div>
+        <div class="modal-body" style="flex: 1; overflow-y: auto; padding: 20px;">
+            <div
+                style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.05)); border-left: 4px solid var(--primary-blue); border-radius: 8px;">
+                <p id="verify-subtitle" style="margin: 0; font-size: 0.95rem; color: var(--gray-700);">
+                    Review the extracted data below. You can edit any field or remove incorrect rows.
+                </p>
+            </div>
 
-      <!-- Staff Table (shown for staff imports) -->
-      <div id="staff-verify-table" style="overflow-x: auto;">
-        <table class="data-table cac-table" style="width: 100%; min-width: 800px;">
-          <thead>
-            <tr>
-              <th style="min-width: 200px;">Name *</th>
-              <th style="min-width: 150px;">Role</th>
-              <th style="min-width: 200px;">Email</th>
-              <th style="min-width: 150px;">Phone</th>
-              <th style="width: 100px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="verify-table-body">
-            <!-- Populated by JavaScript -->
-          </tbody>
-        </table>
-      </div>
+            <!-- Staff Table (shown for staff imports) -->
+            <div id="staff-verify-table" style="overflow-x: auto;">
+                <table class="data-table cac-table" style="width: 100%; min-width: 800px;">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 200px;">Name *</th>
+                            <th style="min-width: 150px;">Role</th>
+                            <th style="min-width: 200px;">Email</th>
+                            <th style="min-width: 150px;">Phone</th>
+                            <th style="width: 100px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="verify-table-body">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer"
+            style="padding: 15px 20px; border-top: 1px solid var(--gray-200); background: var(--gray-50);">
+            <button class="cac-btn cac-btn-secondary" onclick="cancelSmartImport()">
+                Cancel
+            </button>
+            <button id="confirm-smart-import-btn" class="cac-btn cac-btn-success" onclick="confirmSmartImport()">
+                ✓ Import All
+            </button>
+        </div>
     </div>
-    <div class="modal-footer" style="padding: 15px 20px; border-top: 1px solid var(--gray-200); background: var(--gray-50);">
-      <button class="cac-btn cac-btn-secondary" onclick="cancelSmartImport()">
-        Cancel
-      </button>
-      <button id="confirm-smart-import-btn" class="cac-btn cac-btn-success" onclick="confirmSmartImport()">
-        ✓ Import All
-      </button>
-    </div>
-  </div>
 </div>
 
 <style>
-  .spinner {
-    border: 4px solid var(--gray-200);
-    border-top: 4px solid var(--primary-blue);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
+    .spinner {
+        border: 4px solid var(--gray-200);
+        border-top: 4px solid var(--primary-blue);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
 
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
 
-  #verify-table-body input.cac-input {
-    width: 100%;
-    padding: 6px 10px;
-    font-size: 0.85rem;
-    border: 1px solid var(--gray-300);
-    border-radius: 4px;
-  }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 
-  #verify-table-body input.cac-input:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+    #verify-table-body input.cac-input {
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+        border: 1px solid var(--gray-300);
+        border-radius: 4px;
+    }
 
-  #verify-table-body tr {
-    transition: background-color 0.2s;
-  }
+    #verify-table-body input.cac-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
 
-  #verify-table-body tr:hover {
-    background-color: var(--gray-50);
-  }
+    #verify-table-body tr {
+        transition: background-color 0.2s;
+    }
+
+    #verify-table-body tr:hover {
+        background-color: var(--gray-50);
+    }
 </style>
