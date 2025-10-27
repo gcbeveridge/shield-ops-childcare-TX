@@ -438,7 +438,7 @@ async function bulkImportStaff(req, res) {
                     role: staff.role || 'Staff',
                     email: staff.email || null,
                     hire_date: staff.hireDate || new Date().toISOString().split('T')[0],
-                    certifications: staff.certifications 
+                    certifications: staff.certifications
                         ? (Array.isArray(staff.certifications) ? staff.certifications : [staff.certifications])
                         : [],
                     training_completion: staff.trainingCompletion || 0
