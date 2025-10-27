@@ -312,28 +312,10 @@ Output: Normalized to standard schema
 - ✅ Bulk import → All succeed
 - ✅ Partial failure → Error details shown
 
-## Troubleshooting
-
-### Common Issues
-
-**Issue:** AI returns empty array  
-**Solution:** File may be too complex or corrupt. Try CSV export.
-
-**Issue:** Parsing takes too long  
-**Solution:** Large files need more time. Add progress indicator.
-
-**Issue:** Wrong fields extracted  
-**Solution:** Improve prompt specificity or add examples.
-
-**Issue:** API key error  
-**Solution:** Check ANTHROPIC_API_KEY in environment variables.
-
----
-
 ## Cost Considerations
 
 ### Claude API Pricing
-- Model: claude-3-5-sonnet-20241022
+- Model: claude-4-1-sonnet-20251022
 - ~$3 per million input tokens
 - ~$15 per million output tokens
 
