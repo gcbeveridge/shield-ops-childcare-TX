@@ -1,30 +1,32 @@
 // Load environment variables first
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const autoSeedDB = require('./config/autoSeedDB');
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const autoSeedDB = require("./config/autoSeedDB");
 
-const authRoutes = require('./routes/auth');
-const dashboardRoutes = require('./routes/dashboard');
-const seedRoutes = require('./routes/seed');
-const staffRoutes = require('./routes/staff');
-const incidentRoutes = require('./routes/incidents');
-const medicationRoutes = require('./routes/medications');
-const complianceRoutes = require('./routes/compliance');
-const checklistRoutes = require('./routes/checklist');
-const trainingRoutes = require('./routes/training');
-const documentRoutes = require('./routes/documents');
-const aiRoutes = require('./routes/ai');
+const authRoutes = require("./routes/auth");
+const dashboardRoutes = require("./routes/dashboard");
+const seedRoutes = require("./routes/seed");
+const staffRoutes = require("./routes/staff");
+const incidentRoutes = require("./routes/incidents");
+const medicationRoutes = require("./routes/medications");
+const complianceRoutes = require("./routes/compliance");
+const checklistRoutes = require("./routes/checklist");
+const trainingRoutes = require("./routes/training");
+const documentRoutes = require("./routes/documents");
+const aiRoutes = require("./routes/ai");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 
@@ -33,49 +35,49 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({
-    status: 'ok',
+    status: "ok",
     timestamp: new Date().toISOString(),
-    service: 'Shield Ops Backend',
-    version: '1.0.0'
+    service: "Shield Ops Backend",
+    version: "1.0.0",
   });
 });
 
 // API Routes - MUST come before static files
-app.use('/api/auth', authRoutes);
-app.use('/api', dashboardRoutes);
-app.use('/api', seedRoutes);
-app.use('/api', staffRoutes);
-app.use('/api', incidentRoutes);
-app.use('/api', medicationRoutes);
-app.use('/api', complianceRoutes);
-app.use('/api', checklistRoutes);
-app.use('/api', trainingRoutes);
-app.use('/api', documentRoutes);
-app.use('/api', aiRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api", dashboardRoutes);
+app.use("/api", seedRoutes);
+app.use("/api", staffRoutes);
+app.use("/api", incidentRoutes);
+app.use("/api", medicationRoutes);
+app.use("/api", complianceRoutes);
+app.use("/api", checklistRoutes);
+app.use("/api", trainingRoutes);
+app.use("/api", documentRoutes);
+app.use("/api", aiRoutes);
 
 // Serve static files from public folder - AFTER API routes
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Serve templates folder for CSV downloads
-app.use('/templates', express.static(path.join(__dirname, '..', 'templates')));
+app.use("/templates", express.static(path.join(__dirname, "..", "templates")));
 
 // Catch-all for non-API routes - serve index.html for SPA
 app.use((req, res, next) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (!req.path.startsWith("/api") && !req.path.startsWith("/templates")) {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
   } else {
     next();
   }
 });
 
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error("Error:", err);
+  res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(PORT, '0.0.0.0', async () => {
+app.listen(PORT, "0.0.0.0", async () => {
   console.log(`\n🚀 Shield Ops Backend Server Running!`);
   console.log(`📍 Port: ${PORT}`);
   console.log(`🌐 Health Check: http://localhost:${PORT}/api/health`);
@@ -118,7 +120,9 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`   POST   /api/facilities/:id/compliance/:reqId/complete`);
   console.log(`\n  📋 Daily Checklist:`);
   console.log(`   GET    /api/facilities/:id/checklist/today`);
-  console.log(`   POST   /api/facilities/:id/checklist/today/tasks/:taskId/complete`);
+  console.log(
+    `   POST   /api/facilities/:id/checklist/today/tasks/:taskId/complete`,
+  );
   console.log(`   GET    /api/facilities/:id/checklist/week`);
   console.log(`\n  🎓 Training Hub:`);
   console.log(`   GET    /api/facilities/:id/training/modules`);
