@@ -303,34 +303,14 @@ Output: Normalized to standard schema
 5. ✅ File with incomplete data
 
 ### Test Scenarios
-- [ ] Upload supported format → Success
-- [ ] Upload unsupported format → Clear error
-- [ ] Parse clean data → All fields correct
-- [ ] Parse messy data → AI handles well
-- [ ] Edit in verification → Changes persist
-- [ ] Remove rows → Not imported
-- [ ] Bulk import → All succeed
-- [ ] Partial failure → Error details shown
-
----
-
-## Future Enhancements
-
-### Phase 2
-- [ ] Image/Photo parsing with OCR
-- [ ] Multi-page PDF handling
-- [ ] Drag & drop file upload
-- [ ] Parse from clipboard text
-- [ ] Template suggestions based on facility type
-
-### Phase 3
-- [ ] Batch processing (multiple files)
-- [ ] Smart duplicate detection
-- [ ] Auto-merge with existing records
-- [ ] Export template based on facility data
-- [ ] Schedule auto-imports (email integration)
-
----
+- ✅ Upload supported format → Success
+- ✅ Upload unsupported format → Clear error
+- ✅ Parse clean data → All fields correct
+- ✅ Parse messy data → AI handles well
+- ✅ Edit in verification → Changes persist
+- ✅ Remove rows → Not imported
+- ✅ Bulk import → All succeed
+- ✅ Partial failure → Error details shown
 
 ## Troubleshooting
 
@@ -391,15 +371,6 @@ Very cost-effective for the value provided!
 - ✅ Bulk import to Supabase
 - ✅ Error handling and user feedback
 - ✅ Clean, modern UI
-
-**Next Steps:**
-1. Add to package.json dependencies
-2. Include scripts in index.html
-3. Add buttons to staff/medication pages
-4. Set ANTHROPIC_API_KEY environment variable
-5. Test with real facility data
-
----
 
 ## Support
 
