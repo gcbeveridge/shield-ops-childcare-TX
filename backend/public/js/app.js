@@ -3299,10 +3299,12 @@ async function createIncident(event) {
     const time = document.getElementById('incident-time').value;
     const type = document.getElementById('incident-type').value;
     const childName = document.getElementById('incident-child-name').value.trim();
+    const childAge = document.getElementById('incident-child-age')?.value.trim() || '';
     const location = document.getElementById('incident-location').value.trim();
     const description = document.getElementById('incident-description').value.trim();
     const action = document.getElementById('incident-action').value.trim();
     const staff = document.getElementById('incident-staff').value.trim();
+    const severity = document.getElementById('incident-severity')?.value || 'moderate';
     const notifyParent = document.getElementById('incident-notify-parent').checked;
 
     // Validation
@@ -3322,10 +3324,9 @@ async function createIncident(event) {
 
     const incidentData = {
         type,
-        severity: 'moderate',
-        childInfo: {
-            name: childName
-        },
+        severity,
+        childName,
+        childAge,
         location,
         description,
         immediateActions: action,
