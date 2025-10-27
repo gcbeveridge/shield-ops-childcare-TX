@@ -1,10 +1,10 @@
 // Load environment variables first
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const autoSeedDB = require('./config/autoSeedDB');
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const autoSeedDB = require("./config/autoSeedDB");
 
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
@@ -22,10 +22,12 @@ const smartImportRoutes = require('./routes/smartImport');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 
@@ -34,12 +36,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/health', (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({
-    status: 'ok',
+    status: "ok",
     timestamp: new Date().toISOString(),
-    service: 'Shield Ops Backend',
-    version: '1.0.0'
+    service: "Shield Ops Backend",
+    version: "1.0.0",
   });
 });
 
@@ -58,39 +60,37 @@ app.use('/api', aiRoutes);
 app.use('/api', smartImportRoutes);
 
 // Serve static files from public folder - AFTER API routes
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Serve templates folder for CSV downloads
-app.use('/templates', express.static(path.join(__dirname, '..', 'templates')));
+app.use("/templates", express.static(path.join(__dirname, "..", "templates")));
 
 // Catch-all for non-API routes - serve index.html for SPA
 app.use((req, res, next) => {
-  if (!req.path.startsWith('/api')) {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (!req.path.startsWith("/api") && !req.path.startsWith("/templates")) {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
   } else {
     next();
   }
 });
 
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error("Error:", err);
+  res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(PORT, '0.0.0.0', async () => {
+app.listen(PORT, "0.0.0.0", async () => {
   console.log(`\n🚀 Shield Ops Backend Server Running!`);
   console.log(`📍 Port: ${PORT}`);
   console.log(`🌐 Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`✅ Using Supabase database (auto-seed disabled)`);
 
-  // Auto-seed disabled - using Supabase directly
-  // Database setup is handled via backend/scripts/setup-supabase.js
-  // try {
-  //   await autoSeedDB();
-  // } catch (error) {
-  //   console.error('⚠️  Auto-seed skipped due to database connection issue');
-  //   console.error('   Server will continue running, but database may need manual setup');
-  // }
+  // Auto-seed database with test data
+  try {
+    await autoSeedDB();
+  } catch (error) {
+    console.error('⚠️  Auto-seed skipped due to database connection issue');
+    console.error('   Server will continue running, but database may need manual setup');
+  }
   console.log(`\n📚 Available Endpoints:`);
   console.log(`\n  🔐 Authentication:`);
   console.log(`   POST   /api/auth/signup`);
@@ -120,7 +120,9 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`   POST   /api/facilities/:id/compliance/:reqId/complete`);
   console.log(`\n  📋 Daily Checklist:`);
   console.log(`   GET    /api/facilities/:id/checklist/today`);
-  console.log(`   POST   /api/facilities/:id/checklist/today/tasks/:taskId/complete`);
+  console.log(
+    `   POST   /api/facilities/:id/checklist/today/tasks/:taskId/complete`,
+  );
   console.log(`   GET    /api/facilities/:id/checklist/week`);
   console.log(`\n  🎓 Training Hub:`);
   console.log(`   GET    /api/facilities/:id/training/modules`);
