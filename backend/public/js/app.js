@@ -2952,17 +2952,17 @@ async function loadIncidentList(filter = 'all') {
             }
         });
 
-        // Update severity distribution cards
+        // Update severity distribution cards (with correct IDs including 'severity-' prefix)
         const total = recentIncidents.length || 1; // Avoid division by zero
 
-        const criticalCountEl = document.getElementById('critical-count');
-        const criticalBarEl = document.getElementById('critical-bar');
-        const majorCountEl = document.getElementById('major-count');
-        const majorBarEl = document.getElementById('major-bar');
-        const moderateCountEl = document.getElementById('moderate-count');
-        const moderateBarEl = document.getElementById('moderate-bar');
-        const minorCountEl = document.getElementById('minor-count');
-        const minorBarEl = document.getElementById('minor-bar');
+        const criticalCountEl = document.getElementById('severity-critical-count');
+        const criticalBarEl = document.getElementById('severity-critical-bar');
+        const majorCountEl = document.getElementById('severity-major-count');
+        const majorBarEl = document.getElementById('severity-major-bar');
+        const moderateCountEl = document.getElementById('severity-moderate-count');
+        const moderateBarEl = document.getElementById('severity-moderate-bar');
+        const minorCountEl = document.getElementById('severity-minor-count');
+        const minorBarEl = document.getElementById('severity-minor-bar');
 
         if (criticalCountEl) criticalCountEl.textContent = severityCounts.critical;
         if (criticalBarEl) criticalBarEl.style.width = `${(severityCounts.critical / total) * 100}%`;
@@ -3355,21 +3355,77 @@ async function createIncident(event) {
     }
 }
 
-function filterIncidents(type) {
-    console.log('Filtering incidents by type:', type);
+function filterIncidents() {
+    console.log('Filtering incidents...');
 
-    // Update active tab styling
-    const tabs = document.querySelectorAll('#incidents .tab');
-    tabs.forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.textContent.toLowerCase().includes(type) ||
-            (type === 'all' && tab.textContent.toLowerCase().includes('all'))) {
-            tab.classList.add('active');
+    // Get filter values from dropdowns
+    const timeFilter = document.getElementById('incident-time-filter')?.value || 'all';
+    const severityFilter = document.getElementById('incident-severity-filter')?.value || 'all';
+    const typeFilter = document.getElementById('incident-type-filter')?.value || 'all';
+    const statusFilter = document.getElementById('incident-status-filter')?.value || 'all';
+
+    console.log('Filter values:', { timeFilter, severityFilter, typeFilter, statusFilter });
+
+    // Get all incidents from the current loaded data
+    const rows = document.querySelectorAll('#incidents tbody tr');
+    
+    rows.forEach(row => {
+        // Skip empty state rows
+        if (row.querySelector('td[colspan]')) return;
+        
+        const cells = row.querySelectorAll('td');
+        if (cells.length < 6) return;
+
+        // Extract data from row
+        const dateText = cells[0].textContent.trim();
+        const typeText = cells[2].textContent.trim().toLowerCase();
+        const severityText = cells[3].textContent.trim().toLowerCase();
+        const statusText = cells[5].textContent.trim().toLowerCase();
+        
+        const incidentDate = new Date(dateText);
+        const now = new Date();
+        
+        // Apply time filter
+        let timeMatch = true;
+        if (timeFilter === '7days') {
+            const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+            timeMatch = incidentDate >= sevenDaysAgo;
+        } else if (timeFilter === '30days') {
+            const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+            timeMatch = incidentDate >= thirtyDaysAgo;
+        } else if (timeFilter === '90days') {
+            const ninetyDaysAgo = new Date(now.getTime() - (90 * 24 * 60 * 60 * 1000));
+            timeMatch = incidentDate >= ninetyDaysAgo;
+        }
+        
+        // Apply severity filter
+        const severityMatch = severityFilter === 'all' || severityText.includes(severityFilter.toLowerCase());
+        
+        // Apply type filter
+        const typeMatch = typeFilter === 'all' || typeText.includes(typeFilter.toLowerCase());
+        
+        // Apply status filter
+        let statusMatch = true;
+        if (statusFilter === 'signed') {
+            statusMatch = statusText.includes('signed');
+        } else if (statusFilter === 'pending') {
+            statusMatch = statusText.includes('pending');
+        }
+        
+        // Show/hide row based on all filters
+        if (timeMatch && severityMatch && typeMatch && statusMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
         }
     });
-
-    // Load filtered incidents
-    loadIncidentList(type.toLowerCase());
+    
+    // Count visible rows
+    const visibleRows = Array.from(rows).filter(row => 
+        row.style.display !== 'none' && !row.querySelector('td[colspan]')
+    ).length;
+    
+    console.log(`Filtered: ${visibleRows} incidents visible`);
 }
 
 function toggleIncidentView(view) {
