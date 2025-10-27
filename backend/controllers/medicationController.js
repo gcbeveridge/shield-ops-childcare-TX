@@ -333,11 +333,38 @@ async function deleteMedication(req, res) {
   }
 }
 
+async function getMedicationLogs(req, res) {
+  try {
+    const { facilityId } = req.params;
+    const { date } = req.query;
+
+    console.log(`Fetching medication logs for facility ${facilityId}, date: ${date || 'all'}`);
+
+    // TODO: Medication administration logs table not yet implemented
+    // For now, return empty array
+    console.log('⚠️  Medication logs table not yet created - returning empty array');
+
+    res.json({
+      success: true,
+      count: 0,
+      data: [],
+      message: 'Medication administration logging feature coming soon'
+    });
+  } catch (error) {
+    console.error('Error fetching medication logs:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching medication logs'
+    });
+  }
+}
+
 module.exports = {
   getActiveMedications,
   createMedication,
   administerDose,
   getMedicationDetails,
   bulkImportMedications,
-  deleteMedication
+  deleteMedication,
+  getMedicationLogs
 };

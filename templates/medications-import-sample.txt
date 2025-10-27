@@ -1,0 +1,35 @@
+MEDICATION AUTHORIZATION SAMPLE
+
+Patient: Emma Rodriguez
+Medication: Tylenol (Acetaminophen)
+Dosage: 5mg/kg
+Route: Oral  
+Frequency: Every 4-6 hours as needed for pain or fever over 100.4°F
+Start Date: October 1, 2025
+End Date: June 30, 2026
+Prescribed By: Dr. Sarah Chen, Pediatrics
+Instructions: Do not exceed 5 doses in 24 hours. Give with food or milk to prevent stomach upset.
+
+---
+
+Patient: Marcus Thompson
+Medication: Albuterol Inhaler
+Dosage: 2 puffs
+Route: Inhaled
+Frequency: As needed for wheezing or difficulty breathing
+Start Date: September 15, 2025
+End Date: September 15, 2026
+Prescribed By: Dr. Michael Johnson, Pulmonology
+Instructions: Use spacer device. Wait 1 minute between puffs. Notify parent immediately after use.
+
+---
+
+Patient: Olivia Davis  
+Medication: Amoxicillin Suspension
+Dosage: 10mL
+Route: Oral
+Frequency: Twice daily (morning and afternoon)
+Start Date: October 25, 2025
+End Date: November 5, 2025
+Prescribed By: Dr. Lisa Martinez, Family Medicine
+Instructions: Give full course even if symptoms improve. Store in refrigerator. Shake well before use.

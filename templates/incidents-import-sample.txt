@@ -1,0 +1,43 @@
+CHILDCARE INCIDENT REPORTS - SAMPLE DATA
+
+Incident Report #1
+-----------------
+Child: Emma Rodriguez
+Age: 4
+Type: Injury
+Severity: Minor
+Date: October 27, 2025
+Time: 10:30 AM
+Location: Playground
+Description: Child fell from slide, minor scrape on left knee
+Action Taken: Applied first aid, bandaged scrape, ice pack provided, parent notified immediately
+Witnesses: Sarah Johnson, Michael Chen
+Staff Involved: Sarah Johnson
+
+Incident Report #2
+-----------------
+Child: Marcus Thompson  
+Age: 3
+Type: Illness
+Severity: Moderate
+Date: October 27, 2025
+Time: 2:15 PM
+Location: Classroom 2
+Description: Child complained of stomach ache and felt warm to touch
+Action Taken: Took temperature (100.2°F), contacted parent for pickup, child resting in office
+Witnesses: Jennifer Lee
+Staff Involved: Jennifer Lee
+
+Incident Report #3
+-----------------
+Child: Olivia Davis
+Age: 5  
+Type: Behavior
+Severity: Minor
+Date: October 26, 2025
+Time: 9:45 AM
+Location: Art Room
+Description: Child had disagreement with peer over art supplies, raised voice
+Action Taken: Redirected child, discussed appropriate conflict resolution, both children apologized
+Witnesses: Lisa Martinez
+Staff Involved: Lisa Martinez

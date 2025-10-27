@@ -17,6 +17,7 @@ const checklistRoutes = require('./routes/checklist');
 const trainingRoutes = require('./routes/training');
 const documentRoutes = require('./routes/documents');
 const aiRoutes = require('./routes/ai');
+const smartImportRoutes = require('./routes/smartImport');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -54,6 +55,7 @@ app.use('/api', checklistRoutes);
 app.use('/api', trainingRoutes);
 app.use('/api', documentRoutes);
 app.use('/api', aiRoutes);
+app.use('/api', smartImportRoutes);
 
 // Serve static files from public folder - AFTER API routes
 app.use(express.static(path.join(__dirname, 'public')));

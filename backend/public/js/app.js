@@ -79,9 +79,13 @@ async function apiRequest(endpoint, options = {}) {
     }
 
     const headers = {
-        'Content-Type': 'application/json',
         ...options.headers
     };
+
+    // Don't set Content-Type for FormData (browser will set it with boundary)
+    if (!options.isFormData) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     if (AppState.token && !options.skipAuth) {
         headers['Authorization'] = `Bearer ${AppState.token}`;

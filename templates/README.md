@@ -1,6 +1,6 @@
-# CSV Import Templates
+# CSV Import Templates & Smart Import Samples
 
-This folder contains CSV templates for bulk importing data into Shield Ops.
+This folder contains CSV templates for bulk importing data into Shield Ops, plus sample files for testing the AI-powered Smart Import feature.
 
 ## 📋 Available Templates
 
@@ -57,6 +57,41 @@ Sarah Johnson,sarah@example.com,Lead Teacher,2024-01-15,2025-12-31,2025-12-31
 Child Name,Medication Name,Dosage,Frequency,Route,Start Date,End Date,Prescriber Name,Prescriber Phone
 Emma Thompson,Amoxicillin,250mg,Three times daily,Oral,2025-01-15,2025-01-25,Dr. Sarah Smith,(512) 555-0123
 ```
+
+---
+
+### 3. Incidents Import (`incidents-import-sample.csv`)
+
+**Sample file for testing Smart Import feature.**
+
+**Columns:**
+- Child Name (required)
+- Age (optional)
+- Type (injury/illness/behavior/other)
+- Severity (minor/moderate/major/critical)
+- Date (YYYY-MM-DD format)
+- Time (HH:MM format)
+- Location
+- Description (required)
+- Action Taken
+- Witnesses (comma-separated)
+- Staff Involved (comma-separated)
+
+**Example:**
+```csv
+Child Name,Age,Type,Severity,Date,Time,Location,Description,Action Taken
+Emma Rodriguez,4,injury,minor,2025-10-27,10:30,Playground,Child fell from slide...
+```
+
+---
+
+## 🤖 Smart Import Sample Files
+
+### Text Format Samples
+- `incidents-import-sample.txt` - Incident reports in plain text format
+- `medications-import-sample.txt` - Medication authorizations in plain text format
+
+These files demonstrate how the AI-powered Smart Import can extract structured data from unstructured text, PDFs, or any format!
 
 ---
 

@@ -102,6 +102,9 @@
     <script src="js/router.js"></script>
     <script src="js/routes.js"></script>
 
+    <!-- Smart Import Feature -->
+    <script src="js/smartImport.js"></script>
+
     <!-- Main Application JavaScript -->
     <script src="js/app.js"></script>
 
@@ -115,6 +118,10 @@
                 // Load modals from partials
                 await window.htmlLoader.loadInto('modals.html', '#modals-container');
                 console.log('✅ Modals loaded from partials/modals.html');
+
+                // Load smart import modals
+                await window.htmlLoader.loadInto('modals/smartImportModals.html', '#modals-container', true);
+                console.log('✅ Smart Import modals loaded');
 
                 // Load auth screens (they will be hidden if user is authenticated)
                 await window.htmlLoader.loadInto('auth/login.html', '#auth-container');
