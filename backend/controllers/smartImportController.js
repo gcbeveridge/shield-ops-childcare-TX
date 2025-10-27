@@ -437,17 +437,16 @@ async function bulkImportStaff(req, res) {
                     name: staff.name,
                     role: staff.role || 'Staff',
                     email: staff.email || null,
-                    phone: staff.phone || null,
-                    certifications: staff.certifications || [],
-                    hire_date: staff.hireDate || null,
-                    status: staff.status || 'active',
-                    emergency_contact: staff.emergencyContact || null,
-                    notes: staff.notes || null
+                    hire_date: staff.hireDate || new Date().toISOString().split('T')[0],
+                    certifications: staff.certifications 
+                        ? (Array.isArray(staff.certifications) ? staff.certifications : [staff.certifications])
+                        : [],
+                    training_completion: staff.trainingCompletion || 0
                 };
 
                 // Validate required fields
-                if (!staffRecord.name) {
-                    throw new Error('Name is required');
+                if (!staffRecord.name || !staffRecord.hire_date) {
+                    throw new Error('Name and hire date are required');
                 }
 
                 const { error } = await supabase
