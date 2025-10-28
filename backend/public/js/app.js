@@ -4534,17 +4534,22 @@ async function viewMedicationDetails(medicationId) {
                     <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📋 Administration Log</h3>
                     <div style="max-height: 250px; overflow-y: auto;">
                         ${med.administrationLog.slice(0, 10).map(log => {
-                const logDate = new Date(log.administeredAt);
+                const logDate = new Date(log.administered_at || log.administeredAt);
+                // Handle both snake_case (Supabase) and camelCase formats
+                const administeredBy = log.administered_by || log.administeredBy || 'Unknown';
+                const verifiedBy = log.verified_by || log.verifiedBy || 'Unknown';
+                const dosageGiven = log.dosage_given || log.dosageGiven || '-';
+                const notes = log.notes || '';
                 return `
                                 <div style="padding: 12px; background: var(--gray-50); border-radius: 8px; margin-bottom: 8px;">
                                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                         <strong style="font-size: 14px;">${logDate.toLocaleDateString()} ${logDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
-                                        <span style="font-size: 14px; color: var(--gray-700);">${log.dosageGiven}</span>
+                                        <span style="font-size: 14px; color: var(--gray-700);">${dosageGiven}</span>
                                     </div>
                                     <div style="font-size: 13px; color: var(--gray-700);">
-                                        <div>👨‍⚕️ Administered by: ${log.administeredBy}</div>
-                                        <div>✓ Verified by: ${log.verifiedBy}</div>
-                                        ${log.notes ? `<div style="margin-top: 4px; font-style: italic;">Note: ${log.notes}</div>` : ''}
+                                        <div>👨‍⚕️ Administered by: ${administeredBy}</div>
+                                        <div>✓ Verified by: ${verifiedBy}</div>
+                                        ${notes ? `<div style="margin-top: 4px; font-style: italic;">Note: ${notes}</div>` : ''}
                                     </div>
                                 </div>
                             `;
