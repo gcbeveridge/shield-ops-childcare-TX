@@ -6,18 +6,18 @@ const cors = require("cors");
 const path = require("path");
 const autoSeedDB = require("./config/autoSeedDB");
 
-const authRoutes = require('./routes/auth');
-const dashboardRoutes = require('./routes/dashboard');
-const seedRoutes = require('./routes/seed');
-const staffRoutes = require('./routes/staff');
-const incidentRoutes = require('./routes/incidents');
-const medicationRoutes = require('./routes/medications');
-const complianceRoutes = require('./routes/compliance');
-const checklistRoutes = require('./routes/checklist');
-const trainingRoutes = require('./routes/training');
-const documentRoutes = require('./routes/documents');
-const aiRoutes = require('./routes/ai');
-const smartImportRoutes = require('./routes/smartImport');
+const authRoutes = require("./routes/auth");
+const dashboardRoutes = require("./routes/dashboard");
+const seedRoutes = require("./routes/seed");
+const staffRoutes = require("./routes/staff");
+const incidentRoutes = require("./routes/incidents");
+const medicationRoutes = require("./routes/medications");
+const complianceRoutes = require("./routes/compliance");
+const checklistRoutes = require("./routes/checklist");
+const trainingRoutes = require("./routes/training");
+const documentRoutes = require("./routes/documents");
+const aiRoutes = require("./routes/ai");
+const smartImportRoutes = require("./routes/smartImport");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,7 +29,9 @@ app.use(
   }),
 );
 
-app.use(express.json());
+// Increase limit for medication photos (5MB)
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ limit: "5mb", extended: true }));
 
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
@@ -46,18 +48,18 @@ app.get("/api/health", (req, res) => {
 });
 
 // API Routes - MUST come before static files
-app.use('/api/auth', authRoutes);
-app.use('/api', dashboardRoutes);
-app.use('/api', seedRoutes);
-app.use('/api', staffRoutes);
-app.use('/api', incidentRoutes);
-app.use('/api', medicationRoutes);
-app.use('/api', complianceRoutes);
-app.use('/api', checklistRoutes);
-app.use('/api', trainingRoutes);
-app.use('/api', documentRoutes);
-app.use('/api', aiRoutes);
-app.use('/api', smartImportRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api", dashboardRoutes);
+app.use("/api", seedRoutes);
+app.use("/api", staffRoutes);
+app.use("/api", incidentRoutes);
+app.use("/api", medicationRoutes);
+app.use("/api", complianceRoutes);
+app.use("/api", checklistRoutes);
+app.use("/api", trainingRoutes);
+app.use("/api", documentRoutes);
+app.use("/api", aiRoutes);
+app.use("/api", smartImportRoutes);
 
 // Serve static files from public folder - AFTER API routes
 app.use(express.static(path.join(__dirname, "public")));
@@ -88,8 +90,10 @@ app.listen(PORT, "0.0.0.0", async () => {
   try {
     await autoSeedDB();
   } catch (error) {
-    console.error('⚠️  Auto-seed skipped due to database connection issue');
-    console.error('   Server will continue running, but database may need manual setup');
+    console.error("⚠️  Auto-seed skipped due to database connection issue");
+    console.error(
+      "   Server will continue running, but database may need manual setup",
+    );
   }
   console.log(`\n📚 Available Endpoints:`);
   console.log(`\n  🔐 Authentication:`);
