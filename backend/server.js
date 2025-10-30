@@ -18,6 +18,7 @@ const trainingRoutes = require("./routes/training");
 const documentRoutes = require("./routes/documents");
 const aiRoutes = require("./routes/ai");
 const smartImportRoutes = require("./routes/smartImport");
+const onboardingRoutes = require("./routes/onboarding");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -60,6 +61,7 @@ app.use("/api", trainingRoutes);
 app.use("/api", documentRoutes);
 app.use("/api", aiRoutes);
 app.use("/api", smartImportRoutes);
+app.use("/api", onboardingRoutes);
 
 // Serve static files from public folder - AFTER API routes
 app.use(express.static(path.join(__dirname, "public")));
