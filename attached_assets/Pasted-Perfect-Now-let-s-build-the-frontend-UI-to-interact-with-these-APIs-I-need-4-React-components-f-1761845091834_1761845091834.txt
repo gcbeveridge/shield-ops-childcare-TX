@@ -1,0 +1,162 @@
+Perfect! Now let's build the frontend UI to interact with these APIs.
+
+I need 4 React components for the Texas childcare onboarding system:
+
+---
+
+COMPONENT 1: frontend/pages/NewHireDashboard.jsx
+
+Purpose: Show a new hire's onboarding progress overview
+
+Design/Layout:
+- Header section with:
+  * Employee name (large, bold)
+  * Hire date 
+  * Days since hire
+  * Overall compliance status badge (green=compliant, yellow=in progress, red=overdue)
+  * Progress bar showing % complete (0-100%)
+
+- Three-column layout:
+  Column 1: Day One Status
+  - Green checkmark if complete, yellow pending icon if not
+  - Completion date/time if done
+  - Duration in minutes
+  - "Start Day One" button if not complete
+
+  Column 2: Week One Check-ins (Days 2-7)
+  - List of 6 days with checkmark/pending for each
+  - Show completion date for completed days
+  - Overall "Week One Complete" badge when all done
+
+  Column 3: Next Steps
+  - Shows what needs to be done next
+  - Due dates for certifications
+  - Countdown timer if anything is overdue
+
+Functionality:
+- Fetch data from: GET /api/onboarding/new-hires/:id
+- Auto-refresh every 30 seconds
+- Calculate days since hire
+- Calculate completion percentage
+- Props: { onboardingId }
+
+Styling: Clean, professional, mobile-responsive with Tailwind CSS
+
+---
+
+COMPONENT 2: frontend/pages/DayOneOrientation.jsx
+
+Purpose: Interactive walkthrough of Day One orientation (7 sections)
+
+Design/Layout:
+- Progress indicator at top (Section 1 of 7, 2 of 7, etc.)
+- Current section card showing:
+  * Section title (large)
+  * Duration estimate
+  * Champion script in highlighted box
+  * Content sections (formatted nicely)
+  * Verification questions at bottom
+
+- Navigation:
+  * Previous/Next buttons
+  * Jump to section menu (sidebar or dropdown)
+  * Progress dots/steps indicator
+
+- Final screen (after section 7):
+  * Summary of all topics covered
+  * Champion signature input
+  * Employee signature input
+  * Duration tracker (auto-calculated from start time)
+  * "Complete Day One" button
+
+Functionality:
+- Fetch content from: GET /api/onboarding/day-one
+- Track start time when component loads
+- Calculate duration on completion
+- POST to /api/onboarding/day-one/complete with signatures
+- Props: { onboardingId, championId }
+- Show success message and redirect after completion
+
+Styling: Step-by-step wizard feel, large readable text, card-based layout
+
+---
+
+COMPONENT 3: frontend/pages/WeekOneCheckIns.jsx
+
+Purpose: Daily check-in interface for days 2-7
+
+Design/Layout:
+- Tab navigation for days 2-7 (horizontal tabs)
+- Selected day shows:
+  * Day title (large)
+  * Duration estimate
+  * Champion approach (highlighted box)
+  * Activity cards (each activity in its own card)
+  * Quick verification questions
+  * Champion notes textarea (optional)
+  * "Complete Day X" button
+
+- Visual indicator showing which days are complete (green checkmarks on tabs)
+
+Functionality:
+- Fetch content from: GET /api/onboarding/week-one
+- Allow switching between days
+- POST to /api/onboarding/week-one/complete-day when completing
+- Props: { onboardingId }
+- Disable tabs for days that haven't unlocked yet (must do in order)
+- Show success animation when day completed
+
+Styling: Tab-based interface, clean cards, easy to read
+
+---
+
+COMPONENT 4: frontend/components/OnboardingList.jsx
+
+Purpose: List all new hires and their onboarding status
+
+Design/Layout:
+- Table view with columns:
+  * Employee Name
+  * Hire Date
+  * Days Since Hire
+  * Day One Status (badge)
+  * Week One Progress (X/6 days)
+  * Overall Status (badge)
+  * Actions (View Dashboard button)
+
+- "Add New Hire" button at top
+- Filter/search by name
+- Sort by hire date, status
+
+Functionality:
+- Fetch from: GET /api/onboarding/new-hires
+- Click row to view dashboard
+- "Add New Hire" opens modal/form
+- POST to /api/onboarding/new-hires
+
+Styling: Professional table, color-coded badges, responsive
+
+---
+
+NAVIGATION INTEGRATION:
+
+Add these routes to your main router:
+- /onboarding - OnboardingList
+- /onboarding/:id/dashboard - NewHireDashboard  
+- /onboarding/:id/day-one - DayOneOrientation
+- /onboarding/:id/week-one - WeekOneCheckIns
+
+Add "Onboarding" menu item to your main navigation
+
+---
+
+Please create all 4 components with:
+✅ React functional components with hooks
+✅ Tailwind CSS styling (match existing app style)
+✅ Axios API calls with error handling
+✅ Loading states
+✅ Mobile-responsive design
+✅ Success/error notifications
+✅ Proper routing integration
+
+Let me know when complete and I'll test the full flow!
