@@ -5574,7 +5574,7 @@ async function loadOnboardingList() {
         const facility = JSON.parse(localStorage.getItem('facility'));
         
         // Fetch onboarding records
-        const response = await apiRequest(`/api/onboarding/new-hires?facility_id=${facility.id}`);
+        const response = await apiRequest(`/onboarding/new-hires?facility_id=${facility.id}`);
         
         if (response.success) {
             const records = response.data || [];
@@ -5675,7 +5675,7 @@ function renderOnboardingTable(records) {
 async function loadStaffForOnboarding() {
     try {
         const facility = JSON.parse(localStorage.getItem('facility'));
-        const response = await apiRequest(`/api/staff?facility_id=${facility.id}`);
+        const response = await apiRequest(`/staff?facility_id=${facility.id}`);
         
         if (response.success) {
             const staffSelect = document.getElementById('new-hire-staff-id');
@@ -5703,7 +5703,7 @@ async function submitNewHire(event) {
     const facility = JSON.parse(localStorage.getItem('facility'));
     
     try {
-        const response = await apiRequest('/api/onboarding/new-hires', {
+        const response = await apiRequest('/onboarding/new-hires', {
             method: 'POST',
             body: JSON.stringify({
                 facility_id: facility.id,
@@ -5742,7 +5742,7 @@ async function loadOnboardingDashboard(id) {
     try {
         currentOnboardingId = id;
         
-        const response = await apiRequest(`/api/onboarding/new-hires/${id}`);
+        const response = await apiRequest(`/onboarding/new-hires/${id}`);
         
         if (response.success) {
             const record = response.data;
@@ -5908,14 +5908,14 @@ async function loadDayOneOrientation(id) {
         dayOneStartTime = new Date();
         
         // Fetch Day One content
-        const contentResponse = await apiRequest('/api/onboarding/day-one');
+        const contentResponse = await apiRequest('/onboarding/day-one');
         if (contentResponse.success) {
             dayOneSections = contentResponse.data;
             document.getElementById('total-sections').textContent = dayOneSections.length;
         }
         
         // Fetch onboarding record details
-        const recordResponse = await apiRequest(`/api/onboarding/new-hires/${id}`);
+        const recordResponse = await apiRequest(`/onboarding/new-hires/${id}`);
         if (recordResponse.success) {
             document.getElementById('dayone-staff-name').textContent = recordResponse.data.staff_name || 'New Hire';
             
@@ -6024,7 +6024,7 @@ async function submitDayOneCompletion(event) {
     const user = JSON.parse(localStorage.getItem('user'));
     
     try {
-        const response = await apiRequest('/api/onboarding/day-one/complete', {
+        const response = await apiRequest('/onboarding/day-one/complete', {
             method: 'POST',
             body: JSON.stringify({
                 onboarding_id: parseInt(currentOnboardingId),
@@ -6063,13 +6063,13 @@ async function loadWeekOneCheckins(id) {
         currentWeekOneDay = 2;
         
         // Fetch Week One content
-        const contentResponse = await apiRequest('/api/onboarding/week-one');
+        const contentResponse = await apiRequest('/onboarding/week-one');
         if (contentResponse.success) {
             weekOneDays = contentResponse.data;
         }
         
         // Fetch onboarding record
-        const recordResponse = await apiRequest(`/api/onboarding/new-hires/${id}`);
+        const recordResponse = await apiRequest(`/onboarding/new-hires/${id}`);
         if (recordResponse.success) {
             document.getElementById('weekone-staff-name').textContent = recordResponse.data.staff_name || 'New Hire';
             
@@ -6112,7 +6112,7 @@ async function selectDay(dayNumber) {
         document.getElementById('day-content').style.display = 'none';
         
         // Fetch day content
-        const response = await apiRequest(`/api/onboarding/week-one/${dayNumber}`);
+        const response = await apiRequest(`/onboarding/week-one/${dayNumber}`);
         
         if (response.success) {
             const day = response.data;
@@ -6137,7 +6137,7 @@ async function selectDay(dayNumber) {
             document.getElementById('complete-day-text').textContent = `✓ Complete Day ${dayNumber}`;
             
             // Check if this day is already completed
-            const recordResponse = await apiRequest(`/api/onboarding/new-hires/${currentOnboardingId}`);
+            const recordResponse = await apiRequest(`/onboarding/new-hires/${currentOnboardingId}`);
             const weekOneProgress = recordResponse.data.week_one_progress || {};
             
             if (weekOneProgress[dayNumber]?.completed) {
@@ -6168,7 +6168,7 @@ async function completeDayCheckin() {
     const notes = document.getElementById('champion-notes').value;
     
     try {
-        const response = await apiRequest('/api/onboarding/week-one/complete-day', {
+        const response = await apiRequest('/onboarding/week-one/complete-day', {
             method: 'POST',
             body: JSON.stringify({
                 onboarding_id: parseInt(currentOnboardingId),
