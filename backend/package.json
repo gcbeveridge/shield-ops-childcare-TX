@@ -5,7 +5,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate:supabase": "node scripts/migrate-to-supabase.js",
-    "parse:manual": "node scripts/parse-texas-manual.js"
+    "parse:manual": "node scripts/parse-texas-manual.js",
+    "db:seed-dayone": "node scripts/seedDayOne.js",
+    "db:seed-weekone": "node scripts/seedWeekOne.js",
+    "db:seed-onboarding": "node scripts/seedOnboarding.js"
   },
   "keywords": [],
   "author": "",

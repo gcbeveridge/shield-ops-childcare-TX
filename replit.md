@@ -23,9 +23,13 @@ The application is a single-page web application with a RESTful API.
 
 ### Database
 - **Technology:** PostgreSQL (Neon) with Supabase migration support
-- **Schema:** 11 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents).
+- **Schema:** 13 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents, day_one_orientation_content, week_one_checkins_content).
 - **Data Persistence:** Data persists across server restarts and page refreshes.
 - **Auto-seeding:** Database auto-populates on server startup with fixed UUIDs for consistent login.
+- **Onboarding Content Seeding:** Texas childcare onboarding content (Day One orientation + Week One check-ins).
+  - Scripts: `backend/scripts/seedDayOne.js`, `backend/scripts/seedWeekOne.js`, `backend/scripts/seedOnboarding.js`
+  - Run with: `npm run db:seed-onboarding` (or individually: `npm run db:seed-dayone`, `npm run db:seed-weekone`)
+  - Content: 7 Day One orientation sections, 6 Week One check-in days (Days 2-7)
 - **Supabase Migration:** Ready-to-use migration scripts and schema for moving to Supabase PostgreSQL.
   - Configuration: `backend/config/supabase.js`
   - Schema: `backend/config/schema-supabase.sql`
