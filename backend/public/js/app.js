@@ -5571,6 +5571,9 @@ let dayOneStartTime = null;
 
 async function loadOnboardingList() {
     try {
+        // Close any open modals first
+        document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+        
         const facility = JSON.parse(localStorage.getItem('facility'));
         
         // Fetch onboarding records
