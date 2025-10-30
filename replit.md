@@ -23,7 +23,7 @@ The application is a single-page web application with a RESTful API.
 
 ### Database
 - **Technology:** PostgreSQL (Neon) with Supabase migration support
-- **Schema:** 13 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents, day_one_orientation_content, week_one_checkins_content).
+- **Schema:** 14 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents, day_one_orientation_content, week_one_checkins_content, onboarding_records).
 - **Data Persistence:** Data persists across server restarts and page refreshes.
 - **Auto-seeding:** Database auto-populates on server startup with fixed UUIDs for consistent login.
 - **Onboarding Content Seeding:** Texas childcare onboarding content (Day One orientation + Week One check-ins).
@@ -61,6 +61,15 @@ The application is a single-page web application with a RESTful API.
     - Expiration Alerts: Color-coded cards for expired and expiring documents.
     - Automated Reminders for 30/60 day expiration warnings.
 - **Medication Tracking:** Authorization management, dual-staff verification, administration logging, parent authorization, Texas §744.2655 compliance.
+- **New Hire Onboarding System (Complete Full-Stack Implementation):**
+    - **Onboarding List:** Table view showing all new hires with status (completed, in progress, overdue), days since hire, Day One/Week One progress tracking.
+    - **Onboarding Dashboard:** Progress overview with completion percentage, Day One status (pending/completed with champion and duration), Week One checklist (6 days), next steps recommendations, quick actions.
+    - **Day One Orientation:** Interactive 7-section wizard (~110 minutes total) covering facility tour, emergency procedures, Texas DFPS regulations. Features: section navigation with progress dots, champion scripts, content delivery, verification questions, dual signature collection (new hire + champion), duration tracking.
+    - **Week One Check-ins:** Tabbed interface for Days 2-7 daily activities. Each day includes: champion approach guidance, activity cards, quick verification questions, champion notes (optional), completion tracking. Days unlock sequentially and show completion badges.
+    - **Backend API:** 8 RESTful endpoints for content retrieval (Day One/Week One), new hire management, progress tracking, completion workflows.
+    - **Database:** 3 tables (onboarding_records, day_one_orientation_content, week_one_checkins_content) with JSONB progress tracking, Texas DFPS-compliant content seeding.
+    - **Features:** Auto-status updates (in_progress → completed), overdue detection (>7 days), mobile-responsive design, CAC Design System integration, real-time progress calculations, champion-led training workflow.
+    - **Routes:** /onboarding, /onboarding/:id/dashboard, /onboarding/:id/day-one, /onboarding/:id/week-one
 - **Shield AI - Compliance Assistant:**
     - **Knowledge Base:** Covers 8 major Texas DFPS compliance areas (Staff, Medication, Incident, Daily H&S, Physical Environment, Nutrition, Documentation, Inspections).
     - **Features:** Ask Questions, Analyze Incidents, Training Suggestions.
