@@ -5555,6 +5555,656 @@ function showKeyboardShortcuts() {
     modal.style.display = 'flex';
 }
 
+// =============================================
+// ONBOARDING MANAGEMENT
+// =============================================
+
+// Global state for onboarding
+let currentOnboardingId = null;
+let currentSectionIndex = 0;
+let dayOneSections = [];
+let weekOneDays = [];
+let currentWeekOneDay = 2;
+let dayOneStartTime = null;
+
+// ========== ONBOARDING LIST PAGE ==========
+
+async function loadOnboardingList() {
+    try {
+        const facility = JSON.parse(localStorage.getItem('facility'));
+        
+        // Fetch onboarding records
+        const response = await apiRequest(`/api/onboarding/new-hires?facility_id=${facility.id}`);
+        
+        if (response.success) {
+            const records = response.data || [];
+            
+            // Update stats
+            document.getElementById('onboarding-total-count').textContent = records.length;
+            document.getElementById('onboarding-completed-count').textContent = 
+                records.filter(r => r.status === 'completed').length;
+            document.getElementById('onboarding-inprogress-count').textContent = 
+                records.filter(r => r.status === 'in_progress').length;
+            
+            // Calculate overdue (hired > 7 days ago and not completed)
+            const now = new Date();
+            const overdue = records.filter(r => {
+                if (r.status === 'completed') return false;
+                const hireDate = new Date(r.hire_date);
+                const daysSince = Math.floor((now - hireDate) / (1000 * 60 * 60 * 24));
+                return daysSince > 7;
+            }).length;
+            document.getElementById('onboarding-overdue-count').textContent = overdue;
+            
+            // Update filter counts
+            document.getElementById('onboarding-filter-all').textContent = records.length;
+            
+            // Render table
+            renderOnboardingTable(records);
+            
+            // Load staff list for the Add New Hire modal
+            await loadStaffForOnboarding();
+        }
+    } catch (error) {
+        console.error('Error loading onboarding list:', error);
+        showError('Failed to load onboarding records');
+    }
+}
+
+function renderOnboardingTable(records) {
+    const tbody = document.getElementById('onboarding-list-tbody');
+    
+    if (records.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">📋</div>
+                    <p style="font-size: 0.9rem; margin: 0;">No onboarding records found.</p>
+                    <button class="cac-btn cac-btn-primary" onclick="openAddNewHireModal()" style="margin-top: 15px;">
+                        + Add First New Hire
+                    </button>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = records.map(record => {
+        const hireDate = new Date(record.hire_date);
+        const now = new Date();
+        const daysSince = Math.floor((now - hireDate) / (1000 * 60 * 60 * 24));
+        
+        // Calculate Week One progress
+        const weekOneProgress = record.week_one_progress || {};
+        const completedDays = Object.keys(weekOneProgress).filter(day => weekOneProgress[day]?.completed).length;
+        
+        // Determine status badge
+        let statusBadge = '';
+        if (record.status === 'completed') {
+            statusBadge = '<span class="cac-badge cac-badge-success">✅ Completed</span>';
+        } else if (daysSince > 7) {
+            statusBadge = '<span class="cac-badge cac-badge-danger">⚠️ Overdue</span>';
+        } else {
+            statusBadge = '<span class="cac-badge cac-badge-warning">⏳ In Progress</span>';
+        }
+        
+        return `
+            <tr style="cursor: pointer;" onclick="navigateTo('/onboarding/${record.id}/dashboard')">
+                <td style="font-weight: 600;">${record.staff_name || 'Unknown'}</td>
+                <td>${new Date(record.hire_date).toLocaleDateString()}</td>
+                <td class="hide-mobile">${daysSince} days</td>
+                <td>
+                    ${record.day_one_completed 
+                        ? '<span class="cac-badge cac-badge-success">✅ Done</span>' 
+                        : '<span class="cac-badge cac-badge-secondary">⏳ Pending</span>'}
+                </td>
+                <td>${completedDays}/6 days</td>
+                <td>${statusBadge}</td>
+                <td onclick="event.stopPropagation();">
+                    <button class="cac-btn cac-btn-sm cac-btn-primary" 
+                        onclick="navigateTo('/onboarding/${record.id}/dashboard')"
+                        style="padding: 6px 12px; font-size: 0.75rem;">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+async function loadStaffForOnboarding() {
+    try {
+        const facility = JSON.parse(localStorage.getItem('facility'));
+        const response = await apiRequest(`/api/staff?facility_id=${facility.id}`);
+        
+        if (response.success) {
+            const staffSelect = document.getElementById('new-hire-staff-id');
+            staffSelect.innerHTML = '<option value="">Select Staff Member...</option>' +
+                response.data.map(staff => `
+                    <option value="${staff.id}">${staff.name} - ${staff.role || 'Staff'}</option>
+                `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading staff:', error);
+    }
+}
+
+function openAddNewHireModal() {
+    // Set today's date as default
+    document.getElementById('new-hire-date').valueAsDate = new Date();
+    document.getElementById('add-new-hire-modal').style.display = 'flex';
+}
+
+async function submitNewHire(event) {
+    event.preventDefault();
+    
+    const staffId = document.getElementById('new-hire-staff-id').value;
+    const hireDate = document.getElementById('new-hire-date').value;
+    const facility = JSON.parse(localStorage.getItem('facility'));
+    
+    try {
+        const response = await apiRequest('/api/onboarding/new-hires', {
+            method: 'POST',
+            body: JSON.stringify({
+                facility_id: facility.id,
+                staff_id: staffId,
+                hire_date: hireDate
+            })
+        });
+        
+        if (response.success) {
+            showSuccess('Onboarding record created successfully!');
+            closeModal('add-new-hire-modal');
+            await loadOnboardingList();
+            
+            // Navigate to the new record's dashboard
+            navigateTo(`/onboarding/${response.data.id}/dashboard`);
+        }
+    } catch (error) {
+        console.error('Error creating onboarding record:', error);
+        showError(error.message || 'Failed to create onboarding record');
+    }
+}
+
+function filterOnboarding(status) {
+    // Implement filtering if needed
+    loadOnboardingList();
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.style.display = 'none';
+}
+
+// ========== ONBOARDING DASHBOARD ==========
+
+async function loadOnboardingDashboard(id) {
+    try {
+        currentOnboardingId = id;
+        
+        const response = await apiRequest(`/api/onboarding/new-hires/${id}`);
+        
+        if (response.success) {
+            const record = response.data;
+            
+            // Update header
+            document.getElementById('dashboard-staff-name').textContent = record.staff_name || 'Onboarding Dashboard';
+            document.getElementById('dashboard-hire-date').textContent = new Date(record.hire_date).toLocaleDateString();
+            
+            // Calculate days since hire
+            const hireDate = new Date(record.hire_date);
+            const now = new Date();
+            const daysSince = Math.floor((now - hireDate) / (1000 * 60 * 60 * 24));
+            document.getElementById('dashboard-days-since-hire').textContent = daysSince;
+            
+            // Calculate progress
+            const weekOneProgress = record.week_one_progress || {};
+            const completedDays = Object.keys(weekOneProgress).filter(day => weekOneProgress[day]?.completed).length;
+            const totalSteps = 7; // 1 (Day One) + 6 (Week One days)
+            let completedSteps = record.day_one_completed ? 1 : 0;
+            completedSteps += completedDays;
+            const progressPercent = Math.round((completedSteps / totalSteps) * 100);
+            
+            document.getElementById('dashboard-progress-percent').textContent = `${progressPercent}%`;
+            document.getElementById('dashboard-progress-bar').style.width = `${progressPercent}%`;
+            
+            // Update status badge
+            const statusBadge = document.getElementById('dashboard-status-badge');
+            if (record.status === 'completed') {
+                statusBadge.textContent = '✅ Completed';
+                statusBadge.className = 'cac-badge cac-badge-success';
+            } else if (daysSince > 7) {
+                statusBadge.textContent = '⚠️ Overdue';
+                statusBadge.className = 'cac-badge cac-badge-danger';
+            } else {
+                statusBadge.textContent = '⏳ In Progress';
+                statusBadge.className = 'cac-badge cac-badge-warning';
+            }
+            
+            // Update Day One status
+            if (record.day_one_completed) {
+                document.getElementById('dayone-status-pending').style.display = 'none';
+                document.getElementById('dayone-status-completed').style.display = 'block';
+                document.getElementById('dayone-completed-date').textContent = 
+                    new Date(record.day_one_completed_at).toLocaleDateString();
+                document.getElementById('dayone-duration').textContent = record.day_one_duration_minutes || '--';
+                document.getElementById('dayone-champion').textContent = record.champion_name || 'N/A';
+            } else {
+                document.getElementById('dayone-status-pending').style.display = 'block';
+                document.getElementById('dayone-status-completed').style.display = 'none';
+            }
+            
+            // Update Week One checklist
+            renderWeekOneChecklist(record);
+            
+            // Enable/disable Week One button
+            const weekOneBtn = document.getElementById('weekone-start-btn');
+            if (record.day_one_completed) {
+                weekOneBtn.disabled = false;
+            } else {
+                weekOneBtn.disabled = true;
+            }
+            
+            // Show Week One complete badge if all days done
+            if (completedDays === 6) {
+                document.getElementById('weekone-complete-badge').style.display = 'block';
+            }
+            
+            // Render next steps
+            renderNextSteps(record, daysSince);
+        }
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+        showError('Failed to load onboarding dashboard');
+    }
+}
+
+function renderWeekOneChecklist(record) {
+    const weekOneProgress = record.week_one_progress || {};
+    const checklist = document.getElementById('weekone-checklist');
+    
+    const days = [
+        { num: 2, label: 'Day 2: Emergency Exits' },
+        { num: 3, label: 'Day 3: Handwashing & Hygiene' },
+        { num: 4, label: 'Day 4: Child Protection' },
+        { num: 5, label: 'Day 5: Supervision Ratios' },
+        { num: 6, label: 'Day 6: Incident Documentation' },
+        { num: 7, label: 'Day 7: Behavior Guidance' }
+    ];
+    
+    checklist.innerHTML = days.map(day => {
+        const completed = weekOneProgress[day.num]?.completed;
+        return `
+            <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: ${completed ? '#f0fdf4' : '#f8fafc'}; border-radius: 6px; border-left: 3px solid ${completed ? '#10b981' : '#cbd5e1'};">
+                <span style="font-size: 1.2rem;">${completed ? '✅' : '⏳'}</span>
+                <span style="font-size: 0.8rem; font-weight: 500; color: ${completed ? '#10b981' : '#64748b'};">
+                    ${day.label}
+                </span>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderNextSteps(record, daysSince) {
+    const container = document.getElementById('next-steps-content');
+    const steps = [];
+    
+    if (!record.day_one_completed) {
+        steps.push({
+            icon: '📚',
+            text: 'Complete Day One Orientation',
+            urgent: daysSince > 0
+        });
+    } else {
+        const weekOneProgress = record.week_one_progress || {};
+        const completedDays = Object.keys(weekOneProgress).filter(day => weekOneProgress[day]?.completed).length;
+        
+        if (completedDays < 6) {
+            steps.push({
+                icon: '📅',
+                text: `Complete Week One check-ins (${completedDays}/6 done)`,
+                urgent: daysSince > 7
+            });
+        }
+    }
+    
+    if (steps.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🎉</div>
+                <p style="font-size: 0.85rem; color: #10b981; font-weight: 600;">All onboarding steps complete!</p>
+            </div>
+        `;
+    } else {
+        container.innerHTML = steps.map(step => `
+            <div style="padding: 12px; background: ${step.urgent ? '#fef3c7' : '#f8fafc'}; border-radius: 6px; border-left: 3px solid ${step.urgent ? '#f59e0b' : '#8b5cf6'}; margin-bottom: 10px;">
+                <p style="font-size: 0.85rem; margin: 0;">
+                    <span style="font-size: 1.2rem; margin-right: 8px;">${step.icon}</span>
+                    ${step.text}
+                </p>
+            </div>
+        `).join('');
+    }
+}
+
+function startDayOne() {
+    navigateTo(`/onboarding/${currentOnboardingId}/day-one`);
+}
+
+function startWeekOne() {
+    navigateTo(`/onboarding/${currentOnboardingId}/week-one`);
+}
+
+function viewStaffProfile() {
+    navigateTo('/staff');
+}
+
+// ========== DAY ONE ORIENTATION ==========
+
+async function loadDayOneOrientation(id) {
+    try {
+        currentOnboardingId = id;
+        currentSectionIndex = 0;
+        dayOneStartTime = new Date();
+        
+        // Fetch Day One content
+        const contentResponse = await apiRequest('/api/onboarding/day-one');
+        if (contentResponse.success) {
+            dayOneSections = contentResponse.data;
+            document.getElementById('total-sections').textContent = dayOneSections.length;
+        }
+        
+        // Fetch onboarding record details
+        const recordResponse = await apiRequest(`/api/onboarding/new-hires/${id}`);
+        if (recordResponse.success) {
+            document.getElementById('dayone-staff-name').textContent = recordResponse.data.staff_name || 'New Hire';
+            
+            // Get champion name from localStorage user
+            const user = JSON.parse(localStorage.getItem('user'));
+            document.getElementById('dayone-champion-name').textContent = user?.name || 'Champion';
+        }
+        
+        // Render section navigation dots
+        renderSectionDots();
+        
+        // Load first section
+        loadSection(0);
+        
+    } catch (error) {
+        console.error('Error loading Day One orientation:', error);
+        showError('Failed to load orientation content');
+    }
+}
+
+function renderSectionDots() {
+    const container = document.getElementById('section-dots');
+    container.innerHTML = dayOneSections.map((_, index) => 
+        `<div class="section-dot ${index === currentSectionIndex ? 'active' : ''}" 
+              onclick="loadSection(${index})"></div>`
+    ).join('');
+}
+
+function loadSection(index) {
+    if (index < 0 || index >= dayOneSections.length) return;
+    
+    currentSectionIndex = index;
+    const section = dayOneSections[index];
+    
+    // Update progress
+    document.getElementById('current-section-num').textContent = index + 1;
+    document.getElementById('current-section-duration').textContent = section.duration_minutes || '--';
+    const progressPercent = Math.round(((index + 1) / dayOneSections.length) * 100);
+    document.getElementById('progress-percentage').textContent = progressPercent;
+    document.getElementById('section-progress-bar').style.width = `${progressPercent}%`;
+    
+    // Update section content
+    document.getElementById('section-title').textContent = section.section_title;
+    document.getElementById('champion-script').innerHTML = formatContent(section.champion_script);
+    document.getElementById('section-content').innerHTML = formatContent(section.content);
+    document.getElementById('verification-questions').innerHTML = formatContent(section.verification_questions);
+    
+    // Update navigation buttons
+    document.getElementById('prev-btn').disabled = index === 0;
+    document.getElementById('next-btn').textContent = index === dayOneSections.length - 1 ? 'Complete →' : 'Next →';
+    
+    // Update dots
+    renderSectionDots();
+    
+    // Show/hide views
+    document.getElementById('section-view').style.display = 'block';
+    document.getElementById('completion-view').style.display = 'none';
+    document.getElementById('section-navigation').style.display = 'flex';
+}
+
+function formatContent(text) {
+    if (!text) return '';
+    return text.split('\n').map(line => `<p style="margin-bottom: 8px;">${line}</p>`).join('');
+}
+
+function nextSection() {
+    if (currentSectionIndex === dayOneSections.length - 1) {
+        // Show completion view
+        showCompletionView();
+    } else {
+        loadSection(currentSectionIndex + 1);
+    }
+}
+
+function previousSection() {
+    loadSection(currentSectionIndex - 1);
+}
+
+function showCompletionView() {
+    // Calculate elapsed time
+    const elapsed = new Date() - dayOneStartTime;
+    const minutes = Math.round(elapsed / 60000);
+    document.getElementById('total-elapsed-time').textContent = `${minutes} minutes`;
+    
+    // Render topics summary
+    const summaryContainer = document.getElementById('topics-summary');
+    summaryContainer.innerHTML = dayOneSections.map(section => `
+        <div style="padding: 8px; background: white; border-radius: 6px; border-left: 3px solid #10b981; font-size: 0.8rem;">
+            ✓ ${section.section_title}
+        </div>
+    `).join('');
+    
+    // Show completion view
+    document.getElementById('section-view').style.display = 'none';
+    document.getElementById('completion-view').style.display = 'block';
+    document.getElementById('section-navigation').style.display = 'none';
+}
+
+async function submitDayOneCompletion(event) {
+    event.preventDefault();
+    
+    const newHireSignature = document.getElementById('new-hire-signature').value;
+    const championSignature = document.getElementById('champion-signature').value;
+    const elapsed = Math.round((new Date() - dayOneStartTime) / 60000);
+    
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    try {
+        const response = await apiRequest('/api/onboarding/day-one/complete', {
+            method: 'POST',
+            body: JSON.stringify({
+                onboarding_id: parseInt(currentOnboardingId),
+                champion_id: user.staff_id,
+                duration_minutes: elapsed,
+                signatures: {
+                    new_hire: newHireSignature,
+                    champion: championSignature
+                }
+            })
+        });
+        
+        if (response.success) {
+            showSuccess('✅ Day One Orientation completed successfully!');
+            setTimeout(() => {
+                navigateTo(`/onboarding/${currentOnboardingId}/dashboard`);
+            }, 1500);
+        }
+    } catch (error) {
+        console.error('Error completing Day One:', error);
+        showError(error.message || 'Failed to complete Day One');
+    }
+}
+
+function exitDayOne() {
+    if (confirm('Are you sure you want to exit? Progress will not be saved.')) {
+        navigateTo(`/onboarding/${currentOnboardingId}/dashboard`);
+    }
+}
+
+// ========== WEEK ONE CHECK-INS ==========
+
+async function loadWeekOneCheckins(id) {
+    try {
+        currentOnboardingId = id;
+        currentWeekOneDay = 2;
+        
+        // Fetch Week One content
+        const contentResponse = await apiRequest('/api/onboarding/week-one');
+        if (contentResponse.success) {
+            weekOneDays = contentResponse.data;
+        }
+        
+        // Fetch onboarding record
+        const recordResponse = await apiRequest(`/api/onboarding/new-hires/${id}`);
+        if (recordResponse.success) {
+            document.getElementById('weekone-staff-name').textContent = recordResponse.data.staff_name || 'New Hire';
+            
+            // Update progress
+            const weekOneProgress = recordResponse.data.week_one_progress || {};
+            const completedDays = Object.keys(weekOneProgress).filter(day => weekOneProgress[day]?.completed).length;
+            document.getElementById('weekone-completed-count').textContent = completedDays;
+            document.getElementById('weekone-progress-bar').style.width = `${(completedDays / 6) * 100}%`;
+            
+            // Mark completed tabs
+            for (let day = 2; day <= 7; day++) {
+                const tab = document.querySelector(`.day-tab[data-day="${day}"]`);
+                if (weekOneProgress[day]?.completed) {
+                    tab.classList.add('completed');
+                }
+            }
+        }
+        
+        // Load first day
+        selectDay(2);
+        
+    } catch (error) {
+        console.error('Error loading Week One check-ins:', error);
+        showError('Failed to load Week One content');
+    }
+}
+
+async function selectDay(dayNumber) {
+    try {
+        currentWeekOneDay = dayNumber;
+        
+        // Update tabs
+        document.querySelectorAll('.day-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`.day-tab[data-day="${dayNumber}"]`).classList.add('active');
+        
+        // Show loading
+        document.getElementById('day-loading').style.display = 'block';
+        document.getElementById('day-content').style.display = 'none';
+        
+        // Fetch day content
+        const response = await apiRequest(`/api/onboarding/week-one/${dayNumber}`);
+        
+        if (response.success) {
+            const day = response.data;
+            
+            // Update content
+            document.getElementById('day-title').textContent = day.title;
+            document.getElementById('day-duration').textContent = day.duration_minutes || '--';
+            document.getElementById('champion-approach').innerHTML = formatContent(day.champion_approach);
+            
+            // Render activities
+            const activities = day.activities || [];
+            document.getElementById('day-activities').innerHTML = activities.map((activity, index) => `
+                <div class="activity-card">
+                    <strong>Activity ${index + 1}:</strong> ${activity}
+                </div>
+            `).join('');
+            
+            // Render verification questions
+            document.getElementById('verification-questions').innerHTML = formatContent(day.verification_questions);
+            
+            // Update complete button
+            document.getElementById('complete-day-text').textContent = `✓ Complete Day ${dayNumber}`;
+            
+            // Check if this day is already completed
+            const recordResponse = await apiRequest(`/api/onboarding/new-hires/${currentOnboardingId}`);
+            const weekOneProgress = recordResponse.data.week_one_progress || {};
+            
+            if (weekOneProgress[dayNumber]?.completed) {
+                document.getElementById('complete-day-btn').style.display = 'none';
+                document.getElementById('day-completed-banner').style.display = 'block';
+                document.getElementById('day-completed-date').textContent = 
+                    new Date(weekOneProgress[dayNumber].completed_at).toLocaleDateString();
+                document.getElementById('champion-notes').value = weekOneProgress[dayNumber].notes || '';
+                document.getElementById('champion-notes').disabled = true;
+            } else {
+                document.getElementById('complete-day-btn').style.display = 'block';
+                document.getElementById('day-completed-banner').style.display = 'none';
+                document.getElementById('champion-notes').value = '';
+                document.getElementById('champion-notes').disabled = false;
+            }
+            
+            // Hide loading, show content
+            document.getElementById('day-loading').style.display = 'none';
+            document.getElementById('day-content').style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error loading day content:', error);
+        showError('Failed to load day content');
+    }
+}
+
+async function completeDayCheckin() {
+    const notes = document.getElementById('champion-notes').value;
+    
+    try {
+        const response = await apiRequest('/api/onboarding/week-one/complete-day', {
+            method: 'POST',
+            body: JSON.stringify({
+                onboarding_id: parseInt(currentOnboardingId),
+                day_number: currentWeekOneDay,
+                notes: notes
+            })
+        });
+        
+        if (response.success) {
+            showSuccess(`✅ Day ${currentWeekOneDay} completed successfully!`);
+            
+            // Mark tab as completed
+            document.querySelector(`.day-tab[data-day="${currentWeekOneDay}"]`).classList.add('completed');
+            
+            // Reload to update progress
+            await loadWeekOneCheckins(currentOnboardingId);
+            
+            // Move to next day if available
+            if (currentWeekOneDay < 7) {
+                setTimeout(() => selectDay(currentWeekOneDay + 1), 1000);
+            } else {
+                setTimeout(() => {
+                    navigateTo(`/onboarding/${currentOnboardingId}/dashboard`);
+                }, 2000);
+            }
+        }
+    } catch (error) {
+        console.error('Error completing day:', error);
+        showError(error.message || 'Failed to complete day');
+    }
+}
+
+function exitWeekOne() {
+    navigateTo(`/onboarding/${currentOnboardingId}/dashboard`);
+}
+
 // ===================================
 // Router Initialization
 // ===================================

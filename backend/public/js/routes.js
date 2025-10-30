@@ -175,6 +175,44 @@ const routes = [
             await window.htmlLoader.loadScreen('checklist');
             await loadTodayChecklist();
         }
+    },
+
+    // Onboarding Routes
+    {
+        path: '/onboarding',
+        screen: 'onboarding-list',
+        title: 'New Hire Onboarding',
+        handler: async (params) => {
+            await window.htmlLoader.loadScreen('onboarding-list');
+            await loadOnboardingList();
+        }
+    },
+    {
+        path: '/onboarding/:id/dashboard',
+        screen: 'onboarding-dashboard',
+        title: 'Onboarding Dashboard',
+        handler: async (params) => {
+            await window.htmlLoader.loadScreen('onboarding-dashboard');
+            await loadOnboardingDashboard(params.id);
+        }
+    },
+    {
+        path: '/onboarding/:id/day-one',
+        screen: 'day-one-orientation',
+        title: 'Day One Orientation',
+        handler: async (params) => {
+            await window.htmlLoader.loadScreen('day-one-orientation');
+            await loadDayOneOrientation(params.id);
+        }
+    },
+    {
+        path: '/onboarding/:id/week-one',
+        screen: 'week-one-checkins',
+        title: 'Week One Check-ins',
+        handler: async (params) => {
+            await window.htmlLoader.loadScreen('week-one-checkins');
+            await loadWeekOneCheckins(params.id);
+        }
     }
 ];
 
