@@ -2480,6 +2480,7 @@ async function loadStaffList() {
                 <td style="font-size: 0.75rem;">${statusBadge}</td>
                 <td>
                     <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="viewStaffDetails('${member.id}')" style="padding: 6px 12px; font-size: 0.75rem; margin-right: 4px;">View</button>
+                    <button class="cac-btn cac-btn-sm" onclick="startOnboardingForStaff('${member.id}', '${member.name}')" style="padding: 6px 12px; font-size: 0.75rem; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; border: none;">🎓 Start Onboarding</button>
                 </td>
             </tr>
         `;
@@ -5726,6 +5727,48 @@ async function submitNewHire(event) {
     } catch (error) {
         console.error('Error creating onboarding record:', error);
         showError(error.message || 'Failed to create onboarding record');
+    }
+}
+
+async function startOnboardingForStaff(staffId, staffName) {
+    try {
+        const facility = JSON.parse(localStorage.getItem('facility'));
+        
+        // Prompt for hire date
+        const hireDate = prompt(`Enter hire date for ${staffName} (YYYY-MM-DD):`, new Date().toISOString().split('T')[0]);
+        
+        if (!hireDate) {
+            return; // User cancelled
+        }
+        
+        // Validate date format
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(hireDate)) {
+            showError('Invalid date format. Please use YYYY-MM-DD');
+            return;
+        }
+        
+        // Create onboarding record
+        const response = await apiRequest('/onboarding/new-hires', {
+            method: 'POST',
+            body: JSON.stringify({
+                facility_id: facility.id,
+                staff_id: staffId,
+                hire_date: hireDate
+            })
+        });
+        
+        if (response.success) {
+            showSuccess(`✅ Onboarding started for ${staffName}!`);
+            // Navigate to onboarding dashboard
+            setTimeout(() => {
+                navigateTo(`/onboarding/${response.data.id}/dashboard`);
+            }, 500);
+        } else {
+            showError(response.message || 'Failed to start onboarding');
+        }
+    } catch (error) {
+        console.error('Error starting onboarding:', error);
+        showError(error.message || 'Failed to start onboarding');
     }
 }
 
