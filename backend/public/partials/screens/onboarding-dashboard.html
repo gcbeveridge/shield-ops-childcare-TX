@@ -1,0 +1,145 @@
+<!-- Page Header -->
+<div class="cac-page-header cac-animate-slideDown" style="padding: 20px 24px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
+                <span class="cac-page-icon"
+                    style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">📊</span>
+                <span id="dashboard-staff-name">Onboarding Dashboard</span>
+            </h1>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">
+                Hired: <span id="dashboard-hire-date">--</span> • 
+                <span id="dashboard-days-since-hire">--</span> days since hire
+            </p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="navigateTo('/onboarding')"
+                style="padding: 8px 14px;">
+                <span>←</span> Back to List
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Overview -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.05s; padding: 20px; margin-bottom: 20px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(124, 58, 237, 0.02));">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">📈</span>
+            Overall Progress
+        </h3>
+        <span id="dashboard-status-badge" class="cac-badge cac-badge-warning" style="font-size: 0.75rem; padding: 4px 10px;">In Progress</span>
+    </div>
+    <div style="margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #64748b; margin-bottom: 6px;">
+            <span>Completion</span>
+            <span id="dashboard-progress-percent">0%</span>
+        </div>
+        <div style="background: #e2e8f0; height: 16px; border-radius: 8px; overflow: hidden;">
+            <div id="dashboard-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed); transition: width 0.5s ease;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Three Column Layout -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px;">
+    
+    <!-- Column 1: Day One Status -->
+    <div class="cac-card cac-animate-slideUp" style="animation-delay: 0.1s; padding: 20px;">
+        <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700; margin-bottom: 15px;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">📚</span>
+            Day One Orientation
+        </h3>
+        
+        <div id="dayone-status-pending" style="display: none;">
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+                <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px;">Not started</p>
+                <button class="cac-btn cac-btn-primary" onclick="startDayOne()" style="width: 100%; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    Start Day One
+                </button>
+            </div>
+        </div>
+        
+        <div id="dayone-status-completed" style="display: none;">
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">✅</div>
+                <p style="font-size: 0.85rem; color: #10b981; margin-bottom: 5px; font-weight: 600;">Completed</p>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 3px;">
+                    <strong>Date:</strong> <span id="dayone-completed-date">--</span>
+                </p>
+                <p style="font-size: 0.75rem; color: #64748b; margin-bottom: 3px;">
+                    <strong>Duration:</strong> <span id="dayone-duration">--</span> min
+                </p>
+                <p style="font-size: 0.75rem; color: #64748b;">
+                    <strong>Champion:</strong> <span id="dayone-champion">--</span>
+                </p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #8b5cf6;">
+            <p style="font-size: 0.75rem; color: #64748b; margin: 0;">
+                <strong>7 sections</strong> • ~110 minutes<br>
+                Covers facility tour, emergency procedures, and Texas DFPS regulations
+            </p>
+        </div>
+    </div>
+
+    <!-- Column 2: Week One Check-ins -->
+    <div class="cac-card cac-animate-slideUp" style="animation-delay: 0.15s; padding: 20px;">
+        <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700; margin-bottom: 15px;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">📅</span>
+            Week One Check-ins
+        </h3>
+        
+        <div id="weekone-checklist" style="margin-bottom: 15px;">
+            <!-- Will be populated by JavaScript -->
+        </div>
+        
+        <button id="weekone-start-btn" class="cac-btn cac-btn-primary" onclick="startWeekOne()" disabled style="width: 100%; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+            Start Week One
+        </button>
+        
+        <div id="weekone-complete-badge" style="display: none; text-align: center; margin-top: 15px;">
+            <span class="cac-badge cac-badge-success" style="font-size: 0.85rem; padding: 8px 16px;">✨ Week One Complete!</span>
+        </div>
+        
+        <div style="margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #8b5cf6;">
+            <p style="font-size: 0.75rem; color: #64748b; margin: 0;">
+                <strong>Days 2-7</strong> • Daily check-ins<br>
+                Champion-led activities and spot checks
+            </p>
+        </div>
+    </div>
+
+    <!-- Column 3: Next Steps -->
+    <div class="cac-card cac-animate-slideUp" style="animation-delay: 0.2s; padding: 20px;">
+        <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700; margin-bottom: 15px;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">🎯</span>
+            Next Steps
+        </h3>
+        
+        <div id="next-steps-content">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.25s; padding: 20px;">
+    <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700; margin-bottom: 15px;">
+        <span class="cac-card-title-icon" style="font-size: 1rem;">⚡</span>
+        Quick Actions
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <button class="cac-btn cac-btn-secondary" onclick="viewStaffProfile()">
+            👤 View Staff Profile
+        </button>
+        <button class="cac-btn cac-btn-secondary" onclick="navigateTo('/training')">
+            📚 Assign Training
+        </button>
+        <button class="cac-btn cac-btn-secondary" onclick="navigateTo('/documents')">
+            📄 Upload Documents
+        </button>
+    </div>
+</div>

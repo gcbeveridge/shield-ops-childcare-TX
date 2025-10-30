@@ -1,0 +1,167 @@
+<!-- Page Header -->
+<div class="cac-page-header cac-animate-slideDown" style="padding: 20px 24px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
+                <span class="cac-page-icon"
+                    style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">📅</span>
+                Week One Check-ins
+            </h1>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">
+                New Hire: <span id="weekone-staff-name">--</span> • Days 2-7 Daily Activities
+            </p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="exitWeekOne()"
+                style="padding: 8px 14px;">
+                <span>←</span> Back to Dashboard
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Overview -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.05s; padding: 16px; margin-bottom: 20px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(124, 58, 237, 0.02));">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="font-size: 0.85rem; font-weight: 700; margin: 0;">
+            Week One Progress
+        </h3>
+        <span style="font-size: 0.8rem; color: #8b5cf6; font-weight: 600;">
+            <span id="weekone-completed-count">0</span>/6 Days Completed
+        </span>
+    </div>
+    <div style="background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+        <div id="weekone-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed); transition: width 0.3s ease;"></div>
+    </div>
+</div>
+
+<!-- Day Tabs -->
+<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.1s; padding: 0; overflow: hidden; margin-bottom: 20px;">
+    <div style="display: flex; border-bottom: 2px solid #e2e8f0; background: #f8fafc; overflow-x: auto;">
+        <button class="day-tab" data-day="2" onclick="selectDay(2)" style="flex: 1; min-width: 100px; padding: 14px 12px; border: none; background: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s;">
+            <div>Day 2</div>
+            <div style="font-size: 0.7rem; margin-top: 3px;">🚪 Exits</div>
+        </button>
+        <button class="day-tab" data-day="3" onclick="selectDay(3)" style="flex: 1; min-width: 100px; padding: 14px 12px; border: none; background: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s;">
+            <div>Day 3</div>
+            <div style="font-size: 0.7rem; margin-top: 3px;">🧼 Hygiene</div>
+        </button>
+        <button class="day-tab" data-day="4" onclick="selectDay(4)" style="flex: 1; min-width: 100px; padding: 14px 12px; border: none; background: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s;">
+            <div>Day 4</div>
+            <div style="font-size: 0.7rem; margin-top: 3px;">🛡️ Protection</div>
+        </button>
+        <button class="day-tab" data-day="5" onclick="selectDay(5)" style="flex: 1; min-width: 100px; padding: 14px 12px; border: none; background: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s;">
+            <div>Day 5</div>
+            <div style="font-size: 0.7rem; margin-top: 3px;">👀 Supervision</div>
+        </button>
+        <button class="day-tab" data-day="6" onclick="selectDay(6)" style="flex: 1; min-width: 100px; padding: 14px 12px; border: none; background: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s;">
+            <div>Day 6</div>
+            <div style="font-size: 0.7rem; margin-top: 3px;">⚠️ Incidents</div>
+        </button>
+        <button class="day-tab" data-day="7" onclick="selectDay(7)" style="flex: 1; min-width: 100px; padding: 14px 12px; border: none; background: none; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #64748b; border-bottom: 3px solid transparent; transition: all 0.2s;">
+            <div>Day 7</div>
+            <div style="font-size: 0.7rem; margin-top: 3px;">😊 Behavior</div>
+        </button>
+    </div>
+    
+    <!-- Day Content -->
+    <div id="day-content-container" style="padding: 24px;">
+        <div id="day-loading" style="text-align: center; padding: 40px;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+            <p style="color: #64748b;">Loading day content...</p>
+        </div>
+        
+        <div id="day-content" style="display: none;">
+            <!-- Day Title & Info -->
+            <div style="margin-bottom: 20px;">
+                <h2 id="day-title" style="font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; color: #1e293b;">
+                    Day Title
+                </h2>
+                <p style="font-size: 0.85rem; color: #64748b;">
+                    Duration: <span id="day-duration">--</span> min
+                </p>
+            </div>
+            
+            <!-- Champion Approach -->
+            <div style="margin-bottom: 24px; padding: 16px; background: linear-gradient(135deg, #ddd6fe, #c4b5fd); border-left: 4px solid #8b5cf6; border-radius: 8px;">
+                <h4 style="font-size: 0.85rem; font-weight: 700; margin: 0 0 10px 0; color: #5b21b6; display: flex; align-items: center; gap: 6px;">
+                    <span>🎯</span> Champion Approach
+                </h4>
+                <div id="champion-approach" style="font-size: 0.85rem; color: #6b21a8; line-height: 1.6;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Activities -->
+            <div style="margin-bottom: 24px;">
+                <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; color: #1e293b;">
+                    Activities
+                </h4>
+                <div id="day-activities" style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Quick Verification -->
+            <div style="margin-bottom: 24px; padding: 16px; background: #f8fafc; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                <h4 style="font-size: 0.85rem; font-weight: 700; margin: 0 0 10px 0; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+                    <span>✓</span> Quick Verification
+                </h4>
+                <div id="verification-questions" style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Champion Notes -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: #1e293b;">
+                    Champion Notes (Optional)
+                </label>
+                <textarea id="champion-notes" rows="3" placeholder="Add any observations or notes from today's check-in..."
+                    style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; resize: vertical;"></textarea>
+            </div>
+            
+            <!-- Complete Day Button -->
+            <button id="complete-day-btn" class="cac-btn cac-btn-primary" onclick="completeDayCheckin()" 
+                style="width: 100%; padding: 14px; font-size: 1rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <span id="complete-day-text">✓ Complete Day 2</span>
+            </button>
+            
+            <div id="day-completed-banner" style="display: none; text-align: center; margin-top: 15px;">
+                <span class="cac-badge cac-badge-success" style="font-size: 0.9rem; padding: 10px 20px;">
+                    ✅ This day has been completed
+                </span>
+                <p style="font-size: 0.75rem; color: #64748b; margin-top: 8px;">
+                    Completed on: <span id="day-completed-date">--</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .day-tab:hover {
+        background: rgba(139, 92, 246, 0.05);
+    }
+    .day-tab.active {
+        color: #8b5cf6 !important;
+        border-bottom-color: #8b5cf6 !important;
+        background: white !important;
+    }
+    .day-tab.completed {
+        color: #10b981 !important;
+    }
+    .day-tab.completed::before {
+        content: '✓ ';
+    }
+    .activity-card {
+        padding: 14px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        border-left: 3px solid #8b5cf6;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        color: #334155;
+    }
+</style>

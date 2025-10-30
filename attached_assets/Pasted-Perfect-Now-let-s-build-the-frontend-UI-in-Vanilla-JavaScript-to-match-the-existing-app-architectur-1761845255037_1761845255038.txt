@@ -1,0 +1,82 @@
+Perfect! Now let's build the frontend UI in Vanilla JavaScript to match the existing app architecture.
+
+I need the onboarding UI built with:
+- ✅ Vanilla JavaScript (no React/frameworks)
+- ✅ HTML partials in backend/public/pages/ or backend/public/partials/
+- ✅ CSS matching the existing CAC Design System
+- ✅ Integration with your existing js/router.js
+- ✅ Modular structure like your other pages
+
+---
+
+PLEASE CREATE:
+
+1. backend/public/pages/onboarding-list.html
+   - Table showing all new hires and their onboarding status
+   - Columns: Name, Hire Date, Day One Status, Week One Progress, Overall Status
+   - "Add New Hire" button
+   - Click row to view dashboard
+   - Uses existing table styling
+
+2. backend/public/pages/onboarding-dashboard.html
+   - New hire progress overview
+   - Three-column layout: Day One, Week One, Next Steps
+   - Progress bar showing completion %
+   - Status badges using existing badge styles
+   - Buttons to start Day One or Week One check-ins
+
+3. backend/public/pages/day-one-orientation.html
+   - Step-by-step walkthrough of 7 sections
+   - Previous/Next navigation
+   - Progress indicator
+   - Final sign-off page with signature inputs
+   - "Complete Day One" button
+
+4. backend/public/pages/week-one-checkins.html
+   - Tab interface for days 2-7
+   - Shows activities, verification questions per day
+   - Champion notes textarea
+   - "Complete Day X" button
+   - Visual checkmarks for completed days
+
+5. backend/public/js/onboarding.js
+   - JavaScript module for all onboarding functionality
+   - API calls using fetch or your existing API utility
+   - DOM manipulation
+   - Event handlers
+   - State management
+
+6. backend/public/css/onboarding.css (if needed)
+   - Additional styles for onboarding pages
+   - Or integrate into existing CSS
+
+---
+
+INTEGRATION:
+
+Update js/router.js to add routes:
+- /onboarding → onboarding-list.html
+- /onboarding/:id/dashboard → onboarding-dashboard.html
+- /onboarding/:id/day-one → day-one-orientation.html
+- /onboarding/:id/week-one → week-one-checkins.html
+
+Add "Onboarding" link to main navigation
+
+---
+
+FUNCTIONALITY REQUIREMENTS:
+
+✅ Fetch data from the API endpoints you just created
+✅ Handle loading states
+✅ Show error messages
+✅ Form validation
+✅ Success notifications
+✅ Auto-refresh dashboard
+✅ Calculate progress percentages
+✅ Track completion status
+✅ Mobile-responsive design
+✅ Match existing app's look and feel
+
+---
+
+Please build this using the same patterns and structure as your existing pages. Let me know when complete and I'll test it!

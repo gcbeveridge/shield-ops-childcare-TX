@@ -1,0 +1,173 @@
+<!-- Page Header -->
+<div class="cac-page-header cac-animate-slideDown" style="padding: 20px 24px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
+                <span class="cac-page-icon"
+                    style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🎓</span>
+                New Hire Onboarding
+            </h1>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Track staff onboarding progress • Texas DFPS Day One & Week One compliance</p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="openAddNewHireModal()"
+                style="padding: 8px 14px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <span>+</span> Add New Hire
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Grid - Compact -->
+<div class="cac-stats-grid cac-animate-slideUp"
+    style="animation-delay: 0.05s; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); max-width: 800px; margin-bottom: 20px;">
+    <div class="cac-stat-card cac-stat-primary" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">👥</div>
+        <div class="cac-stat-value" id="onboarding-total-count" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Total New Hires</div>
+    </div>
+    <div class="cac-stat-card cac-stat-success" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">✅</div>
+        <div class="cac-stat-value" id="onboarding-completed-count" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Completed</div>
+    </div>
+    <div class="cac-stat-card cac-stat-warning" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">⏳</div>
+        <div class="cac-stat-value" id="onboarding-inprogress-count" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">In Progress</div>
+    </div>
+    <div class="cac-stat-card cac-stat-danger" style="padding: 14px;">
+        <div class="cac-stat-icon" style="font-size: 1.3rem;">⚠️</div>
+        <div class="cac-stat-value" id="onboarding-overdue-count" style="font-size: 1.6rem; margin: 4px 0;">--</div>
+        <div class="cac-stat-label" style="font-size: 0.7rem;">Overdue</div>
+    </div>
+</div>
+
+<!-- Onboarding List Table -->
+<div class="cac-card cac-animate-slideUp" id="onboarding-roster"
+    style="animation-delay: 0.15s; padding: 0; overflow: hidden; margin-bottom: 0;">
+    <div class="cac-card-header"
+        style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100); display: flex; justify-content: space-between; align-items: center;">
+        <h3 class="cac-card-title" style="font-size: 0.9rem; font-weight: 700;">
+            <span class="cac-card-title-icon" style="font-size: 1rem;">📋</span>
+            Onboarding Tracker
+        </h3>
+        <div style="display: flex; gap: 6px;">
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterOnboarding('all')"
+                style="padding: 6px 12px; font-size: 0.75rem;">
+                All (<span id="onboarding-filter-all">0</span>)
+            </button>
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterOnboarding('in_progress')"
+                style="padding: 6px 12px; font-size: 0.75rem;">
+                ⏳ Active
+            </button>
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterOnboarding('completed')"
+                style="padding: 6px 12px; font-size: 0.75rem;">
+                ✅ Completed
+            </button>
+        </div>
+    </div>
+
+    <div class="cac-table-container" style="overflow-x: auto;">
+        <table class="data-table cac-table">
+            <thead>
+                <tr>
+                    <th style="font-size: 0.8rem; padding: 10px;">Name</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Hire Date</th>
+                    <th style="font-size: 0.8rem; padding: 10px;" class="hide-mobile">Days Since Hire</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Day One</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Week One</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Status</th>
+                    <th style="font-size: 0.8rem; padding: 10px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="onboarding-list-tbody">
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #94a3b8;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">📋</div>
+                        <p style="font-size: 0.9rem; margin: 0;">Loading onboarding records...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add New Hire Modal -->
+<div class="modal" id="add-new-hire-modal" style="display: none;">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+            <h2 style="margin: 0; color: white; font-size: 1.2rem;">🎓 Add New Hire</h2>
+            <button class="modal-close" onclick="closeModal('add-new-hire-modal')">&times;</button>
+        </div>
+        <form id="add-new-hire-form" onsubmit="submitNewHire(event)">
+            <div class="modal-body" style="padding: 20px;">
+                <div class="form-group">
+                    <label>Staff Member *</label>
+                    <select id="new-hire-staff-id" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem;">
+                        <option value="">Select Staff Member...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Hire Date *</label>
+                    <input type="date" id="new-hire-date" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem;">
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 15px;">
+                    <strong>Note:</strong> This will create a new onboarding record with Day One orientation (7 sections, ~110 minutes) and Week One check-ins (Days 2-7).
+                </p>
+            </div>
+            <div class="modal-footer" style="padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+                <button type="button" class="cac-btn cac-btn-secondary" onclick="closeModal('add-new-hire-modal')">Cancel</button>
+                <button type="submit" class="cac-btn cac-btn-primary" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    Create Onboarding Record
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .modal-header {
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .modal-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 2rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #1e293b;
+    }
+</style>
