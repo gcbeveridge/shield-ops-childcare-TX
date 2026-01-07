@@ -1,9 +1,17 @@
 const UserDB = require('../models/UserDB');
 const FacilityDB = require('../models/FacilityDB');
 const StaffDB = require('../models/StaffDB');
+const runMigrations = require('../scripts/runMigrations');
+const seedStateRegulations = require('../scripts/seedStateRegulations');
 
 async function autoSeedDB() {
   try {
+    // Run database migrations first (adds new columns/tables safely)
+    await runMigrations();
+    
+    // Seed state regulations
+    await seedStateRegulations();
+    
     const fixedFacilityId = '00000000-0000-0000-0000-000000000001';
     const fixedUserId = '00000000-0000-0000-0000-000000000002';
 

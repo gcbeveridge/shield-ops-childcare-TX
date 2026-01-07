@@ -6252,6 +6252,208 @@ function exitWeekOne() {
 }
 
 // ===================================
+// SETTINGS PAGE FUNCTIONS
+// ===================================
+
+let allStates = [];
+let currentStateRegulations = [];
+let selectedStateCode = null;
+
+async function loadSettingsPage() {
+    try {
+        const facility = JSON.parse(localStorage.getItem('facility'));
+        
+        // Load facility info display
+        document.getElementById('facility-name-display').textContent = facility.name || '--';
+        document.getElementById('facility-license-display').textContent = facility.licenseNumber || '--';
+        document.getElementById('facility-capacity-display').textContent = facility.capacity ? `${facility.capacity} children` : '--';
+        
+        const address = facility.address || {};
+        const addressStr = [address.street, address.city, address.state, address.zip].filter(Boolean).join(', ');
+        document.getElementById('facility-address-display').textContent = addressStr || '--';
+        
+        // Load states list
+        const statesResponse = await apiRequest('/states/list');
+        if (statesResponse.success) {
+            allStates = statesResponse.data;
+            populateStateSelect(allStates);
+        }
+        
+        // Load current facility state
+        const facilityStateResponse = await apiRequest(`/states/facility/${facility.id}`);
+        if (facilityStateResponse.success) {
+            selectedStateCode = facilityStateResponse.data.state_code || 'TX';
+            document.getElementById('facility-state-select').value = selectedStateCode;
+            document.getElementById('current-state-display').textContent = facilityStateResponse.data.state_name || 'Texas';
+            
+            // Load regulations for current state
+            await loadStateRegulations(selectedStateCode);
+        }
+        
+    } catch (error) {
+        console.error('Failed to load settings page:', error);
+        showError('Failed to load settings');
+    }
+}
+
+function populateStateSelect(states) {
+    const select = document.getElementById('facility-state-select');
+    select.innerHTML = states.map(state => {
+        const supportedBadge = state.supported ? '' : ' (Coming Soon)';
+        return `<option value="${state.code}" ${!state.supported ? 'disabled' : ''}>${state.name}${supportedBadge}</option>`;
+    }).join('');
+    
+    // Add change listener
+    select.addEventListener('change', async (e) => {
+        selectedStateCode = e.target.value;
+        const selectedState = allStates.find(s => s.code === selectedStateCode);
+        if (selectedState) {
+            await loadStateRegulations(selectedStateCode);
+        }
+    });
+}
+
+async function loadStateRegulations(stateCode) {
+    try {
+        const response = await apiRequest(`/states/${stateCode}/regulations`);
+        if (response.success) {
+            currentStateRegulations = response.data;
+            renderRegulationsTable(currentStateRegulations);
+            renderCategoryTabs(currentStateRegulations);
+            document.getElementById('regulations-count').textContent = `${currentStateRegulations.length} regulations loaded`;
+        }
+    } catch (error) {
+        console.error('Failed to load state regulations:', error);
+        document.getElementById('regulations-tbody').innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <p style="font-size: 0.9rem; margin: 0;">No regulations found for this state</p>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function renderRegulationsTable(regulations) {
+    const tbody = document.getElementById('regulations-tbody');
+    
+    if (!regulations || regulations.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 40px; color: #94a3b8;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">📋</div>
+                    <p style="font-size: 0.9rem; margin: 0;">No regulations found for this state</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = regulations.map(reg => {
+        const weightBadge = getViolationWeightBadge(reg.violation_weight);
+        return `
+            <tr>
+                <td style="font-size: 0.8rem; font-weight: 600; color: #4f46e5;">${reg.regulation_category}</td>
+                <td style="font-size: 0.8rem; color: var(--gray-700);">${reg.requirement_text}</td>
+                <td style="font-size: 0.75rem;">${weightBadge}</td>
+                <td style="font-size: 0.75rem; color: #64748b;">${reg.citation_reference || '--'}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function getViolationWeightBadge(weight) {
+    const badges = {
+        'high': '<span class="cac-badge cac-badge-danger">High</span>',
+        'medium-high': '<span class="cac-badge" style="background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;">Medium-High</span>',
+        'medium': '<span class="cac-badge cac-badge-warning">Medium</span>',
+        'low': '<span class="cac-badge cac-badge-success">Low</span>'
+    };
+    return badges[weight] || '<span class="cac-badge cac-badge-secondary">--</span>';
+}
+
+function renderCategoryTabs(regulations) {
+    const categories = [...new Set(regulations.map(r => r.regulation_category))];
+    const tabsContainer = document.getElementById('category-tabs');
+    
+    tabsContainer.innerHTML = `
+        <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="filterRegulations('all')" style="padding: 6px 12px; font-size: 0.75rem;">
+            All (${regulations.length})
+        </button>
+        ${categories.map(cat => {
+            const count = regulations.filter(r => r.regulation_category === cat).length;
+            return `<button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="filterRegulations('${cat}')" style="padding: 6px 12px; font-size: 0.75rem;">
+                ${cat} (${count})
+            </button>`;
+        }).join('')}
+    `;
+}
+
+function filterRegulations(category) {
+    // Update button states
+    const buttons = document.querySelectorAll('#category-tabs .cac-btn');
+    buttons.forEach(btn => {
+        btn.classList.remove('cac-btn-primary');
+        btn.classList.add('cac-btn-secondary');
+        if (category === 'all' && btn.textContent.includes('All')) {
+            btn.classList.remove('cac-btn-secondary');
+            btn.classList.add('cac-btn-primary');
+        } else if (btn.textContent.includes(category)) {
+            btn.classList.remove('cac-btn-secondary');
+            btn.classList.add('cac-btn-primary');
+        }
+    });
+    
+    // Filter regulations
+    const filtered = category === 'all' 
+        ? currentStateRegulations 
+        : currentStateRegulations.filter(r => r.regulation_category === category);
+    
+    renderRegulationsTable(filtered);
+}
+
+async function saveFacilityState() {
+    try {
+        const facility = JSON.parse(localStorage.getItem('facility'));
+        const stateCode = document.getElementById('facility-state-select').value;
+        const selectedState = allStates.find(s => s.code === stateCode);
+        
+        if (!selectedState) {
+            showError('Please select a valid state');
+            return;
+        }
+        
+        if (!selectedState.supported) {
+            showError('This state is not yet supported');
+            return;
+        }
+        
+        const response = await apiRequest(`/states/facility/${facility.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                state_code: stateCode,
+                state_name: selectedState.name
+            })
+        });
+        
+        if (response.success) {
+            showSuccess(`✅ State updated to ${selectedState.name}!`);
+            document.getElementById('current-state-display').textContent = selectedState.name;
+            
+            // Update localStorage
+            facility.state_code = stateCode;
+            facility.state_name = selectedState.name;
+            localStorage.setItem('facility', JSON.stringify(facility));
+        } else {
+            showError(response.message || 'Failed to update state');
+        }
+    } catch (error) {
+        console.error('Failed to save facility state:', error);
+        showError('Failed to save state configuration');
+    }
+}
+
+// ===================================
 // Router Initialization
 // ===================================
 // Note: Router is now initialized in the DOMContentLoaded handler above (line ~1055)

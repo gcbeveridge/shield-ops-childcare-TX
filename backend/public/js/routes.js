@@ -213,6 +213,17 @@ const routes = [
             await window.htmlLoader.loadScreen('week-one-checkins');
             await loadWeekOneCheckins(params.id);
         }
+    },
+
+    // Settings
+    {
+        path: '/settings',
+        screen: 'settings',
+        title: 'Facility Settings',
+        handler: async (params) => {
+            await window.htmlLoader.loadScreen('settings');
+            await loadSettingsPage();
+        }
     }
 ];
 

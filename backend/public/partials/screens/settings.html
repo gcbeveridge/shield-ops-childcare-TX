@@ -1,0 +1,119 @@
+<!-- Page Header -->
+<div class="cac-page-header cac-animate-slideDown" style="padding: 20px 24px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1 class="cac-page-title" style="font-size: 1.5rem; margin-bottom: 2px;">
+                <span class="cac-page-icon"
+                    style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚙️</span>
+                Facility Settings
+            </h1>
+            <p class="cac-page-subtitle" style="font-size: 0.8rem; opacity: 0.85;">Configure your facility preferences and state compliance requirements</p>
+        </div>
+    </div>
+</div>
+
+<!-- Settings Content -->
+<div class="cac-animate-slideUp" style="animation-delay: 0.05s;">
+    <!-- State Configuration Card -->
+    <div class="cac-card" style="margin-bottom: 20px;">
+        <div class="cac-card-header" style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100);">
+            <h3 class="cac-card-title" style="font-size: 0.95rem; font-weight: 700;">
+                <span class="cac-card-title-icon" style="font-size: 1rem;">🏛️</span>
+                State Compliance Configuration
+            </h3>
+        </div>
+        <div class="cac-card-body" style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px;">
+                <div class="form-group">
+                    <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray-700); margin-bottom: 6px; display: block;">Facility State/Location</label>
+                    <select id="facility-state-select" class="form-input" style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; background: white;">
+                        <option value="">Loading states...</option>
+                    </select>
+                    <p style="font-size: 0.75rem; color: #64748b; margin-top: 6px;">Select your state to load appropriate compliance requirements</p>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight: 600; font-size: 0.85rem; color: var(--gray-700); margin-bottom: 6px; display: block;">Current State</label>
+                    <div id="current-state-display" style="padding: 10px 12px; background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: #166534;">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button id="save-state-btn" onclick="saveFacilityState()" class="cac-btn cac-btn-primary" style="padding: 10px 24px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);">
+                    Save State Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- State Regulations Preview Card -->
+    <div class="cac-card" style="margin-bottom: 20px;">
+        <div class="cac-card-header" style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100); display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="cac-card-title" style="font-size: 0.95rem; font-weight: 700;">
+                <span class="cac-card-title-icon" style="font-size: 1rem;">📋</span>
+                State Regulations Preview
+            </h3>
+            <div id="regulations-count" style="font-size: 0.8rem; color: #64748b;">-- regulations loaded</div>
+        </div>
+        <div class="cac-card-body" style="padding: 20px;">
+            <!-- Category Filter Tabs -->
+            <div id="category-tabs" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+                <button class="cac-btn cac-btn-sm cac-btn-primary" onclick="filterRegulations('all')" style="padding: 6px 12px; font-size: 0.75rem;">
+                    All Categories
+                </button>
+            </div>
+            
+            <!-- Regulations Table -->
+            <div class="cac-table-container" style="overflow-x: auto; max-height: 400px; overflow-y: auto;">
+                <table class="data-table cac-table" style="width: 100%;">
+                    <thead style="position: sticky; top: 0; background: white; z-index: 1;">
+                        <tr>
+                            <th style="font-size: 0.8rem; padding: 10px;">Category</th>
+                            <th style="font-size: 0.8rem; padding: 10px;">Requirement</th>
+                            <th style="font-size: 0.8rem; padding: 10px;">Violation Weight</th>
+                            <th style="font-size: 0.8rem; padding: 10px;">Citation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="regulations-tbody">
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 40px; color: #94a3b8;">
+                                <div style="font-size: 2rem; margin-bottom: 10px;">📋</div>
+                                <p style="font-size: 0.9rem; margin: 0;">Select a state to view regulations</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Facility Information Card -->
+    <div class="cac-card" style="margin-bottom: 20px;">
+        <div class="cac-card-header" style="padding: 14px 16px; border-bottom: 2px solid var(--cac-gray-100);">
+            <h3 class="cac-card-title" style="font-size: 0.95rem; font-weight: 700;">
+                <span class="cac-card-title-icon" style="font-size: 1rem;">🏢</span>
+                Facility Information
+            </h3>
+        </div>
+        <div class="cac-card-body" style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                <div>
+                    <label style="font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Facility Name</label>
+                    <p id="facility-name-display" style="font-size: 0.95rem; color: var(--gray-900); margin-top: 4px;">--</p>
+                </div>
+                <div>
+                    <label style="font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">License Number</label>
+                    <p id="facility-license-display" style="font-size: 0.95rem; color: var(--gray-900); margin-top: 4px;">--</p>
+                </div>
+                <div>
+                    <label style="font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Capacity</label>
+                    <p id="facility-capacity-display" style="font-size: 0.95rem; color: var(--gray-900); margin-top: 4px;">--</p>
+                </div>
+                <div>
+                    <label style="font-weight: 600; font-size: 0.8rem; color: #64748b; text-transform: uppercase;">Address</label>
+                    <p id="facility-address-display" style="font-size: 0.95rem; color: var(--gray-900); margin-top: 4px;">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
