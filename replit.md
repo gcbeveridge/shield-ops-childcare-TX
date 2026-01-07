@@ -23,9 +23,10 @@ The application is a single-page web application with a RESTful API.
 
 ### Database
 - **Technology:** PostgreSQL (Neon) with Supabase migration support
-- **Schema:** 14 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents, day_one_orientation_content, week_one_checkins_content, onboarding_records).
+- **Schema:** 15 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents, day_one_orientation_content, week_one_checkins_content, onboarding_records, state_regulations).
 - **Data Persistence:** Data persists across server restarts and page refreshes.
 - **Auto-seeding:** Database auto-populates on server startup with fixed UUIDs for consistent login.
+- **Database Migrations:** Auto-running SQL migrations in `backend/config/migrations/` directory. Migrations run on server startup and track completion in `schema_migrations` table.
 - **Onboarding Content Seeding:** Texas childcare onboarding content (Day One orientation + Week One check-ins).
   - Scripts: `backend/scripts/seedDayOne.js`, `backend/scripts/seedWeekOne.js`, `backend/scripts/seedOnboarding.js`
   - Run with: `npm run db:seed-onboarding` (or individually: `npm run db:seed-dayone`, `npm run db:seed-weekone`)
@@ -75,6 +76,15 @@ The application is a single-page web application with a RESTful API.
     - **Features:** Ask Questions, Analyze Incidents, Training Suggestions.
     - **Interface:** Floating chat button accessible on all pages.
     - **Responses:** Professional, actionable guidance with regulation citations.
+- **Settings Page (Nationwide State Support):**
+    - **State Selector:** Dropdown to choose facility state from all 50 US states.
+    - **Supported States:** TX, CA, FL, NY, PA, IL, OH, GA, NC, MI (10 states with 97 regulations).
+    - **Coming Soon:** 41 additional states marked as "Coming Soon" with disabled options.
+    - **Regulations Preview:** Interactive table showing state-specific compliance requirements.
+    - **Category Filtering:** Filter regulations by category (Staff, Medication, Incident, etc.).
+    - **Violation Weight Badges:** Color-coded badges (High, Medium-High, Medium, Low).
+    - **Facility Information:** Display current facility name, license, capacity, and address.
+    - **API Endpoints:** GET /api/states/list, GET /api/states/:code/regulations, GET/PUT /api/states/facility/:id.
 
 ### Deployment
 - **Type:** Autoscale deployment (stateless web app).
