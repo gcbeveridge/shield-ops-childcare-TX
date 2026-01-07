@@ -6303,8 +6303,11 @@ function populateStateSelect(states) {
         return `<option value="${state.code}" ${!state.supported ? 'disabled' : ''}>${state.name}${supportedBadge}</option>`;
     }).join('');
     
-    // Add change listener
-    select.addEventListener('change', async (e) => {
+    // Replace element to remove existing listeners, then add new one
+    const newSelect = select.cloneNode(true);
+    select.parentNode.replaceChild(newSelect, select);
+    
+    newSelect.addEventListener('change', async (e) => {
         selectedStateCode = e.target.value;
         const selectedState = allStates.find(s => s.code === selectedStateCode);
         if (selectedState) {
