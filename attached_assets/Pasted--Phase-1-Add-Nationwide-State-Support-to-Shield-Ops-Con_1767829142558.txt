@@ -1,0 +1,134 @@
+# Phase 1: Add Nationwide State Support to Shield Ops
+
+## Context
+Shield Ops currently has Texas-specific compliance requirements. We need to add nationwide support while preserving all existing functionality.
+
+## CRITICAL RULES
+- DO NOT modify any existing working features
+- DO NOT change existing database tables - only ADD new ones
+- DO NOT modify server.py routes - only ADD new endpoints
+- Test each change before proceeding
+- Create database migrations, don't drop tables
+
+## Tasks
+
+### 1. Create State Regulations Database Table
+Add this new table to your database schema (don't modify existing tables):
+```sql
+-- Add to your schema file
+CREATE TABLE IF NOT EXISTS state_regulations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    state_code VARCHAR(2) NOT NULL,
+    state_name VARCHAR(100) NOT NULL,
+    regulation_category VARCHAR(100) NOT NULL,
+    requirement_text TEXT NOT NULL,
+    violation_weight VARCHAR(20), -- 'low', 'medium', 'medium-high', 'high'
+    citation_reference VARCHAR(200),
+    inspection_frequency VARCHAR(50), -- 'annual', 'biannual', 'every-other-year'
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_state_regs_state ON state_regulations(state_code);
+CREATE INDEX idx_state_regs_category ON state_regulations(regulation_category);
+
+-- Add state_code to facilities table (if it doesn't exist)
+ALTER TABLE facilities ADD COLUMN IF NOT EXISTS state_code VARCHAR(2) DEFAULT 'TX';
+ALTER TABLE facilities ADD COLUMN IF NOT EXISTS state_name VARCHAR(100) DEFAULT 'Texas';
+```
+
+### 2. Create State Configuration Endpoint
+Add a new API endpoint to server.py (don't modify existing endpoints):
+```python
+# Add to server.py
+
+@app.route('/api/states/list', methods=['GET'])
+def get_states():
+    """Get list of all supported states"""
+    states = [
+        {'code': 'TX', 'name': 'Texas', 'supported': True},
+        {'code': 'CA', 'name': 'California', 'supported': True},
+        {'code': 'FL', 'name': 'Florida', 'supported': True},
+        {'code': 'NY', 'name': 'New York', 'supported': True},
+        # Add more states as needed
+    ]
+    return jsonify(states), 200
+
+@app.route('/api/facilities/<facility_id>/state', methods=['PUT'])
+def update_facility_state(facility_id):
+    """Update facility's state"""
+    data = request.get_json()
+    state_code = data.get('state_code')
+    state_name = data.get('state_name')
+    
+    # Update facility state
+    # Add your database update logic here
+    
+    return jsonify({'success': True, 'state': state_code}), 200
+```
+
+### 3. Update Facility Settings UI
+Add a state selector to the facility settings page without breaking existing settings:
+
+In your settings HTML/template, add:
+```html
+<div class="form-group">
+    <label>Facility State/Location</label>
+    <select id="facility-state" class="form-input">
+        <option value="TX">Texas</option>
+        <option value="CA">California</option>
+        <option value="FL">Florida</option>
+        <option value="NY">New York</option>
+        <!-- Add more states -->
+    </select>
+    <p class="help-text">Select your state to load appropriate compliance requirements</p>
+</div>
+```
+
+### 4. Seed Sample State Data
+Create a seed script that adds basic state regulations without affecting existing data:
+```python
+# Create seed_states.py
+def seed_state_regulations():
+    # Sample regulations for multiple states
+    regulations = [
+        # Texas
+        {
+            'state_code': 'TX',
+            'state_name': 'Texas',
+            'category': 'Staff Ratios',
+            'requirement': 'Infant (0-12 months): 1:4 ratio required',
+            'violation_weight': 'high',
+            'citation': 'TX Admin Code §746.1301'
+        },
+        # California
+        {
+            'state_code': 'CA',
+            'state_name': 'California',
+            'category': 'Staff Ratios',
+            'requirement': 'Infant (0-12 months): 1:4 ratio required',
+            'violation_weight': 'high',
+            'citation': 'CA Health & Safety Code §1597.05'
+        },
+        # Add more...
+    ]
+    # Insert into database
+```
+
+## Expected Outcome
+- ✅ New state_regulations table created
+- ✅ facilities table has state_code column
+- ✅ New API endpoints work
+- ✅ Settings page shows state selector
+- ✅ ALL existing features still work
+- ✅ Database migration successful
+
+## Testing Checklist
+- [ ] Can still log in
+- [ ] Dashboard still loads
+- [ ] Staff management still works
+- [ ] Documents still upload
+- [ ] New state selector appears in settings
+- [ ] Can select different states
+- [ ] Database has new table
+
+Run this phase, test thoroughly, create a checkpoint, then I'll give you Phase 2!
