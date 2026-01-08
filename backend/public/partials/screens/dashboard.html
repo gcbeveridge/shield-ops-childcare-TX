@@ -210,6 +210,51 @@
     </div>
 </div>
 
+<!-- Ratio Spot-Check Widget -->
+<div class="ratio-spotcheck-widget" style="animation: slideUp 0.6s ease-out 0.25s backwards;">
+    <div class="widget-header">
+        <div>
+            <h2 class="widget-title">👥 Ratio Compliance Spot-Checks</h2>
+            <p class="widget-subtitle">Document compliance with quick spot-checks</p>
+        </div>
+        <button class="btn-primary" onclick="openSpotCheckModal()">
+            ✓ Log Spot-Check
+        </button>
+    </div>
+
+    <div id="check-reminder-alert" class="reminder-alert" style="display: none;">
+        <div class="alert-icon">⏰</div>
+        <div class="alert-content">
+            <div class="alert-title">Spot-Check Reminder</div>
+            <div class="alert-message" id="reminder-message">Time for your spot-check!</div>
+        </div>
+        <button class="btn-alert" onclick="openSpotCheckModal()">Do It Now</button>
+    </div>
+
+    <div class="check-progress">
+        <div class="progress-header">
+            <span>Today's Checks</span>
+            <span id="check-progress-text">0/2 completed</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-fill" id="check-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <div class="recent-checks">
+        <h3 class="section-subtitle">Recent Spot-Checks</h3>
+        <div id="recent-checks-list" class="checks-list">
+            <div class="checks-empty">
+                <div style="font-size: 2rem; margin-bottom: 8px;">📋</div>
+                <div>No spot-checks logged today</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+                    Start logging to build your compliance record
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Daily Success Ritual - Wins & Progress -->
 <div class="success-ritual-container" style="animation: slideUp 0.6s ease-out 0.3s backwards;">
     <div class="success-ritual-header">

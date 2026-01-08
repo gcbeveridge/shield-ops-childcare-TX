@@ -3,6 +3,7 @@ const FacilityDB = require('../models/FacilityDB');
 const StaffDB = require('../models/StaffDB');
 const runMigrations = require('../scripts/runMigrations');
 const seedStateRegulations = require('../scripts/seedStateRegulations');
+const { seedSampleRooms } = require('../scripts/seedRooms');
 
 async function autoSeedDB() {
   try {
@@ -11,6 +12,13 @@ async function autoSeedDB() {
     
     // Seed state regulations
     await seedStateRegulations();
+    
+    // Seed sample rooms for ratio spot-checks
+    try {
+      await seedSampleRooms();
+    } catch (error) {
+      console.log('ℹ️  Rooms seeding skipped (tables may not exist yet)');
+    }
     
     const fixedFacilityId = '00000000-0000-0000-0000-000000000001';
     const fixedUserId = '00000000-0000-0000-0000-000000000002';

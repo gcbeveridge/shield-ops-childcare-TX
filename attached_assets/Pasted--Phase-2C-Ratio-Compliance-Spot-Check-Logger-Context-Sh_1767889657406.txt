@@ -1,0 +1,758 @@
+# Phase 2C: Ratio Compliance Spot-Check Logger
+
+## Context
+Shield Ops is a safety/compliance platform, NOT a classroom management system. Facilities already use other software for attendance/check-in. Our job is to help directors PROVE compliance through documented spot-checks.
+
+## Goal
+Directors need a simple way to:
+1. Perform quick ratio spot-checks (in-person or via CCTV)
+2. Log the results as proof of compliance
+3. Get prompted at best-practice intervals (2x daily recommended)
+4. Access historical logs for inspections/audits
+
+Think: "Virtual safety manager reminding you to check and document ratios"
+
+## Tasks
+
+### 1. Create Database Tables for Spot-Check Logging
+```sql
+-- Rooms (simple labels, not full classroom management)
+CREATE TABLE IF NOT EXISTS rooms (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    age_group VARCHAR(50) NOT NULL, -- 'infant', 'toddler', 'preschool', 'school-age', 'mixed'
+    required_ratio VARCHAR(10) NOT NULL, -- '1:4', '1:8', '1:11', '1:15'
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Ratio spot-check logs
+CREATE TABLE IF NOT EXISTS ratio_spot_checks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    room_id UUID REFERENCES rooms(id) ON DELETE SET NULL,
+    room_name VARCHAR(100) NOT NULL, -- Store name in case room deleted
+    check_date DATE NOT NULL,
+    check_time TIME NOT NULL,
+    children_count INTEGER NOT NULL,
+    staff_count INTEGER NOT NULL,
+    required_ratio VARCHAR(10) NOT NULL,
+    is_compliant BOOLEAN NOT NULL,
+    check_method VARCHAR(50), -- 'in_person', 'cctv', 'other'
+    checked_by_name VARCHAR(100),
+    checked_by_id UUID REFERENCES staff(id) ON DELETE SET NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Spot-check reminders/schedule
+CREATE TABLE IF NOT EXISTS ratio_check_schedule (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    check_frequency VARCHAR(50) DEFAULT 'twice_daily', -- 'once_daily', 'twice_daily', 'three_times_daily'
+    check_times TIME[], -- e.g., ['10:00', '15:00']
+    enabled BOOLEAN DEFAULT true,
+    last_reminder_sent TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_spot_checks_facility_date ON ratio_spot_checks(facility_id, check_date);
+CREATE INDEX IF NOT EXISTS idx_spot_checks_room ON ratio_spot_checks(room_id);
+```
+
+### 2. Seed Sample Rooms (Simple Labels)
+```javascript
+async function seedSampleRooms() {
+    const facilityId = '00000000-0000-0000-0000-000000000001'; // Bright Futures
+    
+    const rooms = [
+        { name: 'Infant Room A', age_group: 'infant', required_ratio: '1:4' },
+        { name: 'Infant Room B', age_group: 'infant', required_ratio: '1:4' },
+        { name: 'Toddler Room', age_group: 'toddler', required_ratio: '1:8' },
+        { name: 'Preschool Room A', age_group: 'preschool', required_ratio: '1:10' },
+        { name: 'Preschool Room B', age_group: 'preschool', required_ratio: '1:12' },
+        { name: 'School-Age Room', age_group: 'school-age', required_ratio: '1:15' }
+    ];
+
+    for (const room of rooms) {
+        await pool.query(`
+            INSERT INTO rooms (facility_id, name, age_group, required_ratio)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT DO NOTHING
+        `, [facilityId, room.name, room.age_group, room.required_ratio]);
+    }
+
+    // Set default check schedule (10am and 3pm)
+    await pool.query(`
+        INSERT INTO ratio_check_schedule (facility_id, check_times)
+        VALUES ($1, ARRAY['10:00', '15:00']::TIME[])
+        ON CONFLICT DO NOTHING
+    `, [facilityId]);
+
+    console.log('✅ Sample rooms and check schedule seeded');
+}
+```
+
+### 3. Create API Endpoints
+```javascript
+// GET /api/facilities/:id/ratio-checks/today
+router.get('/:id/ratio-checks/today', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const today = new Date().toISOString().split('T')[0];
+
+        const result = await pool.query(`
+            SELECT * FROM ratio_spot_checks
+            WHERE facility_id = $1 AND check_date = $2
+            ORDER BY check_time DESC
+        `, [facilityId, today]);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching today\'s checks:', error);
+        res.status(500).json({ error: 'Failed to fetch checks' });
+    }
+});
+
+// GET /api/facilities/:id/ratio-checks/history
+router.get('/:id/ratio-checks/history', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const days = parseInt(req.query.days) || 30;
+        
+        const result = await pool.query(`
+            SELECT 
+                check_date,
+                COUNT(*) as total_checks,
+                SUM(CASE WHEN is_compliant THEN 1 ELSE 0 END) as compliant_checks,
+                SUM(CASE WHEN NOT is_compliant THEN 1 ELSE 0 END) as violations
+            FROM ratio_spot_checks
+            WHERE facility_id = $1 
+                AND check_date >= CURRENT_DATE - INTERVAL '${days} days'
+            GROUP BY check_date
+            ORDER BY check_date DESC
+        `, [facilityId]);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching check history:', error);
+        res.status(500).json({ error: 'Failed to fetch history' });
+    }
+});
+
+// POST /api/facilities/:id/ratio-checks (log a spot-check)
+router.post('/:id/ratio-checks', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const {
+            room_id,
+            room_name,
+            children_count,
+            staff_count,
+            required_ratio,
+            check_method,
+            checked_by_name,
+            notes
+        } = req.body;
+
+        // Calculate compliance
+        const [staffNeeded, childrenAllowed] = required_ratio.split(':').map(Number);
+        const maxChildren = staff_count * childrenAllowed;
+        const is_compliant = staff_count > 0 && children_count <= maxChildren;
+
+        const now = new Date();
+        const check_date = now.toISOString().split('T')[0];
+        const check_time = now.toTimeString().split(' ')[0];
+
+        const result = await pool.query(`
+            INSERT INTO ratio_spot_checks (
+                facility_id, room_id, room_name, check_date, check_time,
+                children_count, staff_count, required_ratio, is_compliant,
+                check_method, checked_by_name, notes
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            RETURNING *
+        `, [
+            facilityId, room_id, room_name, check_date, check_time,
+            children_count, staff_count, required_ratio, is_compliant,
+            check_method, checked_by_name, notes
+        ]);
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error logging spot-check:', error);
+        res.status(500).json({ error: 'Failed to log spot-check' });
+    }
+});
+
+// GET /api/facilities/:id/rooms (get facility rooms)
+router.get('/:id/rooms', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        
+        const result = await pool.query(`
+            SELECT * FROM rooms
+            WHERE facility_id = $1 AND active = true
+            ORDER BY name
+        `, [facilityId]);
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching rooms:', error);
+        res.status(500).json({ error: 'Failed to fetch rooms' });
+    }
+});
+
+// GET /api/facilities/:id/ratio-checks/reminder-status
+router.get('/:id/ratio-checks/reminder-status', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const today = new Date().toISOString().split('T')[0];
+        const now = new Date().toTimeString().split(' ')[0];
+
+        // Get schedule
+        const scheduleResult = await pool.query(`
+            SELECT check_times FROM ratio_check_schedule
+            WHERE facility_id = $1 AND enabled = true
+        `, [facilityId]);
+
+        if (scheduleResult.rows.length === 0) {
+            return res.json({ 
+                next_check_due: null,
+                checks_completed_today: 0,
+                checks_due_today: 0
+            });
+        }
+
+        const checkTimes = scheduleResult.rows[0].check_times || [];
+
+        // Get today's completed checks
+        const checksResult = await pool.query(`
+            SELECT COUNT(*) as count FROM ratio_spot_checks
+            WHERE facility_id = $1 AND check_date = $2
+        `, [facilityId, today]);
+
+        const checksCompletedToday = parseInt(checksResult.rows[0].count);
+
+        // Find next check time
+        const nextCheckDue = checkTimes.find(time => time > now) || checkTimes[0];
+
+        res.json({
+            next_check_due: nextCheckDue,
+            checks_completed_today: checksCompletedToday,
+            checks_due_today: checkTimes.length,
+            check_times: checkTimes
+        });
+
+    } catch (error) {
+        console.error('Error fetching reminder status:', error);
+        res.status(500).json({ error: 'Failed to fetch reminder status' });
+    }
+});
+```
+
+### 4. Add Ratio Spot-Check Widget to Dashboard
+```html
+<!-- RATIO SPOT-CHECK REMINDER -->
+<div class="ratio-spotcheck-widget">
+    <div class="widget-header">
+        <div>
+            <h2 class="widget-title">👥 Ratio Compliance Spot-Checks</h2>
+            <p class="widget-subtitle">Document compliance with quick spot-checks</p>
+        </div>
+        <button class="btn-primary" onclick="openSpotCheckModal()">
+            ✓ Log Spot-Check
+        </button>
+    </div>
+
+    <!-- Reminder Alert (if checks due) -->
+    <div id="check-reminder-alert" class="reminder-alert" style="display: none;">
+        <div class="alert-icon">⏰</div>
+        <div class="alert-content">
+            <div class="alert-title">Spot-Check Reminder</div>
+            <div class="alert-message" id="reminder-message">--</div>
+        </div>
+        <button class="btn-alert" onclick="openSpotCheckModal()">Do It Now</button>
+    </div>
+
+    <!-- Today's Progress -->
+    <div class="check-progress">
+        <div class="progress-header">
+            <span>Today's Checks</span>
+            <span id="check-progress-text">0/2 completed</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="check-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Recent Checks -->
+    <div class="recent-checks">
+        <h3 class="section-subtitle">Recent Spot-Checks</h3>
+        <div id="recent-checks-list" class="checks-list">
+            <div class="checks-loading">Loading recent checks...</div>
+        </div>
+    </div>
+</div>
+
+<!-- SPOT-CHECK MODAL -->
+<div id="spotCheckModal" class="modal" style="display: none;">
+    <div class="modal-content modal-medium">
+        <div class="modal-header">
+            <h2>📋 Log Ratio Spot-Check</h2>
+            <button class="modal-close" onclick="closeSpotCheckModal()">✕</button>
+        </div>
+        
+        <form id="spotCheckForm" class="modal-body">
+            <div class="form-group">
+                <label>Room/Classroom *</label>
+                <select id="spotcheck-room" required>
+                    <option value="">Select a room...</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Children Present *</label>
+                    <input type="number" id="spotcheck-children" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Staff Present *</label>
+                    <input type="number" id="spotcheck-staff" min="0" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>How did you check? *</label>
+                <select id="spotcheck-method" required>
+                    <option value="in_person">In-Person Walk-Through</option>
+                    <option value="cctv">CCTV Camera Review</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Your Name *</label>
+                <input type="text" id="spotcheck-checker-name" required 
+                       placeholder="Who performed this check?">
+            </div>
+
+            <div class="form-group">
+                <label>Notes (optional)</label>
+                <textarea id="spotcheck-notes" rows="3" 
+                          placeholder="Any observations or concerns..."></textarea>
+            </div>
+
+            <!-- Compliance Preview -->
+            <div id="compliance-preview" class="compliance-preview" style="display: none;">
+                <div class="preview-icon" id="preview-icon">✅</div>
+                <div class="preview-message" id="preview-message">--</div>
+            </div>
+        </form>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeSpotCheckModal()">Cancel</button>
+            <button class="btn-primary" onclick="submitSpotCheck()">
+                ✓ Log Spot-Check
+            </button>
+        </div>
+    </div>
+</div>
+```
+
+### 5. Add Styling
+```css
+/* Ratio Spot-Check Widget */
+.ratio-spotcheck-widget {
+    background: white;
+    border-radius: var(--radius-2xl);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+    box-shadow: var(--shadow-md);
+}
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-lg);
+}
+
+.widget-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-xs);
+}
+
+.widget-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Reminder Alert */
+.reminder-alert {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: linear-gradient(135deg, #fffbf0 0%, #fff 100%);
+    border: 2px solid var(--color-warning);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.alert-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.alert-message {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.btn-alert {
+    padding: 8px 20px;
+    background: var(--color-warning);
+    color: var(--text-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* Check Progress */
+.check-progress {
+    margin-bottom: var(--space-lg);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.progress-bar {
+    height: 12px;
+    background: var(--background-primary);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--shield-lime), var(--color-success));
+    transition: width 0.5s ease;
+}
+
+/* Recent Checks List */
+.recent-checks {
+    margin-top: var(--space-lg);
+}
+
+.checks-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.check-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--background-primary);
+    border-radius: var(--radius-md);
+    border-left: 4px solid transparent;
+}
+
+.check-item.compliant {
+    border-left-color: var(--color-success);
+}
+
+.check-item.violation {
+    border-left-color: var(--color-critical);
+    background: rgba(231, 76, 60, 0.05);
+}
+
+.check-item-info {
+    flex: 1;
+}
+
+.check-room-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.check-details {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.check-status {
+    font-size: 1.25rem;
+}
+
+/* Compliance Preview in Modal */
+.compliance-preview {
+    margin-top: var(--space-lg);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.compliance-preview.compliant {
+    background: rgba(180, 211, 51, 0.1);
+    border: 2px solid var(--color-success);
+}
+
+.compliance-preview.violation {
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid var(--color-critical);
+}
+
+.preview-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-sm);
+}
+
+.preview-message {
+    font-size: 1rem;
+    font-weight: 600;
+}
+```
+
+### 6. Add JavaScript Functionality
+```javascript
+// ============================================
+// RATIO SPOT-CHECK FUNCTIONS
+// ============================================
+
+let facilityRooms = [];
+
+async function loadRatioSpotCheckWidget() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+
+        // Load rooms
+        const roomsResponse = await apiRequest(`/api/facilities/${facilityId}/rooms`);
+        facilityRooms = roomsResponse || [];
+
+        // Load reminder status
+        const statusResponse = await apiRequest(`/api/facilities/${facilityId}/ratio-checks/reminder-status`);
+        updateReminderAlert(statusResponse);
+
+        // Load today's checks
+        const checksResponse = await apiRequest(`/api/facilities/${facilityId}/ratio-checks/today`);
+        displayRecentChecks(checksResponse || []);
+
+    } catch (error) {
+        console.error('Error loading spot-check widget:', error);
+    }
+}
+
+function updateReminderAlert(status) {
+    const alert = document.getElementById('check-reminder-alert');
+    const message = document.getElementById('reminder-message');
+    const progressText = document.getElementById('check-progress-text');
+    const progressBar = document.getElementById('check-progress-bar');
+
+    const checksCompleted = status.checks_completed_today;
+    const checksDue = status.checks_due_today;
+    const progressPercent = checksDue > 0 ? (checksCompleted / checksDue) * 100 : 0;
+
+    progressText.textContent = `${checksCompleted}/${checksDue} completed`;
+    progressBar.style.width = `${progressPercent}%`;
+
+    if (checksCompleted < checksDue) {
+        const nextCheck = status.next_check_due;
+        message.textContent = `Time for your ${checksCompleted === 0 ? 'first' : 'next'} spot-check! Next scheduled: ${nextCheck || 'Now'}`;
+        alert.style.display = 'flex';
+    } else {
+        alert.style.display = 'none';
+    }
+}
+
+function displayRecentChecks(checks) {
+    const container = document.getElementById('recent-checks-list');
+
+    if (checks.length === 0) {
+        container.innerHTML = `
+            <div class="checks-loading">
+                <div style="text-align: center; padding: var(--space-lg);">
+                    <div style="font-size: 2rem; margin-bottom: var(--space-sm);">📋</div>
+                    <div>No spot-checks logged today</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+                        Start logging to build your compliance record
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = checks.map(check => `
+        <div class="check-item ${check.is_compliant ? 'compliant' : 'violation'}">
+            <div class="check-item-info">
+                <div class="check-room-name">${check.room_name}</div>
+                <div class="check-details">
+                    ${check.check_time.substring(0, 5)} • 
+                    ${check.children_count} children / ${check.staff_count} staff • 
+                    ${check.check_method.replace('_', ' ')} •
+                    ${check.checked_by_name}
+                </div>
+            </div>
+            <div class="check-status">
+                ${check.is_compliant ? '✅' : '🚨'}
+            </div>
+        </div>
+    `).join('');
+}
+
+function openSpotCheckModal() {
+    // Populate room dropdown
+    const roomSelect = document.getElementById('spotcheck-room');
+    roomSelect.innerHTML = '<option value="">Select a room...</option>' +
+        facilityRooms.map(room => `
+            <option value="${room.id}" data-ratio="${room.required_ratio}">
+                ${room.name} (${room.required_ratio})
+            </option>
+        `).join('');
+
+    // Pre-fill checker name from logged-in user
+    const userName = localStorage.getItem('userName') || '';
+    document.getElementById('spotcheck-checker-name').value = userName;
+
+    // Show modal
+    document.getElementById('spotCheckModal').style.display = 'flex';
+
+    // Add real-time compliance preview
+    ['spotcheck-room', 'spotcheck-children', 'spotcheck-staff'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateCompliancePreview);
+    });
+}
+
+function closeSpotCheckModal() {
+    document.getElementById('spotCheckModal').style.display = 'none';
+    document.getElementById('spotCheckForm').reset();
+    document.getElementById('compliance-preview').style.display = 'none';
+}
+
+function updateCompliancePreview() {
+    const roomSelect = document.getElementById('spotcheck-room');
+    const childrenCount = parseInt(document.getElementById('spotcheck-children').value) || 0;
+    const staffCount = parseInt(document.getElementById('spotcheck-staff').value) || 0;
+
+    const preview = document.getElementById('compliance-preview');
+    const icon = document.getElementById('preview-icon');
+    const message = document.getElementById('preview-message');
+
+    if (!roomSelect.value || childrenCount === 0) {
+        preview.style.display = 'none';
+        return;
+    }
+
+    const ratio = roomSelect.options[roomSelect.selectedIndex].dataset.ratio;
+    const [staffNeeded, childrenAllowed] = ratio.split(':').map(Number);
+    const maxChildren = staffCount * childrenAllowed;
+    const isCompliant = staffCount > 0 && childrenCount <= maxChildren;
+
+    preview.style.display = 'block';
+    preview.className = `compliance-preview ${isCompliant ? 'compliant' : 'violation'}`;
+
+    if (isCompliant) {
+        icon.textContent = '✅';
+        message.textContent = `✓ Compliant (max ${maxChildren} children allowed with ${staffCount} staff)`;
+    } else {
+        icon.textContent = '🚨';
+        const minStaffNeeded = Math.ceil(childrenCount / childrenAllowed);
+        message.textContent = `⚠️ Violation: Need ${minStaffNeeded} staff for ${childrenCount} children`;
+    }
+}
+
+async function submitSpotCheck() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const roomSelect = document.getElementById('spotcheck-room');
+        const roomId = roomSelect.value;
+        const roomName = roomSelect.options[roomSelect.selectedIndex].text.split(' (')[0];
+        const ratio = roomSelect.options[roomSelect.selectedIndex].dataset.ratio;
+
+        const data = {
+            room_id: roomId,
+            room_name: roomName,
+            children_count: parseInt(document.getElementById('spotcheck-children').value),
+            staff_count: parseInt(document.getElementById('spotcheck-staff').value),
+            required_ratio: ratio,
+            check_method: document.getElementById('spotcheck-method').value,
+            checked_by_name: document.getElementById('spotcheck-checker-name').value,
+            notes: document.getElementById('spotcheck-notes').value
+        };
+
+        await apiRequest(`/api/facilities/${facilityId}/ratio-checks`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+
+        showSuccess('Spot-check logged successfully!');
+        closeSpotCheckModal();
+        
+        // Reload widget
+        await loadRatioSpotCheckWidget();
+
+    } catch (error) {
+        console.error('Error logging spot-check:', error);
+        showError('Failed to log spot-check');
+    }
+}
+
+// Add to dashboard load
+async function loadDashboard() {
+    try {
+        // ... existing code ...
+        
+        // Add ratio spot-check widget
+        await loadRatioSpotCheckWidget();
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+```
+
+## Expected Outcome
+- ✅ Simple spot-check logger (not full classroom management)
+- ✅ Reminder alerts when checks are due (2x daily default)
+- ✅ Quick modal: select room, count kids/staff, log it
+- ✅ Real-time compliance preview (shows violation before logging)
+- ✅ Recent checks display with compliant/violation status
+- ✅ Historical logs for audits/inspections
+- ✅ Check via CCTV or in-person walkthrough
+- ✅ Proof of compliance documentation
+
+## Testing Checklist
+- [ ] Spot-check widget appears on dashboard
+- [ ] Reminder alert shows when checks are due
+- [ ] Progress bar shows X/2 completed
+- [ ] "Log Spot-Check" button opens modal
+- [ ] Room dropdown populates from database
+- [ ] Compliance preview updates as you type
+- [ ] Green checkmark for compliant, red alert for violation
+- [ ] Submit creates log entry
+- [ ] Recent checks display correctly
+- [ ] Compliant checks show green border, violations show red
+
+Implement Phase 2C - Ratio Spot-Check Logger (Simplified for Safety Platform)!

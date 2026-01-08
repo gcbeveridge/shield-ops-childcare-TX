@@ -867,6 +867,9 @@ async function loadDashboardData() {
         
         // Load priority heat map
         await loadPriorityHeatMap();
+        
+        // Load ratio spot-check widget
+        await loadRatioSpotCheckWidget();
     } catch (error) {
         console.error('Failed to load dashboard:', error);
     }
@@ -1293,6 +1296,240 @@ function stopHealthCommandCenterAutoRefresh() {
     if (healthCommandCenterInterval) {
         clearInterval(healthCommandCenterInterval);
         healthCommandCenterInterval = null;
+    }
+}
+
+// ============================================
+// RATIO SPOT-CHECK FUNCTIONS
+// ============================================
+
+let facilityRooms = [];
+
+async function loadRatioSpotCheckWidget() {
+    try {
+        const facilityId = AppState.facility?.id;
+        if (!facilityId) return;
+
+        // Load rooms
+        const roomsResponse = await apiRequest(`/facilities/${facilityId}/rooms`);
+        facilityRooms = roomsResponse?.data || [];
+
+        // Load reminder status
+        const statusResponse = await apiRequest(`/facilities/${facilityId}/ratio-checks/reminder-status`);
+        updateReminderAlert(statusResponse?.data || { checks_completed_today: 0, checks_due_today: 2 });
+
+        // Load today's checks
+        const checksResponse = await apiRequest(`/facilities/${facilityId}/ratio-checks/today`);
+        displayRecentChecks(checksResponse?.data || []);
+
+    } catch (error) {
+        console.error('Error loading spot-check widget:', error);
+    }
+}
+
+function updateReminderAlert(status) {
+    const alert = document.getElementById('check-reminder-alert');
+    const message = document.getElementById('reminder-message');
+    const progressText = document.getElementById('check-progress-text');
+    const progressBar = document.getElementById('check-progress-bar');
+
+    const checksCompleted = status.checks_completed_today || 0;
+    const checksDue = status.checks_due_today || 2;
+    const progressPercent = checksDue > 0 ? (checksCompleted / checksDue) * 100 : 0;
+
+    if (progressText) progressText.textContent = `${checksCompleted}/${checksDue} completed`;
+    if (progressBar) progressBar.style.width = `${progressPercent}%`;
+
+    if (alert) {
+        if (checksCompleted < checksDue) {
+            const nextCheck = status.next_check_due;
+            if (message) {
+                message.textContent = `Time for your ${checksCompleted === 0 ? 'first' : 'next'} spot-check! Next scheduled: ${nextCheck || 'Now'}`;
+            }
+            alert.style.display = 'flex';
+        } else {
+            alert.style.display = 'none';
+        }
+    }
+}
+
+function displayRecentChecks(checks) {
+    const container = document.getElementById('recent-checks-list');
+    if (!container) return;
+
+    if (checks.length === 0) {
+        container.innerHTML = `
+            <div class="checks-empty">
+                <div style="font-size: 2rem; margin-bottom: 8px;">📋</div>
+                <div>No spot-checks logged today</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+                    Start logging to build your compliance record
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = checks.map(check => `
+        <div class="check-item ${check.is_compliant ? 'compliant' : 'violation'}">
+            <div class="check-item-info">
+                <div class="check-room-name">${check.room_name}</div>
+                <div class="check-details">
+                    ${check.check_time ? check.check_time.substring(0, 5) : '--:--'} • 
+                    ${check.children_count} children / ${check.staff_count} staff • 
+                    ${(check.check_method || 'in_person').replace('_', ' ')} •
+                    ${check.checked_by_name || 'Unknown'}
+                </div>
+            </div>
+            <div class="check-status">
+                ${check.is_compliant ? '✅' : '🚨'}
+            </div>
+        </div>
+    `).join('');
+}
+
+function openSpotCheckModal() {
+    // Populate room dropdown
+    const roomSelect = document.getElementById('spotcheck-room');
+    if (roomSelect) {
+        roomSelect.innerHTML = '<option value="">Select a room...</option>' +
+            facilityRooms.map(room => `
+                <option value="${room.id}" data-ratio="${room.required_ratio}" data-name="${room.name}">
+                    ${room.name} (${room.required_ratio})
+                </option>
+            `).join('');
+    }
+
+    // Pre-fill checker name from logged-in user
+    const userName = AppState.user?.name || '';
+    const checkerInput = document.getElementById('spotcheck-checker-name');
+    if (checkerInput) checkerInput.value = userName;
+
+    // Show modal
+    const modal = document.getElementById('spot-check-modal');
+    if (modal) modal.style.display = 'flex';
+
+    // Add real-time compliance preview
+    ['spotcheck-room', 'spotcheck-children', 'spotcheck-staff'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateCompliancePreview);
+    });
+}
+
+function closeSpotCheckModal() {
+    const modal = document.getElementById('spot-check-modal');
+    if (modal) modal.style.display = 'none';
+    
+    const form = document.getElementById('spotCheckForm');
+    if (form) form.reset();
+    
+    const preview = document.getElementById('compliance-preview');
+    if (preview) preview.style.display = 'none';
+}
+
+function updateCompliancePreview() {
+    const roomSelect = document.getElementById('spotcheck-room');
+    const childrenCount = parseInt(document.getElementById('spotcheck-children')?.value) || 0;
+    const staffCount = parseInt(document.getElementById('spotcheck-staff')?.value) || 0;
+
+    const preview = document.getElementById('compliance-preview');
+    const icon = document.getElementById('preview-icon');
+    const message = document.getElementById('preview-message');
+
+    if (!roomSelect?.value || childrenCount === 0 || staffCount === 0) {
+        if (preview) preview.style.display = 'none';
+        return;
+    }
+
+    const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+    const ratio = selectedOption.getAttribute('data-ratio');
+    
+    if (!ratio) {
+        if (preview) preview.style.display = 'none';
+        return;
+    }
+
+    const [, childrenAllowed] = ratio.split(':').map(Number);
+    const maxChildren = staffCount * childrenAllowed;
+    const isCompliant = childrenCount <= maxChildren;
+
+    if (preview) {
+        preview.style.display = 'block';
+        preview.className = `compliance-preview ${isCompliant ? 'compliant' : 'violation'}`;
+    }
+    
+    if (icon) icon.textContent = isCompliant ? '✅' : '🚨';
+    
+    if (message) {
+        if (isCompliant) {
+            message.textContent = `Compliant! ${staffCount} staff can supervise up to ${maxChildren} children at ${ratio} ratio.`;
+        } else {
+            const staffNeeded = Math.ceil(childrenCount / childrenAllowed);
+            message.textContent = `Out of ratio! Need ${staffNeeded} staff for ${childrenCount} children (currently ${staffCount}).`;
+        }
+    }
+}
+
+async function submitSpotCheck() {
+    const roomSelect = document.getElementById('spotcheck-room');
+    const childrenCount = parseInt(document.getElementById('spotcheck-children')?.value, 10);
+    const staffCount = parseInt(document.getElementById('spotcheck-staff')?.value, 10);
+    const method = document.getElementById('spotcheck-method')?.value;
+    const checkerName = document.getElementById('spotcheck-checker-name')?.value?.trim();
+    const notes = document.getElementById('spotcheck-notes')?.value;
+
+    if (!roomSelect?.value) {
+        showError('Please select a room');
+        return;
+    }
+    if (!Number.isFinite(childrenCount) || childrenCount < 0) {
+        showError('Please enter a valid number of children (0 or more)');
+        return;
+    }
+    if (!Number.isFinite(staffCount) || staffCount < 0) {
+        showError('Please enter a valid number of staff (0 or more)');
+        return;
+    }
+    if (!checkerName || checkerName.length === 0) {
+        showError('Please enter your name');
+        return;
+    }
+
+    const selectedOption = roomSelect.options[roomSelect.selectedIndex];
+    const roomName = selectedOption.getAttribute('data-name') || selectedOption.textContent.split(' (')[0];
+    const ratio = selectedOption.getAttribute('data-ratio');
+    
+    if (!ratio || !/^\d+:\d+$/.test(ratio)) {
+        showError('Invalid ratio format for selected room');
+        return;
+    }
+
+    try {
+        const facilityId = AppState.facility?.id;
+        
+        await apiRequest(`/facilities/${facilityId}/ratio-checks`, {
+            method: 'POST',
+            body: JSON.stringify({
+                room_id: roomSelect.value,
+                room_name: roomName,
+                children_count: childrenCount,
+                staff_count: staffCount,
+                required_ratio: ratio,
+                check_method: method,
+                checked_by_name: checkerName,
+                notes: notes
+            })
+        });
+
+        showSuccess('Spot-check logged successfully!');
+        closeSpotCheckModal();
+        
+        // Reload widget data
+        await loadRatioSpotCheckWidget();
+
+    } catch (error) {
+        console.error('Error submitting spot-check:', error);
+        showError('Failed to log spot-check. Please try again.');
     }
 }
 

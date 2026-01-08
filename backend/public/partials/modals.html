@@ -1738,3 +1738,66 @@
         </form>
     </div>
 </div>
+
+<!-- Ratio Spot-Check Modal -->
+<div id="spot-check-modal" class="modal" style="display: none;">
+    <div class="modal-content modal-medium">
+        <div class="modal-header">
+            <h2>📋 Log Ratio Spot-Check</h2>
+            <button class="modal-close" onclick="closeSpotCheckModal()">&times;</button>
+        </div>
+        
+        <form id="spotCheckForm" class="modal-body">
+            <div class="form-group">
+                <label class="form-label">Room/Classroom *</label>
+                <select id="spotcheck-room" class="form-input" required>
+                    <option value="">Select a room...</option>
+                </select>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                    <label class="form-label">Children Present *</label>
+                    <input type="number" id="spotcheck-children" class="form-input" min="0" required placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Staff Present *</label>
+                    <input type="number" id="spotcheck-staff" class="form-input" min="0" required placeholder="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">How did you check? *</label>
+                <select id="spotcheck-method" class="form-input" required>
+                    <option value="in_person">In-Person Walk-Through</option>
+                    <option value="cctv">CCTV Camera Review</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Your Name *</label>
+                <input type="text" id="spotcheck-checker-name" class="form-input" required 
+                       placeholder="Who performed this check?">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Notes (optional)</label>
+                <textarea id="spotcheck-notes" class="form-input" rows="3" 
+                          placeholder="Any observations or concerns..."></textarea>
+            </div>
+
+            <div id="compliance-preview" class="compliance-preview" style="display: none;">
+                <div class="preview-icon" id="preview-icon">✅</div>
+                <div class="preview-message" id="preview-message">--</div>
+            </div>
+        </form>
+
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeSpotCheckModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="submitSpotCheck()">
+                ✓ Log Spot-Check
+            </button>
+        </div>
+    </div>
+</div>
