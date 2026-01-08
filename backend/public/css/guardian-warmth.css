@@ -468,6 +468,321 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================
+   HEALTH COMMAND CENTER - Enhanced Score Area
+   ============================================ */
+
+.health-command-center {
+    background: var(--card-bg);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--card-border);
+}
+
+.health-command-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+}
+
+@media (max-width: 1200px) {
+    .health-command-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .quick-wins-section {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .health-command-grid {
+        grid-template-columns: 1fr;
+    }
+    .quick-wins-section {
+        grid-column: span 1;
+    }
+}
+
+/* Health Orb Section */
+.health-orb-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+}
+
+.health-orb-context {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.streak-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: linear-gradient(135deg, rgba(245, 200, 66, 0.15) 0%, rgba(180, 211, 51, 0.1) 100%);
+    border: 1px solid var(--shield-gold);
+    border-radius: var(--radius-full);
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.streak-flame {
+    animation: flame-dance 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes flame-dance {
+    0% { transform: rotate(-5deg) scale(1); }
+    100% { transform: rotate(5deg) scale(1.1); }
+}
+
+@keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(245, 200, 66, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(245, 200, 66, 0.5); }
+}
+
+.score-trend {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.trend-arrow {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.trend-arrow.up {
+    color: var(--status-success);
+}
+
+.trend-arrow.down {
+    color: var(--status-danger);
+}
+
+/* Score Breakdown Section */
+.score-breakdown-section {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+}
+
+.breakdown-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.breakdown-bars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.breakdown-item {
+    display: grid;
+    grid-template-columns: 100px 1fr 50px;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.breakdown-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.breakdown-icon {
+    font-size: 1rem;
+}
+
+.breakdown-bar-container {
+    height: 12px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+}
+
+.breakdown-bar {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.breakdown-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    100% { left: 100%; }
+}
+
+.breakdown-bar.staff {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.breakdown-bar.docs {
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+}
+
+.breakdown-bar.checklists {
+    background: linear-gradient(90deg, var(--shield-lime), #c2e048);
+}
+
+.breakdown-bar.training {
+    background: linear-gradient(90deg, var(--shield-gold), #f7d96b);
+}
+
+.breakdown-value {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: right;
+}
+
+/* Quick Wins Section */
+.quick-wins-section {
+    background: linear-gradient(135deg, rgba(180, 211, 51, 0.08) 0%, rgba(245, 200, 66, 0.05) 100%);
+    border: 1px dashed var(--shield-lime);
+    border-radius: var(--radius-xl);
+    padding: var(--space-lg);
+}
+
+.quick-wins-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.quick-wins-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.quick-win-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border: 1px solid transparent;
+}
+
+.quick-win-item:hover {
+    transform: translateX(4px);
+    border-color: var(--shield-lime);
+    box-shadow: 0 4px 12px rgba(180, 211, 51, 0.2);
+}
+
+.quick-win-icon {
+    font-size: 1.25rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+}
+
+.quick-win-content {
+    flex: 1;
+}
+
+.quick-win-action {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.quick-win-impact {
+    font-size: 0.75rem;
+    color: var(--status-success);
+    font-weight: 600;
+}
+
+.quick-win-arrow {
+    font-size: 1.25rem;
+    color: var(--text-tertiary);
+    transition: all var(--transition-base);
+}
+
+.quick-win-item:hover .quick-win-arrow {
+    color: var(--shield-lime);
+    transform: translateX(4px);
+}
+
+.potential-score {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-medium);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.potential-score strong {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--shield-lime), var(--shield-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Dark mode adjustments for Health Command Center */
+[data-theme="dark"] .score-breakdown-section {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .quick-win-item {
+    background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .quick-win-icon {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .breakdown-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .streak-badge {
+    background: linear-gradient(135deg, rgba(245, 200, 66, 0.2) 0%, rgba(180, 211, 51, 0.15) 100%);
+}
+
+/* ============================================
    GUIDED ACTION LANE (Now / Next / Watch)
    ============================================ */
 

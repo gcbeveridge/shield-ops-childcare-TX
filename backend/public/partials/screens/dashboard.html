@@ -23,22 +23,115 @@
     </div>
 </div>
 
-<!-- Center Pulse - Compliance Health Orb -->
-<div class="center-pulse-container" style="animation: fadeInUp 0.6s ease-out 0.1s backwards;">
-    <div class="center-pulse" onclick="celebrateMilestone('Your compliance score is excellent!')">
-        <div class="center-pulse-ring"></div>
-        <div class="center-pulse-ring"></div>
-        <div class="center-pulse-ring"></div>
-        <div class="center-pulse-orb"></div>
-        <div class="center-pulse-content">
-            <div class="center-pulse-score" id="center-pulse-score">92</div>
-            <div class="center-pulse-label">Health Score</div>
+<!-- Center Pulse - Enhanced Health Command Center -->
+<div class="health-command-center" style="animation: fadeInUp 0.6s ease-out 0.1s backwards;">
+    <div class="health-command-grid">
+        <!-- Left: Score Orb with Context -->
+        <div class="health-orb-section">
+            <div class="center-pulse" onclick="celebrateMilestone('Your compliance score is excellent!')">
+                <div class="center-pulse-ring"></div>
+                <div class="center-pulse-ring"></div>
+                <div class="center-pulse-ring"></div>
+                <div class="center-pulse-orb"></div>
+                <div class="center-pulse-content">
+                    <div class="center-pulse-score" id="center-pulse-score">92</div>
+                    <div class="center-pulse-label">Health Score</div>
+                </div>
+            </div>
+            <div class="health-orb-context">
+                <div class="streak-badge" id="streak-badge">
+                    <span class="streak-flame">🔥</span>
+                    <strong id="streak-count">45</strong> days incident-free
+                </div>
+                <div class="score-trend" id="score-trend">
+                    <span class="trend-arrow up">↗</span>
+                    <span>+3 from last week</span>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="center-pulse-status">
-        <div class="center-pulse-message" id="pulse-message">Your center is thriving!</div>
-        <div class="center-pulse-streak">
-            <strong id="streak-count">45</strong> days incident-free
+
+        <!-- Middle: Score Breakdown -->
+        <div class="score-breakdown-section">
+            <h3 class="breakdown-title">What's in your score</h3>
+            <div class="breakdown-bars">
+                <div class="breakdown-item">
+                    <div class="breakdown-label">
+                        <span class="breakdown-icon">👥</span>
+                        <span>Staff Certs</span>
+                    </div>
+                    <div class="breakdown-bar-container">
+                        <div class="breakdown-bar staff" id="bar-staff" style="width: 95%"></div>
+                    </div>
+                    <span class="breakdown-value" id="val-staff">95%</span>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">
+                        <span class="breakdown-icon">📄</span>
+                        <span>Documents</span>
+                    </div>
+                    <div class="breakdown-bar-container">
+                        <div class="breakdown-bar docs" id="bar-docs" style="width: 88%"></div>
+                    </div>
+                    <span class="breakdown-value" id="val-docs">88%</span>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">
+                        <span class="breakdown-icon">📋</span>
+                        <span>Checklists</span>
+                    </div>
+                    <div class="breakdown-bar-container">
+                        <div class="breakdown-bar checklists" id="bar-checklists" style="width: 100%"></div>
+                    </div>
+                    <span class="breakdown-value" id="val-checklists">100%</span>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">
+                        <span class="breakdown-icon">🎓</span>
+                        <span>Training</span>
+                    </div>
+                    <div class="breakdown-bar-container">
+                        <div class="breakdown-bar training" id="bar-training" style="width: 85%"></div>
+                    </div>
+                    <span class="breakdown-value" id="val-training">85%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Quick Wins -->
+        <div class="quick-wins-section">
+            <h3 class="quick-wins-title">
+                <span>⚡</span> Quick wins to boost your score
+            </h3>
+            <div class="quick-wins-list" id="quick-wins-list">
+                <div class="quick-win-item" onclick="if(window.appRouter) window.appRouter.go('/staff')">
+                    <div class="quick-win-icon">🏆</div>
+                    <div class="quick-win-content">
+                        <div class="quick-win-action">Renew 1 CPR cert</div>
+                        <div class="quick-win-impact">+2 points</div>
+                    </div>
+                    <span class="quick-win-arrow">→</span>
+                </div>
+                <div class="quick-win-item" onclick="openModal('upload-document')">
+                    <div class="quick-win-icon">📁</div>
+                    <div class="quick-win-content">
+                        <div class="quick-win-action">Upload fire drill log</div>
+                        <div class="quick-win-impact">+3 points</div>
+                    </div>
+                    <span class="quick-win-arrow">→</span>
+                </div>
+                <div class="quick-win-item" onclick="if(window.appRouter) window.appRouter.go('/training')">
+                    <div class="quick-win-icon">🎓</div>
+                    <div class="quick-win-content">
+                        <div class="quick-win-action">Complete safety training</div>
+                        <div class="quick-win-impact">+3 points</div>
+                    </div>
+                    <span class="quick-win-arrow">→</span>
+                </div>
+            </div>
+            <div class="potential-score">
+                <span>Potential score:</span>
+                <strong id="potential-score">100</strong>
+            </div>
         </div>
     </div>
 </div>
