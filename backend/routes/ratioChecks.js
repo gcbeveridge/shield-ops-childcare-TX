@@ -7,7 +7,8 @@ function verifyFacilityAccess(req, res, next) {
     const requestedFacilityId = req.params.id;
     const userFacilityId = req.user?.facilityId;
     
-    if (!userFacilityId || requestedFacilityId !== userFacilityId) {
+    // Compare as strings to handle both UUID strings and numeric IDs
+    if (!userFacilityId || String(requestedFacilityId) !== String(userFacilityId)) {
         return res.status(403).json({ success: false, error: 'Access denied to this facility' });
     }
     next();
@@ -82,6 +83,30 @@ router.post('/:id/rooms', authenticateToken, verifyFacilityAccess, async (req, r
     } catch (error) {
         console.error('Error creating room:', error);
         res.status(500).json({ success: false, error: 'Failed to create room' });
+    }
+});
+
+router.delete('/:id/rooms/:roomId', authenticateToken, verifyFacilityAccess, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const roomId = req.params.roomId;
+
+        // Soft delete - set active = false (preserves historical data)
+        const result = await pool.query(`
+            UPDATE rooms 
+            SET active = false 
+            WHERE id = $1 AND facility_id = $2
+            RETURNING *
+        `, [roomId, facilityId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Room not found' });
+        }
+
+        res.json({ success: true, message: 'Room deleted', data: result.rows[0] });
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        res.status(500).json({ success: false, error: 'Failed to delete room' });
     }
 });
 

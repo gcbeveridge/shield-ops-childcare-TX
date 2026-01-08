@@ -97,16 +97,16 @@ The application is a single-page web application with a RESTful API.
     - **API Endpoints:** GET /api/states/list, GET /api/states/:code/regulations, GET/PUT /api/states/facility/:id.
 - **Ratio Compliance Spot-Check Logger (Phase 2C):**
     - **Purpose:** Document staff-to-child ratio compliance through quick spot-checks (in-person or CCTV).
-    - **Dashboard Widget:** Displays on main dashboard with reminder alerts, progress bar, and recent checks list.
-    - **Room Management:** Add/view rooms with "+ Add Room" button, room badges showing name and ratio.
+    - **Dashboard Widget:** Single consolidated widget with "🏫 Rooms (X)" button in header, reminder alerts, progress bar, and recent checks list.
+    - **Room Management Modal:** Compact "Manage Rooms" modal with quick-add form (single row: name, age, ratio), grid display of existing rooms, delete functionality (soft delete preserves history).
     - **Reminder System:** Configurable check schedule (default: 10am and 3pm), shows "Spot-Check Reminder" alert when checks are due.
     - **Quick Logging Modal:** Select room, enter children/staff counts, choose check method (with custom "Other" text input), add notes.
     - **Real-time Compliance Preview:** Shows compliance status before submitting (green = compliant, red = out of ratio).
     - **Rooms:** Pre-seeded with 6 age-appropriate rooms (Infant 1:4, Toddler 1:8, Preschool 1:10/1:12, School-Age 1:15).
     - **History Tracking:** All spot-checks stored with date, time, counts, compliance status, checker name, custom method description.
-    - **Security:** Facility access verification, input validation, ratio format validation, method whitelist.
+    - **Security:** Facility access verification (string comparison fix), input validation, ratio format validation, method whitelist.
     - **Database Tables:** rooms, ratio_spot_checks (with check_method_other), ratio_check_schedule.
-    - **API Endpoints:** GET/POST /api/facilities/:id/rooms, GET/POST /api/facilities/:id/ratio-checks, GET /api/facilities/:id/ratio-checks/today, GET /api/facilities/:id/ratio-checks/history, GET /api/facilities/:id/ratio-checks/reminder-status.
+    - **API Endpoints:** GET/POST/DELETE /api/facilities/:id/rooms, GET/POST /api/facilities/:id/ratio-checks, GET /api/facilities/:id/ratio-checks/today, GET /api/facilities/:id/ratio-checks/history, GET /api/facilities/:id/ratio-checks/reminder-status.
 
 ### Deployment
 - **Type:** Autoscale deployment (stateless web app).

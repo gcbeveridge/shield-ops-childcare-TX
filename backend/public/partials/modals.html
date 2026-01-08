@@ -1808,60 +1808,61 @@
     </div>
 </div>
 
-<!-- Add Room Modal -->
-<div id="add-room-modal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 500px;">
+<!-- Manage Rooms Modal -->
+<div id="manageRoomsModal" class="modal" style="display: none;">
+    <div class="modal-content modal-medium">
         <div class="modal-header">
-            <h2 class="modal-title">🏫 Add Room/Classroom</h2>
+            <h2>🏫 Manage Rooms</h2>
+            <button class="modal-close" onclick="closeManageRoomsModal()">&times;</button>
         </div>
         
-        <form id="addRoomForm" class="modal-body">
-            <div class="form-group">
-                <label class="form-label">Room Name *</label>
-                <input type="text" id="new-room-name" class="form-input" required 
-                       placeholder="e.g., Infant Room A, Toddler Room, Preschool Blue">
-                <small style="color: var(--text-secondary); font-size: 0.8125rem; margin-top: 4px; display: block;">
-                    Use your facility's naming convention
-                </small>
+        <div class="modal-body">
+            <!-- Quick Add Form (Compact) -->
+            <div class="quick-add-room">
+                <h3 class="quick-add-title">Quick Add Room</h3>
+                <form id="quickAddRoomForm" onsubmit="submitQuickAddRoom(event)" class="quick-add-form">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="text" id="quick-room-name" required 
+                               placeholder="Room name..." class="form-input" style="margin-bottom: 0;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="quick-room-age" required class="form-input" style="margin-bottom: 0;">
+                            <option value="">Age...</option>
+                            <option value="infant">Infant</option>
+                            <option value="toddler">Toddler</option>
+                            <option value="preschool">Preschool</option>
+                            <option value="school-age">School-Age</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="quick-room-ratio" required class="form-input" style="margin-bottom: 0;">
+                            <option value="">Ratio...</option>
+                            <option value="1:4">1:4</option>
+                            <option value="1:5">1:5</option>
+                            <option value="1:6">1:6</option>
+                            <option value="1:8">1:8</option>
+                            <option value="1:10">1:10</option>
+                            <option value="1:11">1:11</option>
+                            <option value="1:12">1:12</option>
+                            <option value="1:15">1:15</option>
+                            <option value="1:20">1:20</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="white-space: nowrap; margin-bottom: 0;">
+                        + Add
+                    </button>
+                </form>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Age Group *</label>
-                <select id="new-room-age-group" class="form-input" required>
-                    <option value="">Select age group...</option>
-                    <option value="infant">Infant (0-12 months)</option>
-                    <option value="toddler">Toddler (1-2 years)</option>
-                    <option value="preschool">Preschool (3-5 years)</option>
-                    <option value="school-age">School-Age (5+ years)</option>
-                    <option value="mixed">Mixed Ages</option>
-                </select>
+            <!-- Rooms List -->
+            <div id="manage-rooms-list" class="rooms-management-list">
+                <div class="rooms-loading">Loading rooms...</div>
             </div>
-
-            <div class="form-group">
-                <label class="form-label">Required Ratio *</label>
-                <select id="new-room-ratio" class="form-input" required>
-                    <option value="">Select ratio...</option>
-                    <option value="1:4">1:4 (Typical for infants)</option>
-                    <option value="1:5">1:5</option>
-                    <option value="1:6">1:6</option>
-                    <option value="1:8">1:8 (Typical for toddlers)</option>
-                    <option value="1:10">1:10</option>
-                    <option value="1:11">1:11</option>
-                    <option value="1:12">1:12 (Typical for preschool)</option>
-                    <option value="1:15">1:15 (Typical for school-age)</option>
-                    <option value="1:20">1:20</option>
-                </select>
-                <small style="color: var(--text-secondary); font-size: 0.8125rem; margin-top: 4px; display: block;">
-                    Check your state regulations for required ratios
-                </small>
-            </div>
-        </form>
+        </div>
 
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeAddRoomModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="submitAddRoom()">
-                ✓ Add Room
-            </button>
+            <button class="btn btn-secondary" onclick="closeManageRoomsModal()">Done</button>
         </div>
     </div>
 </div>

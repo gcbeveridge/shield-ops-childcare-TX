@@ -1862,76 +1862,11 @@ tr:hover td {
    RATIO SPOT-CHECK WIDGET
    ============================================ */
 
-.room-management-section {
-    background: var(--card-bg);
-    border-radius: var(--radius-xl);
-    padding: var(--space-lg);
-    margin-bottom: var(--space-lg);
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--card-border);
-}
-
-.room-management-section .widget-header {
+/* Header actions for widget */
+.header-actions {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-md);
-    flex-wrap: wrap;
     gap: var(--space-sm);
-}
-
-.room-management-section .widget-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--text-primary);
-}
-
-.room-management-section .widget-subtitle {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
-.rooms-list-preview {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.room-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-lg);
-    padding: 8px 12px;
-    transition: all var(--transition-base);
-}
-
-.room-badge:hover {
-    box-shadow: var(--card-shadow);
-    transform: translateY(-1px);
-}
-
-.room-badge-name {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-.room-badge-ratio {
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: var(--shield-lime);
-    color: var(--shield-navy-dark);
-    padding: 2px 6px;
-    border-radius: 4px;
-}
-
-[data-theme="dark"] .room-badge-ratio {
-    background: rgba(180, 211, 51, 0.2);
-    color: var(--shield-lime-light);
 }
 
 .btn-secondary-small {
@@ -1956,6 +1891,138 @@ tr:hover td {
 
 [data-theme="dark"] .btn-secondary-small {
     color: var(--text-primary);
+}
+
+/* Quick Add Room Form */
+.quick-add-room {
+    background: var(--bg-secondary);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-lg);
+}
+
+.quick-add-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.quick-add-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: var(--space-sm);
+    align-items: end;
+}
+
+@media (max-width: 600px) {
+    .quick-add-form {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.quick-add-room input,
+.quick-add-room select {
+    height: 38px;
+    font-size: 0.875rem;
+}
+
+.quick-add-room .btn-primary {
+    height: 38px;
+    padding: 0 16px;
+}
+
+/* Rooms Management List */
+.rooms-management-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-sm);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.room-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+
+.room-management-item:hover {
+    border-color: var(--shield-navy);
+    box-shadow: var(--card-shadow);
+}
+
+.room-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.room-item-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-primary);
+}
+
+.room-item-details {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+}
+
+.room-item-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-icon-small {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.btn-icon-small:hover {
+    background: var(--status-critical-bg);
+}
+
+/* Loading/Empty states */
+.rooms-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--text-secondary);
+}
+
+.rooms-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--text-secondary);
+}
+
+.rooms-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.6;
 }
 
 .ratio-spotcheck-widget {

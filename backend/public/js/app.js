@@ -1316,6 +1316,10 @@ async function loadRatioSpotCheckWidget() {
         // Load rooms
         const roomsResponse = await apiRequest(`/facilities/${facilityId}/rooms`);
         facilityRooms = roomsResponse?.data || [];
+        
+        // Update room count in header button
+        const roomCountEl = document.getElementById('room-count');
+        if (roomCountEl) roomCountEl.textContent = facilityRooms.length;
 
         // Load reminder status
         const statusResponse = await apiRequest(`/facilities/${facilityId}/ratio-checks/reminder-status`);
@@ -1493,19 +1497,76 @@ function toggleOtherMethodInput() {
     }
 }
 
-function openAddRoomModal() {
-    const modal = document.getElementById('add-room-modal');
+function openManageRoomsModal() {
+    const modal = document.getElementById('manageRoomsModal');
     if (modal) modal.style.display = 'flex';
+    loadManageRoomsList();
 }
 
-function closeAddRoomModal() {
-    const modal = document.getElementById('add-room-modal');
+function closeManageRoomsModal() {
+    const modal = document.getElementById('manageRoomsModal');
     if (modal) modal.style.display = 'none';
-    const form = document.getElementById('addRoomForm');
+    const form = document.getElementById('quickAddRoomForm');
     if (form) form.reset();
 }
 
-async function submitAddRoom() {
+async function loadManageRoomsList() {
+    try {
+        const facilityId = AppState.facility?.id;
+        if (!facilityId) return;
+
+        const container = document.getElementById('manage-rooms-list');
+        if (!container) return;
+
+        const response = await apiRequest(`/facilities/${facilityId}/rooms`);
+        const rooms = response?.data || [];
+
+        if (!rooms || rooms.length === 0) {
+            container.innerHTML = `
+                <div class="rooms-empty">
+                    <div class="rooms-empty-icon">🏫</div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">No rooms yet</div>
+                    <div style="font-size: 0.875rem;">Use the form above to add your first room</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rooms.map(room => `
+            <div class="room-management-item">
+                <div class="room-item-info">
+                    <div class="room-item-name" title="${room.name}">${room.name}</div>
+                    <div class="room-item-details">
+                        ${room.age_group} • ${room.required_ratio}
+                    </div>
+                </div>
+                <div class="room-item-actions">
+                    <button class="btn-icon-small" onclick="deleteRoom('${room.id}')" title="Delete room">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading rooms:', error);
+        const container = document.getElementById('manage-rooms-list');
+        if (container) {
+            container.innerHTML = `
+                <div class="rooms-loading">
+                    <div style="color: var(--color-critical);">Failed to load rooms</div>
+                    <button class="btn-secondary-small" onclick="loadManageRoomsList()" style="margin-top: var(--space-sm);">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+async function submitQuickAddRoom(event) {
+    if (event) event.preventDefault();
+    
     try {
         const facilityId = AppState.facility?.id;
         if (!facilityId) {
@@ -1513,36 +1574,26 @@ async function submitAddRoom() {
             return;
         }
 
-        const name = document.getElementById('new-room-name')?.value?.trim();
-        const ageGroup = document.getElementById('new-room-age-group')?.value;
-        const ratio = document.getElementById('new-room-ratio')?.value;
+        const data = {
+            name: document.getElementById('quick-room-name')?.value?.trim(),
+            age_group: document.getElementById('quick-room-age')?.value,
+            required_ratio: document.getElementById('quick-room-ratio')?.value
+        };
 
-        if (!name) {
-            showError('Please enter a room name');
-            return;
-        }
-        if (!ageGroup) {
-            showError('Please select an age group');
-            return;
-        }
-        if (!ratio) {
-            showError('Please select a ratio');
+        if (!data.name || !data.age_group || !data.required_ratio) {
+            showError('Please fill in all fields');
             return;
         }
 
         await apiRequest(`/facilities/${facilityId}/rooms`, {
             method: 'POST',
-            body: JSON.stringify({
-                name: name,
-                age_group: ageGroup,
-                required_ratio: ratio
-            })
+            body: JSON.stringify(data)
         });
 
-        showSuccess('Room added successfully!');
-        closeAddRoomModal();
+        showSuccess('Room added!');
+        document.getElementById('quickAddRoomForm')?.reset();
         
-        await loadRoomsPreview();
+        await loadManageRoomsList();
         await loadRatioSpotCheckWidget();
 
     } catch (error) {
@@ -1551,36 +1602,26 @@ async function submitAddRoom() {
     }
 }
 
-async function loadRoomsPreview() {
+async function deleteRoom(roomId) {
+    if (!confirm('Delete this room? Existing spot-checks will be preserved.')) {
+        return;
+    }
+
     try {
         const facilityId = AppState.facility?.id;
-        if (!facilityId) return;
+        
+        await apiRequest(`/facilities/${facilityId}/rooms/${roomId}`, {
+            method: 'DELETE'
+        });
 
-        const container = document.getElementById('rooms-list-preview');
-        if (!container) return;
-
-        const response = await apiRequest(`/facilities/${facilityId}/rooms`);
-        const rooms = response?.data || [];
-
-        if (!rooms || rooms.length === 0) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: var(--space-md); color: var(--text-secondary); width: 100%;">
-                    <div style="font-size: 2rem; margin-bottom: var(--space-xs);">🏫</div>
-                    <div style="font-size: 0.875rem;">No rooms added yet. Click "+ Add Room" to get started.</div>
-                </div>
-            `;
-            return;
-        }
-
-        container.innerHTML = rooms.map(room => `
-            <div class="room-badge" title="${room.name} - ${room.required_ratio}">
-                <span class="room-badge-name">${room.name}</span>
-                <span class="room-badge-ratio">${room.required_ratio}</span>
-            </div>
-        `).join('');
+        showSuccess('Room deleted');
+        
+        await loadManageRoomsList();
+        await loadRatioSpotCheckWidget();
 
     } catch (error) {
-        console.error('Error loading rooms preview:', error);
+        console.error('Error deleting room:', error);
+        showError('Failed to delete room');
     }
 }
 

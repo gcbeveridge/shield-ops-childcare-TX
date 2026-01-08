@@ -1,0 +1,484 @@
+# Fix: Room Management Access & Consolidate UI
+
+## Issues to Fix
+1. "Access denied to this facility" error when adding rooms
+2. UI takes too much space - consolidate room management into spot-check widget
+
+## Tasks
+
+### 1. Fix Backend Authorization for Room Creation
+
+Update the POST /api/facilities/:id/rooms endpoint to check facility access properly:
+```javascript
+// In backend routes - FIX the room creation endpoint
+router.post('/:id/rooms', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const userId = req.user.id;
+
+        // Check if user has access to this facility
+        const facilityCheck = await pool.query(
+            'SELECT id FROM facilities WHERE id = $1',
+            [facilityId]
+        );
+
+        if (facilityCheck.rows.length === 0) {
+            return res.status(404).json({ error: 'Facility not found' });
+        }
+
+        const { name, age_group, required_ratio } = req.body;
+
+        if (!name || !age_group || !required_ratio) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const result = await pool.query(`
+            INSERT INTO rooms (facility_id, name, age_group, required_ratio, active)
+            VALUES ($1, $2, $3, $4, true)
+            RETURNING *
+        `, [facilityId, name, age_group, required_ratio]);
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error creating room:', error);
+        res.status(500).json({ error: 'Failed to create room' });
+    }
+});
+```
+
+### 2. Consolidate UI - Remove Separate Section
+
+**REMOVE the separate "Your Rooms" section completely.**
+
+Replace it with an integrated design inside the spot-check widget:
+```html
+<!-- UPDATED RATIO SPOT-CHECK WIDGET - Replace entire widget HTML -->
+<div class="ratio-spotcheck-widget">
+    <div class="widget-header">
+        <div>
+            <h2 class="widget-title">👥 Ratio Compliance Spot-Checks</h2>
+            <p class="widget-subtitle">Document compliance with quick spot-checks</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-secondary-small" onclick="openManageRoomsModal()" title="Manage your rooms">
+                🏫 Rooms (<span id="room-count">0</span>)
+            </button>
+            <button class="btn-primary" onclick="openSpotCheckModal()">
+                ✓ Log Spot-Check
+            </button>
+        </div>
+    </div>
+
+    <!-- Reminder Alert (if checks due) -->
+    <div id="check-reminder-alert" class="reminder-alert" style="display: none;">
+        <div class="alert-icon">⏰</div>
+        <div class="alert-content">
+            <div class="alert-title">Spot-Check Reminder</div>
+            <div class="alert-message" id="reminder-message">--</div>
+        </div>
+        <button class="btn-alert" onclick="openSpotCheckModal()">Do It Now</button>
+    </div>
+
+    <!-- Today's Progress -->
+    <div class="check-progress">
+        <div class="progress-header">
+            <span>Today's Checks</span>
+            <span id="check-progress-text">0/2 completed</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="check-progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Recent Checks -->
+    <div class="recent-checks">
+        <h3 class="section-subtitle">Recent Spot-Checks</h3>
+        <div id="recent-checks-list" class="checks-list">
+            <div class="checks-loading">Loading recent checks...</div>
+        </div>
+    </div>
+</div>
+
+<!-- MANAGE ROOMS MODAL (replaces add room modal) -->
+<div id="manageRoomsModal" class="modal" style="display: none;">
+    <div class="modal-content modal-medium">
+        <div class="modal-header">
+            <h2>🏫 Manage Rooms</h2>
+            <button class="modal-close" onclick="closeManageRoomsModal()">✕</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Quick Add Form (Compact) -->
+            <div class="quick-add-room" style="background: var(--background-primary); padding: var(--space-md); border-radius: var(--radius-md); margin-bottom: var(--space-lg);">
+                <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: var(--space-sm); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Quick Add Room</h3>
+                <form id="quickAddRoomForm" onsubmit="submitQuickAddRoom(event)" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: var(--space-sm); align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <input type="text" id="quick-room-name" required 
+                               placeholder="Room name..." style="margin-bottom: 0;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="quick-room-age" required style="margin-bottom: 0;">
+                            <option value="">Age...</option>
+                            <option value="infant">Infant</option>
+                            <option value="toddler">Toddler</option>
+                            <option value="preschool">Preschool</option>
+                            <option value="school-age">School-Age</option>
+                            <option value="mixed">Mixed</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <select id="quick-room-ratio" required style="margin-bottom: 0;">
+                            <option value="">Ratio...</option>
+                            <option value="1:4">1:4</option>
+                            <option value="1:5">1:5</option>
+                            <option value="1:6">1:6</option>
+                            <option value="1:8">1:8</option>
+                            <option value="1:10">1:10</option>
+                            <option value="1:11">1:11</option>
+                            <option value="1:12">1:12</option>
+                            <option value="1:15">1:15</option>
+                            <option value="1:20">1:20</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary" style="white-space: nowrap; margin-bottom: 0;">
+                        + Add
+                    </button>
+                </form>
+            </div>
+
+            <!-- Rooms List -->
+            <div id="manage-rooms-list" class="rooms-management-list">
+                <div class="rooms-loading">Loading rooms...</div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeManageRoomsModal()">Done</button>
+        </div>
+    </div>
+</div>
+```
+
+### 3. Update Styling for Compact Design
+```css
+/* Compact header actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+/* Rooms Management List */
+.rooms-management-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-sm);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.room-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+}
+
+.room-management-item:hover {
+    border-color: var(--shield-navy);
+    box-shadow: var(--shadow-sm);
+}
+
+.room-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.room-item-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.room-item-details {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.room-item-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-icon-small {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background-primary);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.btn-icon-small:hover {
+    background: var(--color-critical);
+    color: white;
+}
+
+/* Quick add form compact styling */
+.quick-add-room input,
+.quick-add-room select {
+    height: 38px;
+    font-size: 0.875rem;
+}
+
+.quick-add-room .btn-primary {
+    height: 38px;
+    padding: 0 16px;
+}
+
+/* Loading state */
+.rooms-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--text-secondary);
+}
+
+/* Empty state */
+.rooms-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--text-secondary);
+}
+
+.rooms-empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-md);
+    opacity: 0.6;
+}
+```
+
+### 4. Update JavaScript Functions
+```javascript
+// ============================================
+// UPDATED ROOM MANAGEMENT - COMPACT VERSION
+// ============================================
+
+function openManageRoomsModal() {
+    document.getElementById('manageRoomsModal').style.display = 'flex';
+    loadManageRoomsList();
+}
+
+function closeManageRoomsModal() {
+    document.getElementById('manageRoomsModal').style.display = 'none';
+    document.getElementById('quickAddRoomForm').reset();
+}
+
+async function loadManageRoomsList() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const rooms = await apiRequest(`/api/facilities/${facilityId}/rooms`);
+        
+        const container = document.getElementById('manage-rooms-list');
+        
+        if (!rooms || rooms.length === 0) {
+            container.innerHTML = `
+                <div class="rooms-empty">
+                    <div class="rooms-empty-icon">🏫</div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">No rooms yet</div>
+                    <div style="font-size: 0.875rem;">Use the form above to add your first room</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rooms.map(room => `
+            <div class="room-management-item">
+                <div class="room-item-info">
+                    <div class="room-item-name" title="${room.name}">${room.name}</div>
+                    <div class="room-item-details">
+                        ${room.age_group} • ${room.required_ratio}
+                    </div>
+                </div>
+                <div class="room-item-actions">
+                    <button class="btn-icon-small" onclick="deleteRoom('${room.id}')" title="Delete room">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading rooms:', error);
+        document.getElementById('manage-rooms-list').innerHTML = `
+            <div class="rooms-loading">
+                <div style="color: var(--color-critical);">Failed to load rooms</div>
+                <button class="btn-secondary-small" onclick="loadManageRoomsList()" style="margin-top: var(--space-sm);">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+}
+
+async function submitQuickAddRoom(event) {
+    event.preventDefault();
+    
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        const data = {
+            name: document.getElementById('quick-room-name').value.trim(),
+            age_group: document.getElementById('quick-room-age').value,
+            required_ratio: document.getElementById('quick-room-ratio').value
+        };
+
+        if (!data.name || !data.age_group || !data.required_ratio) {
+            showError('Please fill in all fields');
+            return;
+        }
+
+        console.log('Creating room:', data); // Debug log
+
+        await apiRequest(`/api/facilities/${facilityId}/rooms`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+
+        showSuccess('Room added!');
+        document.getElementById('quickAddRoomForm').reset();
+        
+        // Reload both the modal list and main widget
+        await loadManageRoomsList();
+        await loadRatioSpotCheckWidget();
+
+    } catch (error) {
+        console.error('Error adding room:', error);
+        showError('Failed to add room: ' + (error.message || 'Unknown error'));
+    }
+}
+
+async function deleteRoom(roomId) {
+    if (!confirm('Delete this room? Existing spot-checks will be preserved.')) {
+        return;
+    }
+
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        await apiRequest(`/api/facilities/${facilityId}/rooms/${roomId}`, {
+            method: 'DELETE'
+        });
+
+        showSuccess('Room deleted');
+        
+        // Reload
+        await loadManageRoomsList();
+        await loadRatioSpotCheckWidget();
+
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        showError('Failed to delete room');
+    }
+}
+
+// Update the main load function to show room count
+async function loadRatioSpotCheckWidget() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+
+        // Load rooms
+        const roomsResponse = await apiRequest(`/api/facilities/${facilityId}/rooms`);
+        facilityRooms = roomsResponse || [];
+
+        // Update room count in button
+        document.getElementById('room-count').textContent = facilityRooms.length;
+
+        // Load reminder status
+        const statusResponse = await apiRequest(`/api/facilities/${facilityId}/ratio-checks/reminder-status`);
+        updateReminderAlert(statusResponse);
+
+        // Load today's checks
+        const checksResponse = await apiRequest(`/api/facilities/${facilityId}/ratio-checks/today`);
+        displayRecentChecks(checksResponse || []);
+
+    } catch (error) {
+        console.error('Error loading spot-check widget:', error);
+    }
+}
+```
+
+### 5. Add DELETE Room Endpoint
+```javascript
+// In backend routes - ADD this new endpoint
+router.delete('/:id/rooms/:roomId', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const roomId = req.params.roomId;
+
+        // Soft delete - set active = false (preserves historical data)
+        const result = await pool.query(`
+            UPDATE rooms 
+            SET active = false 
+            WHERE id = $1 AND facility_id = $2
+            RETURNING *
+        `, [roomId, facilityId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Room not found' });
+        }
+
+        res.json({ message: 'Room deleted', room: result.rows[0] });
+    } catch (error) {
+        console.error('Error deleting room:', error);
+        res.status(500).json({ error: 'Failed to delete room' });
+    }
+});
+```
+
+### 6. Remove Old Code
+
+**DELETE these completely:**
+- The separate "room-management-section" div
+- openAddRoomModal() function  
+- closeAddRoomModal() function
+- submitAddRoom() function
+- loadRoomsPreview() function
+- addRoomModal HTML
+
+## Expected Outcome
+- ✅ Single compact widget (not two sections)
+- ✅ "🏫 Rooms (X)" button in header
+- ✅ Clicking opens modal with quick-add form at top
+- ✅ Room list shows existing rooms in grid
+- ✅ Can delete rooms (soft delete)
+- ✅ Authorization error fixed
+- ✅ Much smaller dashboard footprint
+
+## Testing Checklist
+- [ ] Only ONE section visible (spot-check widget)
+- [ ] "🏫 Rooms (0)" button visible in header
+- [ ] Clicking opens manage rooms modal
+- [ ] Quick add form works (single row)
+- [ ] Room creation succeeds (no auth error)
+- [ ] Rooms appear in grid below form
+- [ ] Can delete rooms (with confirmation)
+- [ ] Room count updates after adding/deleting
+- [ ] Modal has "Done" button to close
+- [ ] Spot-check modal dropdown populates with rooms
+
+Apply these fixes!
