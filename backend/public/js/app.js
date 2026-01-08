@@ -1,4 +1,82 @@
 // =============================================
+// THEME MANAGEMENT - Light/Dark Mode
+// =============================================
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('shield-ops-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeToggleIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('shield-ops-theme', newTheme);
+    updateThemeToggleIcon(newTheme);
+    
+    // Add celebration effect on toggle
+    const toggle = document.getElementById('theme-toggle');
+    if (toggle) {
+        toggle.style.transform = 'scale(1.2) rotate(360deg)';
+        setTimeout(() => {
+            toggle.style.transform = '';
+        }, 300);
+    }
+}
+
+function updateThemeToggleIcon(theme) {
+    const toggle = document.getElementById('theme-toggle');
+    if (!toggle) return;
+    
+    const sunIcon = toggle.querySelector('.sun-icon');
+    const moonIcon = toggle.querySelector('.moon-icon');
+    
+    if (sunIcon && moonIcon) {
+        if (theme === 'dark') {
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+        } else {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        }
+    }
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', initTheme);
+
+// =============================================
+// CELEBRATION EFFECTS
+// =============================================
+
+function triggerConfetti(count = 50) {
+    const colors = ['#b4d333', '#f5c842', '#2c5f7c', '#22c55e', '#3b82f6'];
+    
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            confetti.style.width = (Math.random() * 8 + 6) + 'px';
+            confetti.style.height = (Math.random() * 8 + 6) + 'px';
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            document.body.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 4000);
+        }, i * 30);
+    }
+}
+
+function celebrateMilestone(message) {
+    triggerConfetti(80);
+    showSuccess(message || 'Milestone achieved! Keep up the great work!');
+}
+
+// =============================================
 // API CLIENT & AUTHENTICATION
 // =============================================
 
@@ -827,7 +905,7 @@ function initializeCACDashboard() {
 }
 
 // ============================================
-// PRIORITY HEAT MAP FUNCTIONS
+// PRIORITY / ACTION LANE FUNCTIONS
 // ============================================
 
 async function loadPriorityHeatMap() {
@@ -837,29 +915,96 @@ async function loadPriorityHeatMap() {
         
         const priorities = await calculatePriorities(facilityId);
 
-        // Update counts
-        const criticalCount = document.getElementById('critical-count');
-        const mediumCount = document.getElementById('medium-count');
-        const lowCount = document.getElementById('low-count');
-        const totalItems = document.getElementById('total-items');
-        const immediateAction = document.getElementById('immediate-action-count');
-        const timestamp = document.getElementById('heatmap-timestamp');
+        // Update counts for new Now/Next/Watch structure
+        const nowCount = document.getElementById('now-count');
+        const nextCount = document.getElementById('next-count');
+        const watchCount = document.getElementById('watch-count');
+        const timestamp = document.getElementById('action-lane-timestamp');
 
-        if (criticalCount) criticalCount.textContent = priorities.critical.length;
-        if (mediumCount) mediumCount.textContent = priorities.medium.length;
-        if (lowCount) lowCount.textContent = priorities.low.length;
-        if (totalItems) totalItems.textContent = priorities.critical.length + priorities.medium.length + priorities.low.length;
-        if (immediateAction) immediateAction.textContent = priorities.critical.length;
+        if (nowCount) nowCount.textContent = priorities.critical.length;
+        if (nextCount) nextCount.textContent = priorities.medium.length;
+        if (watchCount) watchCount.textContent = priorities.low.length;
         if (timestamp) timestamp.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-        // Populate zones
-        populateZone('critical', priorities.critical);
-        populateZone('medium', priorities.medium);
-        populateZone('low', priorities.low);
+        // Populate action lanes
+        populateActionLane('now', priorities.critical);
+        populateActionLane('next', priorities.medium);
+        populateActionLane('watch', priorities.low);
+        
+        // Update Center Pulse score based on compliance
+        updateCenterPulse(priorities);
 
     } catch (error) {
-        console.error('Error loading priority heat map:', error);
+        console.error('Error loading priority data:', error);
     }
+}
+
+function updateCenterPulse(priorities) {
+    const scoreEl = document.getElementById('center-pulse-score');
+    const messageEl = document.getElementById('pulse-message');
+    const streakEl = document.getElementById('streak-count');
+    
+    // Calculate score (100 - critical*10 - medium*3)
+    let score = 100 - (priorities.critical.length * 10) - (priorities.medium.length * 3);
+    score = Math.max(0, Math.min(100, score));
+    
+    if (scoreEl) scoreEl.textContent = score;
+    
+    // Update message based on score
+    if (messageEl) {
+        if (score >= 90) {
+            messageEl.textContent = "Your center is thriving! 🌟";
+        } else if (score >= 70) {
+            messageEl.textContent = "Looking good - a few items need attention";
+        } else if (score >= 50) {
+            messageEl.textContent = "Some priorities need your focus today";
+        } else {
+            messageEl.textContent = "Let's work on these priorities together";
+        }
+    }
+    
+    // Celebrate high scores
+    if (score >= 95 && priorities.critical.length === 0) {
+        setTimeout(() => triggerConfetti(30), 500);
+    }
+}
+
+function populateActionLane(laneType, items) {
+    const container = document.getElementById(`${laneType}-items`);
+    if (!container) return;
+    
+    if (items.length === 0) {
+        const emptyMessages = {
+            now: { icon: '🎉', title: 'All clear!', text: 'No urgent items - you\'re on top of everything' },
+            next: { icon: '👍', title: 'Looking good!', text: 'Nothing needs your attention right now' },
+            watch: { icon: '✨', title: 'All systems go!', text: 'Everything is running smoothly' }
+        };
+        
+        const msg = emptyMessages[laneType];
+        container.innerHTML = `
+            <div class="capsule-empty">
+                <div class="capsule-empty-icon">${msg.icon}</div>
+                <h4>${msg.title}</h4>
+                <p>${msg.text}</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = items.map((item, index) => createActionItemHTML(item, index)).join('');
+}
+
+function createActionItemHTML(item, index) {
+    return `
+        <div class="action-item" onclick="handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')" style="animation-delay: ${0.1 + index * 0.05}s;">
+            <div class="action-item-icon">${item.icon}</div>
+            <div class="action-item-content">
+                <div class="action-item-title">${item.title}</div>
+                <div class="action-item-description">${item.description}</div>
+                <button class="action-item-btn" onclick="event.stopPropagation(); handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')">${item.action}</button>
+            </div>
+        </div>
+    `;
 }
 
 async function calculatePriorities(facilityId) {

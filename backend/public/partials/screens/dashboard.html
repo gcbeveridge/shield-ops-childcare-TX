@@ -1,291 +1,247 @@
 <!-- =============================================
-     SHIELD OPS DASHBOARD - CAC DESIGN v2.0
+     SHIELD OPS DASHBOARD - Guardian Warmth Design
+     Unique, Engaging, Supportive UI/UX
      ============================================= -->
 
-<!-- Hero Section -->
-<div class="cac-hero cac-animate-fadeIn">
-    <div class="cac-hero-inner">
-        <div class="cac-hero-header">
-            <div class="cac-hero-heading">
-                <h1 class="cac-hero-title" id="dashboard-greeting">
-                    <span class="cac-hero-greeting">Welcome back,</span>
-                    Command Center
-                </h1>
-                <p class="cac-hero-subtitle">Mission-ready dashboard • Real-time compliance monitoring</p>
-            </div>
-            <div class="cac-hero-header-right">
-                <div id="weather-widget-compact" class="cac-hero-weather">
-                    <span id="weather-icon-hero" class="cac-hero-weather-icon">🌤️</span>
-                    <div class="cac-hero-weather-meta">
-                        <div class="cac-hero-weather-temp" id="weather-temp-hero">72°F</div>
-                        <div class="cac-hero-weather-condition" id="weather-condition-hero">Clear</div>
-                    </div>
-                </div>
-            </div>
+<!-- Hero Section with Personalized Greeting -->
+<div class="dashboard-header" style="animation: slideUp 0.5s ease-out;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div>
+            <h1 id="dashboard-greeting" style="font-size: 2rem; font-weight: 700; margin-bottom: 8px;">
+                <span style="display: block; font-size: 1rem; opacity: 0.85; font-weight: 500; margin-bottom: 4px;">Good morning,</span>
+                Director
+            </h1>
+            <p style="opacity: 0.85; font-size: 0.95rem;">Your center is running smoothly. Here's what needs your attention today.</p>
         </div>
-
-        <!-- Hero Stats -->
-        <div class="cac-hero-stats">
-            <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.1s;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                    <span style="font-size: 32px;">🛡️</span>
-                    <span class="cac-badge cac-badge-success"
-                        style="background: rgba(16, 185, 129, 0.2); color: white;">OPTIMAL</span>
-                </div>
-                <div class="cac-hero-stat-value" id="risk-score-display">--</div>
-                <div class="cac-hero-stat-label">Safety Score</div>
-                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;" id="risk-change-display">--</div>
-            </div>
-
-            <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.2s;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                    <span style="font-size: 32px;">🔥</span>
-                    <span class="cac-badge cac-badge-warning"
-                        style="background: rgba(245, 158, 11, 0.2); color: white;">ACTIVE</span>
-                </div>
-                <div class="cac-hero-stat-value" id="streak-days-display">--</div>
-                <div class="cac-hero-stat-label">Days Incident-Free</div>
-                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Next milestone: <strong
-                        id="next-goal-display">100</strong></div>
-            </div>
-
-            <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.3s;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                    <span style="font-size: 32px;">✅</span>
-                    <span class="cac-badge cac-badge-info" style="background: rgba(59, 130, 246, 0.2); color: white;">ON
-                        TRACK</span>
-                </div>
-                <div class="cac-hero-stat-value" id="compliance-rate-display">--</div>
-                <div class="cac-hero-stat-label">Compliance Rate</div>
-                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Texas HHS Certified</div>
-            </div>
-
-            <div class="cac-hero-stat cac-animate-slideUp" style="animation-delay: 0.4s;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                    <span style="font-size: 32px;">⏱️</span>
-                    <span class="cac-badge" style="background: rgba(255,255,255,0.2); color: white;">LIVE</span>
-                </div>
-                <div class="cac-hero-stat-value" id="last-inspection-display">--</div>
-                <div class="cac-hero-stat-label">Days Since Inspection</div>
-                <div style="margin-top: 8px; font-size: 13px; opacity: 0.8;">Next due: <strong
-                        id="next-inspection-display">TBD</strong></div>
+        <div id="weather-widget-compact" style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); padding: 12px 20px; border-radius: 16px; backdrop-filter: blur(8px);">
+            <span id="weather-icon-hero" style="font-size: 32px;">🌤️</span>
+            <div>
+                <div id="weather-temp-hero" style="font-size: 1.25rem; font-weight: 700;">72°F</div>
+                <div id="weather-condition-hero" style="font-size: 0.8rem; opacity: 0.85;">Clear skies</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Critical Alerts Banner -->
-<div id="critical-alerts-banner" style="display: none;" class="cac-animate-slideDown">
-    <div class="cac-alert cac-alert-danger" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
-        <div class="cac-alert-icon">⚠️</div>
-        <div class="cac-alert-content">
-            <div class="cac-alert-title">Critical Action Required</div>
-            <div id="critical-alerts-list" style="margin-top: 8px;"></div>
+<!-- Center Pulse - Compliance Health Orb -->
+<div class="center-pulse-container" style="animation: fadeInUp 0.6s ease-out 0.1s backwards;">
+    <div class="center-pulse" onclick="celebrateMilestone('Your compliance score is excellent!')">
+        <div class="center-pulse-ring"></div>
+        <div class="center-pulse-ring"></div>
+        <div class="center-pulse-ring"></div>
+        <div class="center-pulse-orb"></div>
+        <div class="center-pulse-content">
+            <div class="center-pulse-score" id="center-pulse-score">92</div>
+            <div class="center-pulse-label">Health Score</div>
+        </div>
+    </div>
+    <div class="center-pulse-status">
+        <div class="center-pulse-message" id="pulse-message">Your center is thriving!</div>
+        <div class="center-pulse-streak">
+            <strong id="streak-count">45</strong> days incident-free
         </div>
     </div>
 </div>
 
-<!-- PRIORITY HEAT MAP -->
-<div class="priority-heatmap-section cac-animate-slideUp" style="animation-delay: 0.45s;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0;">
-            <span style="margin-right: 8px;">🎯</span>Priority Overview
+<!-- Guided Action Lane (Now / Next / Watch) -->
+<div class="action-lane-container" style="animation: slideUp 0.6s ease-out 0.2s backwards;">
+    <div class="action-lane-header">
+        <h2 class="action-lane-title">
+            <span>🎯</span> Today's Priorities
         </h2>
         <div style="display: flex; gap: 12px; align-items: center;">
-            <span style="font-size: 13px; color: #6b7280;">Last updated: <span id="heatmap-timestamp">--</span></span>
-            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="refreshPriorities()">
-                <span id="refresh-icon">🔄</span> Refresh
+            <span style="font-size: 0.8rem; color: var(--text-secondary);">Updated: <span id="action-lane-timestamp">just now</span></span>
+            <button onclick="refreshPriorities()" style="background: var(--bg-secondary); border: 1px solid var(--border-medium); border-radius: var(--radius-md); padding: 8px 16px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--text-primary); transition: all 0.2s;">
+                <span id="refresh-icon">↻</span> Refresh
             </button>
         </div>
     </div>
 
-    <div class="risk-heatmap-grid">
-        <!-- CRITICAL ZONE -->
-        <div class="risk-zone critical" id="critical-zone">
-            <div class="zone-header">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="zone-icon">🔴</span>
-                    <span class="zone-title">CRITICAL</span>
+    <div class="action-lane-grid">
+        <!-- NOW - Urgent Actions -->
+        <div class="action-capsule now">
+            <div class="capsule-header">
+                <div class="capsule-header-left">
+                    <span class="capsule-icon">🔥</span>
+                    <span class="capsule-title">NOW</span>
                 </div>
-                <span class="zone-count" id="critical-count">0</span>
+                <span class="capsule-badge" id="now-count">0</span>
             </div>
-            <div class="zone-description">
-                Immediate action required - Risk of violations or safety issues
-            </div>
-            <div class="zone-content" id="critical-items">
-                <div class="zone-loading">Loading...</div>
+            <p class="capsule-subtitle">Requires immediate attention today</p>
+            <div class="capsule-content" id="now-items">
+                <div class="capsule-empty">
+                    <div class="capsule-empty-icon">🎉</div>
+                    <h4>All clear!</h4>
+                    <p>No urgent items - you're on top of everything</p>
+                </div>
             </div>
         </div>
 
-        <!-- ATTENTION NEEDED ZONE -->
-        <div class="risk-zone medium" id="medium-zone">
-            <div class="zone-header">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="zone-icon">🟡</span>
-                    <span class="zone-title">ATTENTION NEEDED</span>
+        <!-- NEXT - Coming Up -->
+        <div class="action-capsule next">
+            <div class="capsule-header">
+                <div class="capsule-header-left">
+                    <span class="capsule-icon">📋</span>
+                    <span class="capsule-title">NEXT</span>
                 </div>
-                <span class="zone-count" id="medium-count">0</span>
+                <span class="capsule-badge" id="next-count">0</span>
             </div>
-            <div class="zone-description">
-                Address soon to prevent escalation
-            </div>
-            <div class="zone-content" id="medium-items">
-                <div class="zone-loading">Loading...</div>
+            <p class="capsule-subtitle">Address soon to stay ahead</p>
+            <div class="capsule-content" id="next-items">
+                <div class="capsule-empty">
+                    <div class="capsule-empty-icon">👍</div>
+                    <h4>Looking good!</h4>
+                    <p>Nothing needs your attention right now</p>
+                </div>
             </div>
         </div>
 
-        <!-- MONITOR ZONE -->
-        <div class="risk-zone low" id="low-zone">
-            <div class="zone-header">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span class="zone-icon">🟢</span>
-                    <span class="zone-title">MONITORING</span>
+        <!-- WATCH - Monitoring -->
+        <div class="action-capsule watch">
+            <div class="capsule-header">
+                <div class="capsule-header-left">
+                    <span class="capsule-icon">👀</span>
+                    <span class="capsule-title">WATCH</span>
                 </div>
-                <span class="zone-count" id="low-count">0</span>
+                <span class="capsule-badge" id="watch-count">0</span>
             </div>
-            <div class="zone-description">
-                No immediate action needed - Routine monitoring
+            <p class="capsule-subtitle">Monitor these for the coming weeks</p>
+            <div class="capsule-content" id="watch-items">
+                <div class="capsule-empty">
+                    <div class="capsule-empty-icon">✨</div>
+                    <h4>All systems go!</h4>
+                    <p>Everything is running smoothly</p>
+                </div>
             </div>
-            <div class="zone-content" id="low-items">
-                <div class="zone-loading">Loading...</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Summary Bar -->
-    <div class="priority-summary" style="margin-top: 20px;">
-        <div class="summary-item">
-            <span class="summary-label">Total Items:</span>
-            <span class="summary-value" id="total-items">0</span>
-        </div>
-        <div class="summary-item">
-            <span class="summary-label">Needs Immediate Action:</span>
-            <span class="summary-value critical-text" id="immediate-action-count">0</span>
         </div>
     </div>
 </div>
 
-<!-- Key Metrics Grid -->
-<div class="cac-metric-grid cac-animate-slideUp" style="animation-delay: 0.5s;">
-    <div class="cac-metric cac-metric-danger cac-hover-lift"
-        onclick="if (window.appRouter) window.appRouter.go('/documents')">
-        <div class="cac-metric-header">
-            <div>
-                <div class="cac-metric-label">MISSING DOCUMENTS</div>
-                <div class="cac-metric-value" id="missing-docs-count">--</div>
-            </div>
-            <div class="cac-metric-icon">⚠️</div>
-        </div>
-        <div class="cac-progress cac-progress-danger" style="margin-top: 12px;">
-            <div class="cac-progress-bar" id="missing-docs-progress" style="width: 0%;"></div>
-        </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="missing-docs-detail">Critical
-            compliance documents needed</div>
-    </div>
-
-    <div class="cac-metric cac-metric-warning cac-hover-lift"
-        onclick="if (window.appRouter) window.appRouter.go('/documents')">
-        <div class="cac-metric-header">
-            <div>
-                <div class="cac-metric-label">EXPIRED DOCUMENTS</div>
-                <div class="cac-metric-value" id="expired-docs-count">--</div>
-            </div>
-            <div class="cac-metric-icon">📅</div>
-        </div>
-        <div class="cac-progress cac-progress-warning" style="margin-top: 12px;">
-            <div class="cac-progress-bar" id="expired-docs-progress" style="width: 0%;"></div>
-        </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="expired-docs-detail">Requires
-            immediate renewal</div>
-    </div>
-
-    <div class="cac-metric cac-metric-success cac-hover-lift"
-        onclick="if (window.appRouter) window.appRouter.go('/staff')">
-        <div class="cac-metric-header">
-            <div>
-                <div class="cac-metric-label">STAFF CERTIFICATIONS</div>
-                <div class="cac-metric-value" id="staff-certs-count">--</div>
-            </div>
-            <div class="cac-metric-icon">👥</div>
-        </div>
-        <div class="cac-progress cac-progress-success" style="margin-top: 12px;">
-            <div class="cac-progress-bar" id="staff-certs-progress" style="width: 0%;"></div>
-        </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="staff-certs-detail">All staff
-            members certified</div>
-    </div>
-
-    <div class="cac-metric cac-hover-lift" onclick="if (window.appRouter) window.appRouter.go('/incidents')">
-        <div class="cac-metric-header">
-            <div>
-                <div class="cac-metric-label">PENDING SIGNATURES</div>
-                <div class="cac-metric-value" id="pending-signatures-count">--</div>
-            </div>
-            <div class="cac-metric-icon">✍️</div>
-        </div>
-        <div class="cac-progress" style="margin-top: 12px;">
-            <div class="cac-progress-bar" id="pending-signatures-progress" style="width: 0%;"></div>
-        </div>
-        <div style="margin-top: 8px; font-size: 12px; color: var(--cac-gray-600);" id="pending-signatures-detail">
-            Incident reports awaiting parent signature</div>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.6s; margin-bottom: 32px;">
-    <div class="cac-card-header">
-        <h2 class="cac-card-title">
-            <span class="cac-card-title-icon">⚡</span>
-            Quick Actions
+<!-- Daily Success Ritual - Wins & Progress -->
+<div class="success-ritual-container" style="animation: slideUp 0.6s ease-out 0.3s backwards;">
+    <div class="success-ritual-header">
+        <h2 class="success-ritual-title">
+            <span>✨</span> Your Wins This Week
         </h2>
     </div>
-    <div class="quick-actions-grid">
-        <button onclick="openModal('new-incident')"
-            class="cac-btn cac-btn-primary cac-btn-lg cac-hover-lift quick-action-btn">
-            <span style="font-size: 32px; margin-bottom: 8px;">🚨</span>
-            <span>Log Incident</span>
-        </button>
+    <div class="success-ritual-grid">
+        <div class="success-card">
+            <div class="success-card-icon">📋</div>
+            <div class="success-card-title">Checklists Completed</div>
+            <div class="success-card-value" id="checklists-completed">14</div>
+            <div class="success-card-description">of 15 daily checklists done on time</div>
+        </div>
+        <div class="success-card">
+            <div class="success-card-icon">📄</div>
+            <div class="success-card-title">Documents Updated</div>
+            <div class="success-card-value" id="docs-updated">8</div>
+            <div class="success-card-description">compliance documents refreshed</div>
+        </div>
+        <div class="success-card">
+            <div class="success-card-icon">👥</div>
+            <div class="success-card-title">Staff Trainings</div>
+            <div class="success-card-value" id="trainings-done">5</div>
+            <div class="success-card-description">certifications renewed this month</div>
+        </div>
+        <div class="success-card">
+            <div class="success-card-icon">⭐</div>
+            <div class="success-card-title">Compliance Score</div>
+            <div class="success-card-value" id="compliance-trend">+3%</div>
+            <div class="success-card-description">improvement from last month</div>
+        </div>
+    </div>
+</div>
 
-        <button onclick="openModal('add-medication')" class="cac-btn cac-btn-lg cac-hover-lift quick-action-btn"
-            style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
-            <span style="font-size: 32px; margin-bottom: 8px;">💊</span>
-            <span>Add Medication</span>
+<!-- Quick Actions - Fun Gradients -->
+<div class="action-lane-container" style="animation: slideUp 0.6s ease-out 0.4s backwards;">
+    <div class="action-lane-header">
+        <h2 class="action-lane-title">
+            <span>⚡</span> Quick Actions
+        </h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <button onclick="openModal('new-incident')" style="background: linear-gradient(135deg, #ef4444 0%, #f87171 100%); color: white; border: none; border-radius: var(--radius-xl); padding: 24px; cursor: pointer; text-align: center; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3); transition: all 0.3s;">
+            <span style="font-size: 2rem; display: block; margin-bottom: 8px;">🚨</span>
+            <span style="font-weight: 600; font-size: 0.95rem;">Log Incident</span>
         </button>
-
-        <button onclick="openModal('upload-document')" class="cac-btn cac-btn-lg cac-hover-lift quick-action-btn"
-            style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-            <span style="font-size: 32px; margin-bottom: 8px;">📁</span>
-            <span>Upload Document</span>
+        <button onclick="openModal('add-medication')" style="background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); color: white; border: none; border-radius: var(--radius-xl); padding: 24px; cursor: pointer; text-align: center; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3); transition: all 0.3s;">
+            <span style="font-size: 2rem; display: block; margin-bottom: 8px;">💊</span>
+            <span style="font-weight: 600; font-size: 0.95rem;">Log Medication</span>
         </button>
-
-        <button onclick="openModal('add-staff')" class="cac-btn cac-btn-lg cac-hover-lift quick-action-btn"
-            style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
-            <span style="font-size: 32px; margin-bottom: 8px;">👥</span>
-            <span>Add Staff</span>
+        <button onclick="openModal('upload-document')" style="background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); color: white; border: none; border-radius: var(--radius-xl); padding: 24px; cursor: pointer; text-align: center; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3); transition: all 0.3s;">
+            <span style="font-size: 2rem; display: block; margin-bottom: 8px;">📁</span>
+            <span style="font-weight: 600; font-size: 0.95rem;">Upload Document</span>
+        </button>
+        <button onclick="if(window.appRouter) window.appRouter.go('/staff')" style="background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%); color: white; border: none; border-radius: var(--radius-xl); padding: 24px; cursor: pointer; text-align: center; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3); transition: all 0.3s;">
+            <span style="font-size: 2rem; display: block; margin-bottom: 8px;">👥</span>
+            <span style="font-weight: 600; font-size: 0.95rem;">Manage Staff</span>
         </button>
     </div>
 </div>
 
-<!-- Recent Activity -->
-<div class="cac-card cac-animate-slideUp" style="animation-delay: 0.7s;">
-    <div class="cac-card-header">
-        <h2 class="cac-card-title">
-            <span class="cac-card-title-icon">📊</span>
-            Recent Activity
+<!-- Key Metrics - At a Glance -->
+<div class="action-lane-container" style="animation: slideUp 0.6s ease-out 0.5s backwards;">
+    <div class="action-lane-header">
+        <h2 class="action-lane-title">
+            <span>📊</span> Compliance Snapshot
         </h2>
-        <div class="cac-card-actions">
-            <button class="cac-btn cac-btn-sm cac-btn-ghost"
-                onclick="if (window.appRouter) window.appRouter.go('/incidents')">
-                View All →
-            </button>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+        <div onclick="if(window.appRouter) window.appRouter.go('/documents')" style="background: var(--status-critical-bg); border: 2px solid var(--status-critical-border); border-radius: var(--radius-xl); padding: 20px; cursor: pointer; transition: all 0.3s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span style="font-size: 1.5rem;">⚠️</span>
+                <span style="font-size: 2rem; font-weight: 700; color: var(--status-critical); font-family: 'Space Grotesk', monospace;" id="missing-docs-count">0</span>
+            </div>
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Missing Documents</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">Critical compliance docs needed</div>
+        </div>
+
+        <div onclick="if(window.appRouter) window.appRouter.go('/documents')" style="background: var(--status-warning-bg); border: 2px solid var(--status-warning-border); border-radius: var(--radius-xl); padding: 20px; cursor: pointer; transition: all 0.3s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span style="font-size: 1.5rem;">📅</span>
+                <span style="font-size: 2rem; font-weight: 700; color: var(--status-warning); font-family: 'Space Grotesk', monospace;" id="expired-docs-count">0</span>
+            </div>
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Expiring Soon</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">Documents need renewal</div>
+        </div>
+
+        <div onclick="if(window.appRouter) window.appRouter.go('/staff')" style="background: var(--status-success-bg); border: 2px solid var(--status-success-border); border-radius: var(--radius-xl); padding: 20px; cursor: pointer; transition: all 0.3s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span style="font-size: 1.5rem;">👥</span>
+                <span style="font-size: 2rem; font-weight: 700; color: var(--status-success); font-family: 'Space Grotesk', monospace;" id="staff-certs-count">0/0</span>
+            </div>
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Staff Certified</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">All staff current on training</div>
+        </div>
+
+        <div onclick="if(window.appRouter) window.appRouter.go('/incidents')" style="background: var(--bg-secondary); border: 2px solid var(--border-medium); border-radius: var(--radius-xl); padding: 20px; cursor: pointer; transition: all 0.3s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <span style="font-size: 1.5rem;">✍️</span>
+                <span style="font-size: 2rem; font-weight: 700; color: var(--text-primary); font-family: 'Space Grotesk', monospace;" id="pending-signatures-count">0</span>
+            </div>
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">Pending Signatures</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">Awaiting parent signatures</div>
         </div>
     </div>
-    <div class="cac-card-body">
-        <div id="recent-activity-container" style="display: flex; flex-direction: column; gap: 12px;">
-            <!-- Activity items populated dynamically -->
-            <div class="cac-skeleton" style="height: 60px;"></div>
-            <div class="cac-skeleton" style="height: 60px;"></div>
-            <div class="cac-skeleton" style="height: 60px;"></div>
+</div>
+
+<!-- Recent Activity Feed -->
+<div class="action-lane-container" style="animation: slideUp 0.6s ease-out 0.6s backwards;">
+    <div class="action-lane-header">
+        <h2 class="action-lane-title">
+            <span>📰</span> Recent Activity
+        </h2>
+        <button onclick="if(window.appRouter) window.appRouter.go('/incidents')" style="background: transparent; border: 1px solid var(--border-medium); border-radius: var(--radius-md); padding: 8px 16px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">
+            View All →
+        </button>
+    </div>
+    <div id="recent-activity-container" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 16px; display: flex; gap: 16px; align-items: center;">
+            <div style="width: 48px; height: 48px; background: var(--status-info-bg); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📝</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">No recent activity</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">Your activity will appear here</div>
+            </div>
         </div>
     </div>
 </div>
