@@ -96,16 +96,14 @@ router.post('/:id/alerts/generate', authenticateToken, verifyFacilityAccess, asy
                 const expDate = new Date(certs[cert.key].expiration);
                 const daysUntil = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
 
-                // Check if alert already exists for this
+                // Check if alert already exists for this cert
                 const existingAlert = await pool.query(`
-                    SELECT id FROM alerts 
+                    SELECT id, alert_type, severity FROM alerts 
                     WHERE facility_id = $1 
-                        AND alert_type LIKE $2
-                        AND related_entity_id = $3
+                        AND related_entity_id = $2
+                        AND alert_type LIKE $3
                         AND resolved = false
-                `, [facilityId, `cert_%_${cert.key}`, member.id]);
-
-                if (existingAlert.rows.length > 0) continue;
+                `, [facilityId, member.id, `cert_%_${cert.key}`]);
 
                 let alertData = null;
 
@@ -131,32 +129,59 @@ router.post('/:id/alerts/generate', authenticateToken, verifyFacilityAccess, asy
                     };
                 }
 
-                if (alertData) {
-                    const insertResult = await pool.query(`
-                        INSERT INTO alerts (
-                            facility_id, alert_type, severity, title, message,
-                            action_url, related_entity_id, related_entity_type
-                        )
-                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-                        RETURNING *
-                    `, [
-                        facilityId,
-                        alertData.alert_type,
-                        alertData.severity,
-                        alertData.title,
-                        alertData.message,
-                        alertData.action_url,
-                        alertData.related_entity_id,
-                        alertData.related_entity_type
-                    ]);
+                if (!alertData) continue;
 
-                    newAlerts.push(insertResult.rows[0]);
-
-                    await pool.query(`
-                        INSERT INTO alert_history (alert_id, action)
-                        VALUES ($1, 'created')
-                    `, [insertResult.rows[0].id]);
+                // Check if we need to upgrade, create, or skip
+                if (existingAlert.rows.length > 0) {
+                    const existing = existingAlert.rows[0];
+                    
+                    // If existing is warning but new is critical, upgrade it
+                    if (existing.severity === 'warning' && alertData.severity === 'critical') {
+                        await pool.query(`
+                            UPDATE alerts 
+                            SET alert_type = $1, severity = $2, title = $3, message = $4,
+                                acknowledged = false, updated_at = NOW()
+                            WHERE id = $5
+                        `, [alertData.alert_type, alertData.severity, alertData.title, alertData.message, existing.id]);
+                        
+                        await pool.query(`
+                            INSERT INTO alert_history (alert_id, action, details)
+                            VALUES ($1, 'upgraded', 'Escalated from warning to critical')
+                        `, [existing.id]);
+                        
+                        // Fetch updated alert to return
+                        const updated = await pool.query('SELECT * FROM alerts WHERE id = $1', [existing.id]);
+                        newAlerts.push(updated.rows[0]);
+                    }
+                    // If same severity or downgrade, skip
+                    continue;
                 }
+
+                // No existing alert, create new one
+                const insertResult = await pool.query(`
+                    INSERT INTO alerts (
+                        facility_id, alert_type, severity, title, message,
+                        action_url, related_entity_id, related_entity_type
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    RETURNING *
+                `, [
+                    facilityId,
+                    alertData.alert_type,
+                    alertData.severity,
+                    alertData.title,
+                    alertData.message,
+                    alertData.action_url,
+                    alertData.related_entity_id,
+                    alertData.related_entity_type
+                ]);
+
+                newAlerts.push(insertResult.rows[0]);
+
+                await pool.query(`
+                    INSERT INTO alert_history (alert_id, action)
+                    VALUES ($1, 'created')
+                `, [insertResult.rows[0].id]);
             }
         }
 
