@@ -786,6 +786,9 @@ async function loadDashboardData() {
 
         // Update new dashboard metrics
         updateModernDashboard(dashboardData.data);
+        
+        // Load priority heat map
+        await loadPriorityHeatMap();
     } catch (error) {
         console.error('Failed to load dashboard:', error);
     }
@@ -821,6 +824,269 @@ function initializeCACDashboard() {
             }
         }
     });
+}
+
+// ============================================
+// PRIORITY HEAT MAP FUNCTIONS
+// ============================================
+
+async function loadPriorityHeatMap() {
+    try {
+        const facilityId = AppState.facility?.id;
+        if (!facilityId) return;
+        
+        const priorities = await calculatePriorities(facilityId);
+
+        // Update counts
+        const criticalCount = document.getElementById('critical-count');
+        const mediumCount = document.getElementById('medium-count');
+        const lowCount = document.getElementById('low-count');
+        const totalItems = document.getElementById('total-items');
+        const immediateAction = document.getElementById('immediate-action-count');
+        const timestamp = document.getElementById('heatmap-timestamp');
+
+        if (criticalCount) criticalCount.textContent = priorities.critical.length;
+        if (mediumCount) mediumCount.textContent = priorities.medium.length;
+        if (lowCount) lowCount.textContent = priorities.low.length;
+        if (totalItems) totalItems.textContent = priorities.critical.length + priorities.medium.length + priorities.low.length;
+        if (immediateAction) immediateAction.textContent = priorities.critical.length;
+        if (timestamp) timestamp.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        // Populate zones
+        populateZone('critical', priorities.critical);
+        populateZone('medium', priorities.medium);
+        populateZone('low', priorities.low);
+
+    } catch (error) {
+        console.error('Error loading priority heat map:', error);
+    }
+}
+
+async function calculatePriorities(facilityId) {
+    const priorities = {
+        critical: [],
+        medium: [],
+        low: []
+    };
+
+    try {
+        // Get staff data to check for expiring certifications
+        const staffResponse = await apiRequest(`/facilities/${facilityId}/staff`);
+        const staff = staffResponse?.data || [];
+
+        // Check for expired and expiring certifications
+        const today = new Date();
+
+        staff.forEach(member => {
+            if (!member.certifications) return;
+
+            const certs = member.certifications;
+            
+            // Check CPR/First Aid certification
+            if (certs.cprFirstAid?.expirationDate) {
+                const expDate = new Date(certs.cprFirstAid.expirationDate);
+                const daysUntilExpiration = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiration < 0) {
+                    priorities.critical.push({
+                        type: 'expired_cert',
+                        icon: '🚨',
+                        title: `${member.name}'s CPR/First Aid EXPIRED`,
+                        description: `Expired ${Math.abs(daysUntilExpiration)} days ago`,
+                        action: 'Renew Now',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                } else if (daysUntilExpiration <= 30) {
+                    priorities.medium.push({
+                        type: 'expiring_soon',
+                        icon: '⚠️',
+                        title: `${member.name}'s CPR/First Aid expiring soon`,
+                        description: `Expires in ${daysUntilExpiration} days`,
+                        action: 'Schedule Renewal',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                } else if (daysUntilExpiration <= 60) {
+                    priorities.low.push({
+                        type: 'monitor_expiration',
+                        icon: '📅',
+                        title: `${member.name}'s CPR/First Aid`,
+                        description: `Expires in ${daysUntilExpiration} days`,
+                        action: 'View Schedule',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                }
+            }
+
+            // Check Background Check
+            if (certs.backgroundCheck?.expirationDate) {
+                const expDate = new Date(certs.backgroundCheck.expirationDate);
+                const daysUntilExpiration = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiration < 0) {
+                    priorities.critical.push({
+                        type: 'expired_cert',
+                        icon: '🚨',
+                        title: `${member.name}'s Background Check EXPIRED`,
+                        description: `Expired ${Math.abs(daysUntilExpiration)} days ago`,
+                        action: 'Renew Now',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                } else if (daysUntilExpiration <= 30) {
+                    priorities.medium.push({
+                        type: 'expiring_soon',
+                        icon: '⚠️',
+                        title: `${member.name}'s Background Check expiring soon`,
+                        description: `Expires in ${daysUntilExpiration} days`,
+                        action: 'Schedule Renewal',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                }
+            }
+
+            // Check Food Handler
+            if (certs.foodHandler?.expirationDate) {
+                const expDate = new Date(certs.foodHandler.expirationDate);
+                const daysUntilExpiration = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiration < 0) {
+                    priorities.critical.push({
+                        type: 'expired_cert',
+                        icon: '🚨',
+                        title: `${member.name}'s Food Handler EXPIRED`,
+                        description: `Expired ${Math.abs(daysUntilExpiration)} days ago`,
+                        action: 'Renew Now',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                } else if (daysUntilExpiration <= 30) {
+                    priorities.medium.push({
+                        type: 'expiring_soon',
+                        icon: '⚠️',
+                        title: `${member.name}'s Food Handler expiring soon`,
+                        description: `Expires in ${daysUntilExpiration} days`,
+                        action: 'Schedule Renewal',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                }
+            }
+
+            // Check TB Test
+            if (certs.tbTest?.nextDue) {
+                const expDate = new Date(certs.tbTest.nextDue);
+                const daysUntilExpiration = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysUntilExpiration < 0) {
+                    priorities.critical.push({
+                        type: 'expired_cert',
+                        icon: '🚨',
+                        title: `${member.name}'s TB Test OVERDUE`,
+                        description: `Overdue by ${Math.abs(daysUntilExpiration)} days`,
+                        action: 'Schedule Now',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                } else if (daysUntilExpiration <= 30) {
+                    priorities.medium.push({
+                        type: 'expiring_soon',
+                        icon: '⚠️',
+                        title: `${member.name}'s TB Test due soon`,
+                        description: `Due in ${daysUntilExpiration} days`,
+                        action: 'Schedule Test',
+                        actionUrl: '/staff',
+                        staffId: member.id
+                    });
+                }
+            }
+        });
+
+        // Add default monitoring items if everything is clear
+        if (priorities.critical.length === 0 && priorities.medium.length === 0 && priorities.low.length === 0) {
+            priorities.low.push({
+                type: 'all_clear',
+                icon: '✨',
+                title: 'All compliance items up to date',
+                description: 'No immediate action needed',
+                action: 'View Details',
+                actionUrl: '/dashboard'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error calculating priorities:', error);
+    }
+
+    return priorities;
+}
+
+function populateZone(zoneType, items) {
+    const container = document.getElementById(`${zoneType}-items`);
+    if (!container) return;
+    
+    if (items.length === 0) {
+        const emptyMessages = {
+            critical: { icon: '🎉', text: 'No critical items - Great job!' },
+            medium: { icon: '👍', text: 'Nothing needs immediate attention' },
+            low: { icon: '✅', text: 'All systems running smoothly' }
+        };
+        
+        const msg = emptyMessages[zoneType];
+        container.innerHTML = `
+            <div class="zone-empty">
+                <div class="zone-empty-icon">${msg.icon}</div>
+                <div>${msg.text}</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = items.map(item => createPriorityItemHTML(item)).join('');
+}
+
+function createPriorityItemHTML(item) {
+    return `
+        <div class="priority-item" onclick="handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')">
+            <div class="priority-item-icon">${item.icon}</div>
+            <div class="priority-item-content">
+                <div class="priority-item-title">${item.title}</div>
+                <div class="priority-item-description">${item.description}</div>
+                <div class="priority-item-action">
+                    <button onclick="event.stopPropagation(); handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')">${item.action}</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function handlePriorityAction(url, staffId) {
+    if (url === '/staff' && window.appRouter) {
+        window.appRouter.go('/staff');
+        if (staffId) {
+            console.log('Focus on staff member:', staffId);
+        }
+    } else if (window.appRouter) {
+        window.appRouter.go(url);
+    }
+}
+
+async function refreshPriorities() {
+    const refreshIcon = document.getElementById('refresh-icon');
+    if (refreshIcon) {
+        refreshIcon.style.animation = 'prioritySpin 1s linear';
+    }
+    
+    await loadPriorityHeatMap();
+    
+    setTimeout(() => {
+        if (refreshIcon) {
+            refreshIcon.style.animation = '';
+        }
+    }, 1000);
 }
 
 async function loadWeatherData() {

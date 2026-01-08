@@ -85,6 +85,86 @@
     </div>
 </div>
 
+<!-- PRIORITY HEAT MAP -->
+<div class="priority-heatmap-section cac-animate-slideUp" style="animation-delay: 0.45s;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0;">
+            <span style="margin-right: 8px;">🎯</span>Priority Overview
+        </h2>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <span style="font-size: 13px; color: #6b7280;">Last updated: <span id="heatmap-timestamp">--</span></span>
+            <button class="cac-btn cac-btn-sm cac-btn-secondary" onclick="refreshPriorities()">
+                <span id="refresh-icon">🔄</span> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="risk-heatmap-grid">
+        <!-- CRITICAL ZONE -->
+        <div class="risk-zone critical" id="critical-zone">
+            <div class="zone-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="zone-icon">🔴</span>
+                    <span class="zone-title">CRITICAL</span>
+                </div>
+                <span class="zone-count" id="critical-count">0</span>
+            </div>
+            <div class="zone-description">
+                Immediate action required - Risk of violations or safety issues
+            </div>
+            <div class="zone-content" id="critical-items">
+                <div class="zone-loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- ATTENTION NEEDED ZONE -->
+        <div class="risk-zone medium" id="medium-zone">
+            <div class="zone-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="zone-icon">🟡</span>
+                    <span class="zone-title">ATTENTION NEEDED</span>
+                </div>
+                <span class="zone-count" id="medium-count">0</span>
+            </div>
+            <div class="zone-description">
+                Address soon to prevent escalation
+            </div>
+            <div class="zone-content" id="medium-items">
+                <div class="zone-loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- MONITOR ZONE -->
+        <div class="risk-zone low" id="low-zone">
+            <div class="zone-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="zone-icon">🟢</span>
+                    <span class="zone-title">MONITORING</span>
+                </div>
+                <span class="zone-count" id="low-count">0</span>
+            </div>
+            <div class="zone-description">
+                No immediate action needed - Routine monitoring
+            </div>
+            <div class="zone-content" id="low-items">
+                <div class="zone-loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="priority-summary" style="margin-top: 20px;">
+        <div class="summary-item">
+            <span class="summary-label">Total Items:</span>
+            <span class="summary-value" id="total-items">0</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Needs Immediate Action:</span>
+            <span class="summary-value critical-text" id="immediate-action-count">0</span>
+        </div>
+    </div>
+</div>
+
 <!-- Key Metrics Grid -->
 <div class="cac-metric-grid cac-animate-slideUp" style="animation-delay: 0.5s;">
     <div class="cac-metric cac-metric-danger cac-hover-lift"

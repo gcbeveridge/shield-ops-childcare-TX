@@ -40,6 +40,11 @@ The application is a single-page web application with a RESTful API.
 ### Key Features & Modules
 - **Authentication:** Login, sign-up, user profile, logout.
 - **Dashboard (Modern CAC-Style Redesign):**
+    - **Priority Heat Map:** Visual priority command center with 3 color-coded zones:
+      - CRITICAL (Red): Expired certifications requiring immediate action
+      - ATTENTION NEEDED (Yellow): Items expiring within 30 days
+      - MONITORING (Green): Items expiring within 60 days, routine monitoring
+    - **Heat Map Features:** Real-time priority calculation from staff data, clickable items navigate to action pages, manual refresh button, auto-refresh every 2 minutes.
     - **Weather Integration:** Real-time weather with contextual safety recommendations using Open-Meteo API (free, no API key). Alerts for heat, cold, rain, wind, storms with specific action items.
     - **Safety Performance Card:** Combined risk score (0-100) + incident-free streak display with large visual numbers, gradients, and trend indicators.
     - **Priority Alerts:** Today's Priorities with 3 actionable cards - Missing Documents (red), Expired Documents (orange), Missing Signatures (yellow). Cards disable when count = 0.

@@ -1,0 +1,626 @@
+# Phase 2A: Dashboard Priority Heat Map
+
+## Context
+Transform the dashboard into a priority-driven command center. The heat map provides visual organization of all safety/compliance items by urgency level, creating a clear action hierarchy for facility directors.
+
+## CRITICAL RULES
+- Preserve all existing dashboard functionality
+- Add heat map ABOVE existing stats (don't replace them)
+- Keep existing API endpoints working
+- Style must match existing CAC Design System
+
+## Tasks
+
+### 1. Add Heat Map HTML Structure
+In **public/partials/screens/dashboard.html** (or wherever dashboard HTML is), add this NEW section at the top, before the existing stats grid:
+```html
+<!-- PRIORITY HEAT MAP - ADD THIS BEFORE STATS GRID -->
+<div class="priority-heatmap-section" style="margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 20px; font-weight: 600; color: #1f2937;">
+            🎯 Priority Overview
+        </h2>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <span style="font-size: 13px; color: #6b7280;">Last updated: <span id="heatmap-timestamp">--</span></span>
+            <button class="btn-secondary-small" onclick="refreshPriorities()">
+                <span id="refresh-icon">🔄</span> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="risk-heatmap-grid">
+        <!-- CRITICAL ZONE -->
+        <div class="risk-zone critical" id="critical-zone">
+            <div class="zone-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="zone-icon">🔴</span>
+                    <span class="zone-title">CRITICAL</span>
+                </div>
+                <span class="zone-count" id="critical-count">0</span>
+            </div>
+            <div class="zone-description">
+                Immediate action required - Risk of violations or safety issues
+            </div>
+            <div class="zone-content" id="critical-items">
+                <div class="zone-loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- ATTENTION NEEDED ZONE -->
+        <div class="risk-zone medium" id="medium-zone">
+            <div class="zone-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="zone-icon">🟡</span>
+                    <span class="zone-title">ATTENTION NEEDED</span>
+                </div>
+                <span class="zone-count" id="medium-count">0</span>
+            </div>
+            <div class="zone-description">
+                Address soon to prevent escalation
+            </div>
+            <div class="zone-content" id="medium-items">
+                <div class="zone-loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- MONITOR ZONE -->
+        <div class="risk-zone low" id="low-zone">
+            <div class="zone-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="zone-icon">🟢</span>
+                    <span class="zone-title">MONITORING</span>
+                </div>
+                <span class="zone-count" id="low-count">0</span>
+            </div>
+            <div class="zone-description">
+                No immediate action needed - Routine monitoring
+            </div>
+            <div class="zone-content" id="low-items">
+                <div class="zone-loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="priority-summary" style="margin-top: 20px;">
+        <div class="summary-item">
+            <span class="summary-label">Total Items:</span>
+            <span class="summary-value" id="total-items">0</span>
+        </div>
+        <div class="summary-item">
+            <span class="summary-label">Needs Immediate Action:</span>
+            <span class="summary-value critical-text" id="immediate-action-count">0</span>
+        </div>
+    </div>
+</div>
+
+<!-- KEEP ALL EXISTING DASHBOARD CONTENT BELOW THIS -->
+```
+
+### 2. Add Heat Map CSS Styling
+Add to **public/css/styles.css** (or design-system.css):
+```css
+/* ============================================
+   PRIORITY HEAT MAP STYLES
+   ============================================ */
+
+.priority-heatmap-section {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.risk-heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* Responsive: Stack on mobile */
+@media (max-width: 1024px) {
+    .risk-heatmap-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Risk Zone Base Styles */
+.risk-zone {
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+}
+
+.risk-zone:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+}
+
+/* Critical Zone - Red */
+.risk-zone.critical {
+    background: linear-gradient(135deg, #FEE2E2 0%, #FEF2F2 100%);
+    border-color: #FCA5A5;
+}
+
+.risk-zone.critical .zone-header {
+    border-bottom-color: #FCA5A5;
+}
+
+/* Medium Zone - Yellow */
+.risk-zone.medium {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%);
+    border-color: #FCD34D;
+}
+
+.risk-zone.medium .zone-header {
+    border-bottom-color: #FCD34D;
+}
+
+/* Low Zone - Green */
+.risk-zone.low {
+    background: linear-gradient(135deg, #D1FAE5 0%, #ECFDF5 100%);
+    border-color: #6EE7B7;
+}
+
+.risk-zone.low .zone-header {
+    border-bottom-color: #6EE7B7;
+}
+
+/* Zone Header */
+.zone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(0,0,0,0.15);
+}
+
+.zone-icon {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.zone-title {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #1f2937;
+}
+
+.zone-count {
+    font-size: 20px;
+    font-weight: 700;
+    background: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    min-width: 40px;
+    text-align: center;
+}
+
+.zone-description {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+/* Zone Content */
+.zone-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    max-height: 400px;
+    padding-right: 4px;
+}
+
+.zone-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.zone-content::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 10px;
+}
+
+.zone-content::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+}
+
+.zone-loading {
+    text-align: center;
+    padding: 40px 20px;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.zone-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.zone-empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.6;
+}
+
+/* Priority Item Cards */
+.priority-item {
+    background: white;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    display: flex;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.priority-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: rgba(102, 126, 234, 0.4);
+}
+
+.priority-item-icon {
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.priority-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.priority-item-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #1f2937;
+    line-height: 1.4;
+}
+
+.priority-item-description {
+    font-size: 12px;
+    color: #6b7280;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.priority-item-action {
+    margin-top: 8px;
+}
+
+.priority-item-action button {
+    font-size: 11px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(102, 126, 234, 0.12);
+    color: #667eea;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.priority-item-action button:hover {
+    background: #667eea;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Priority Summary Bar */
+.priority-summary {
+    display: flex;
+    gap: 24px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.critical-text {
+    color: #ef4444;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.priority-item {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Pulse animation for critical items */
+.risk-zone.critical .zone-count {
+    animation: pulse-critical 2s infinite;
+}
+
+@keyframes pulse-critical {
+    0%, 100% { 
+        box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    50% { 
+        box-shadow: 0 2px 12px rgba(239, 68, 68, 0.4);
+    }
+}
+```
+
+### 3. Add JavaScript Functionality
+Add these functions to **public/js/app.js**:
+```javascript
+// ============================================
+// PRIORITY HEAT MAP FUNCTIONS
+// ============================================
+
+async function loadPriorityHeatMap() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        // For now, calculate priorities from existing data
+        // Later phases will add dedicated API endpoint
+        const priorities = await calculatePriorities(facilityId);
+
+        // Update counts
+        document.getElementById('critical-count').textContent = priorities.critical.length;
+        document.getElementById('medium-count').textContent = priorities.medium.length;
+        document.getElementById('low-count').textContent = priorities.low.length;
+        document.getElementById('total-items').textContent = 
+            priorities.critical.length + priorities.medium.length + priorities.low.length;
+        document.getElementById('immediate-action-count').textContent = priorities.critical.length;
+
+        // Update timestamp
+        document.getElementById('heatmap-timestamp').textContent = 
+            new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        // Populate zones
+        populateZone('critical', priorities.critical);
+        populateZone('medium', priorities.medium);
+        populateZone('low', priorities.low);
+
+    } catch (error) {
+        console.error('Error loading priority heat map:', error);
+        showError('Failed to load priority overview');
+    }
+}
+
+async function calculatePriorities(facilityId) {
+    const priorities = {
+        critical: [],
+        medium: [],
+        low: []
+    };
+
+    try {
+        // Get staff data to check for expiring certifications
+        const staffResponse = await apiRequest(`/api/facilities/${facilityId}/staff`);
+        const staff = staffResponse || [];
+
+        // Check for expired and expiring certifications
+        const today = new Date();
+        const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        staff.forEach(member => {
+            if (!member.certifications) return;
+
+            const certs = member.certifications;
+            const certTypes = ['cpr', 'first_aid', 'background_check', 'food_handler', 'tb_test'];
+
+            certTypes.forEach(certType => {
+                if (!certs[certType] || !certs[certType].expiration) return;
+
+                const expDate = new Date(certs[certType].expiration);
+                const daysUntilExpiration = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+
+                const certName = certType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                // CRITICAL: Expired
+                if (daysUntilExpiration < 0) {
+                    priorities.critical.push({
+                        type: 'expired_cert',
+                        icon: '🚨',
+                        title: `${member.name}'s ${certName} has EXPIRED`,
+                        description: `Expired ${Math.abs(daysUntilExpiration)} days ago`,
+                        action: 'Renew Now',
+                        actionUrl: `/staff`,
+                        staffId: member.id
+                    });
+                }
+                // MEDIUM: Expiring within 30 days
+                else if (daysUntilExpiration <= 30) {
+                    priorities.medium.push({
+                        type: 'expiring_soon',
+                        icon: '⚠️',
+                        title: `${member.name}'s ${certName} expiring soon`,
+                        description: `Expires in ${daysUntilExpiration} days`,
+                        action: 'Schedule Renewal',
+                        actionUrl: `/staff`,
+                        staffId: member.id
+                    });
+                }
+                // LOW: Expiring within 60 days (monitoring)
+                else if (daysUntilExpiration <= 60) {
+                    priorities.low.push({
+                        type: 'monitor_expiration',
+                        icon: '📅',
+                        title: `${member.name}'s ${certName}`,
+                        description: `Expires in ${daysUntilExpiration} days`,
+                        action: 'View Schedule',
+                        actionUrl: `/staff`,
+                        staffId: member.id
+                    });
+                }
+            });
+        });
+
+        // Add sample monitoring items if everything is clear
+        if (priorities.critical.length === 0 && priorities.medium.length === 0) {
+            priorities.low.push({
+                type: 'all_clear',
+                icon: '✨',
+                title: 'All compliance items up to date',
+                description: 'No immediate action needed',
+                action: 'View Details',
+                actionUrl: '/dashboard'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error calculating priorities:', error);
+    }
+
+    return priorities;
+}
+
+function populateZone(zoneType, items) {
+    const container = document.getElementById(`${zoneType}-items`);
+    
+    if (items.length === 0) {
+        const emptyMessages = {
+            critical: { icon: '🎉', text: 'No critical items - Great job!' },
+            medium: { icon: '👍', text: 'Nothing needs immediate attention' },
+            low: { icon: '✅', text: 'All systems running smoothly' }
+        };
+        
+        const msg = emptyMessages[zoneType];
+        container.innerHTML = `
+            <div class="zone-empty">
+                <div class="zone-empty-icon">${msg.icon}</div>
+                <div>${msg.text}</div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = items.map(item => createPriorityItemHTML(item)).join('');
+}
+
+function createPriorityItemHTML(item) {
+    return `
+        <div class="priority-item" onclick="handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')">
+            <div class="priority-item-icon">${item.icon}</div>
+            <div class="priority-item-content">
+                <div class="priority-item-title">${item.title}</div>
+                <div class="priority-item-description">${item.description}</div>
+                <div class="priority-item-action">
+                    <button onclick="event.stopPropagation(); handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')">${item.action}</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function handlePriorityAction(url, staffId) {
+    // Navigate to the appropriate screen
+    if (url === '/staff') {
+        showScreen('staff');
+        // If staffId provided, could auto-scroll to that staff member
+        if (staffId) {
+            console.log('Focus on staff member:', staffId);
+        }
+    } else {
+        showScreen(url.replace('/', ''));
+    }
+}
+
+async function refreshPriorities() {
+    const refreshBtn = document.getElementById('refresh-icon');
+    refreshBtn.style.animation = 'spin 1s linear';
+    
+    await loadPriorityHeatMap();
+    
+    setTimeout(() => {
+        refreshBtn.style.animation = '';
+    }, 1000);
+}
+
+// Add spin animation for refresh button
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+
+// Add to dashboard load function
+// Find the existing loadDashboard() function and add this:
+async function loadDashboard() {
+    try {
+        // ... existing dashboard code ...
+
+        // ADD THIS NEW LINE:
+        await loadPriorityHeatMap();
+
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+// Auto-refresh priorities every 2 minutes
+setInterval(() => {
+    if (currentScreen === 'dashboard') {
+        loadPriorityHeatMap();
+    }
+}, 120000); // 2 minutes
+```
+
+## Expected Outcome
+- ✅ Priority heat map appears at top of dashboard
+- ✅ Three color-coded zones (Red/Yellow/Green)
+- ✅ Real-time priority calculation from staff data
+- ✅ Expired certifications show as CRITICAL
+- ✅ Expiring soon (30 days) show as MEDIUM
+- ✅ Monitor items (60 days) show as LOW
+- ✅ Clickable items navigate to action pages
+- ✅ Auto-refreshes every 2 minutes
+- ✅ Manual refresh button works
+- ✅ All existing dashboard features still work
+
+## Testing Checklist
+- [ ] Dashboard loads with heat map at top
+- [ ] Existing stats cards still visible below
+- [ ] Critical zone shows expired certifications
+- [ ] Medium zone shows items expiring in 30 days
+- [ ] Low zone shows monitoring items
+- [ ] Counts are accurate in badges
+- [ ] Clicking items navigates correctly
+- [ ] Refresh button spins and updates data
+- [ ] Responsive on mobile (zones stack)
+- [ ] No console errors
+
+Create checkpoint after testing!
