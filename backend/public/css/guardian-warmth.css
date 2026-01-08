@@ -1137,6 +1137,27 @@ tr:hover td {
 }
 
 /* ============================================
+   DASHBOARD HEADER
+   ============================================ */
+
+.dashboard-header {
+    background: var(--bg-header);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-xl) var(--space-2xl);
+    margin-bottom: var(--space-xl);
+    color: var(--text-inverse);
+    box-shadow: var(--shadow-lg);
+}
+
+.dashboard-header h1 {
+    color: var(--text-inverse) !important;
+}
+
+.dashboard-header p {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
