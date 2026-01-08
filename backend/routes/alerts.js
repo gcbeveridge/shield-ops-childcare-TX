@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/database');
+const pool = require('../config/db');
 const { authenticateToken } = require('../middleware/auth');
 
 function verifyFacilityAccess(req, res, next) {
