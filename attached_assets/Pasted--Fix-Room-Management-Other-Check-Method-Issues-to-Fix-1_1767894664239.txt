@@ -1,0 +1,454 @@
+# Fix: Room Management & "Other" Check Method
+
+## Issues to Fix
+1. Room dropdown is empty - need user-friendly way to add/manage rooms
+2. "Other" check method option needs a text input to specify what it was
+
+## Tasks
+
+### 1. Add Room Management Interface
+
+Add a "Manage Rooms" button and simple room list:
+```html
+<!-- Add this BEFORE the spot-check widget on dashboard -->
+<div class="room-management-section" style="background: white; border-radius: var(--radius-xl); padding: var(--space-lg); margin-bottom: var(--space-lg); box-shadow: var(--shadow-sm);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+        <div>
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 4px;">🏫 Your Rooms</h3>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">Add rooms to start logging spot-checks</p>
+        </div>
+        <button class="btn-secondary-small" onclick="openAddRoomModal()">+ Add Room</button>
+    </div>
+    <div id="rooms-list-preview" style="display: flex; flex-wrap: wrap; gap: 8px;">
+        <!-- Room badges will appear here -->
+    </div>
+</div>
+
+<!-- ADD ROOM MODAL -->
+<div id="addRoomModal" class="modal" style="display: none;">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h2>🏫 Add Room/Classroom</h2>
+            <button class="modal-close" onclick="closeAddRoomModal()">✕</button>
+        </div>
+        
+        <form id="addRoomForm" class="modal-body">
+            <div class="form-group">
+                <label>Room Name *</label>
+                <input type="text" id="new-room-name" required 
+                       placeholder="e.g., Infant Room A, Toddler Room, Preschool Blue">
+                <small style="color: var(--text-secondary); font-size: 0.8125rem;">
+                    Use your facility's naming convention
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label>Age Group *</label>
+                <select id="new-room-age-group" required>
+                    <option value="">Select age group...</option>
+                    <option value="infant">Infant (0-12 months)</option>
+                    <option value="toddler">Toddler (1-2 years)</option>
+                    <option value="preschool">Preschool (3-5 years)</option>
+                    <option value="school-age">School-Age (5+ years)</option>
+                    <option value="mixed">Mixed Ages</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Required Ratio *</label>
+                <select id="new-room-ratio" required>
+                    <option value="">Select ratio...</option>
+                    <option value="1:4">1:4 (Typical for infants)</option>
+                    <option value="1:5">1:5</option>
+                    <option value="1:6">1:6</option>
+                    <option value="1:8">1:8 (Typical for toddlers)</option>
+                    <option value="1:10">1:10</option>
+                    <option value="1:11">1:11</option>
+                    <option value="1:12">1:12 (Typical for preschool)</option>
+                    <option value="1:15">1:15 (Typical for school-age)</option>
+                    <option value="1:20">1:20</option>
+                </select>
+                <small style="color: var(--text-secondary); font-size: 0.8125rem;">
+                    Check your state regulations for required ratios
+                </small>
+            </div>
+        </form>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeAddRoomModal()">Cancel</button>
+            <button class="btn-primary" onclick="submitAddRoom()">
+                ✓ Add Room
+            </button>
+        </div>
+    </div>
+</div>
+```
+
+### 2. Fix "Other" Check Method
+
+Update the spot-check modal to show conditional text input:
+```html
+<!-- REPLACE the "How did you check?" section in spot-check modal with this: -->
+<div class="form-group">
+    <label>How did you check? *</label>
+    <select id="spotcheck-method" required onchange="toggleOtherMethodInput()">
+        <option value="in_person">In-Person Walk-Through</option>
+        <option value="cctv">CCTV Camera Review</option>
+        <option value="other">Other</option>
+    </select>
+</div>
+
+<!-- Add this new field right after the method dropdown -->
+<div class="form-group" id="other-method-group" style="display: none;">
+    <label>Please specify *</label>
+    <input type="text" id="spotcheck-method-other" 
+           placeholder="e.g., Window check, Report from lead teacher">
+</div>
+```
+
+### 3. Update Database Schema
+
+Add field to store "other" method description:
+```sql
+-- Add column to ratio_spot_checks table
+ALTER TABLE ratio_spot_checks 
+ADD COLUMN IF NOT EXISTS check_method_other VARCHAR(200);
+```
+
+### 4. Add JavaScript Functions
+```javascript
+// ============================================
+// ROOM MANAGEMENT FUNCTIONS
+// ============================================
+
+async function loadRoomsPreview() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const rooms = await apiRequest(`/api/facilities/${facilityId}/rooms`);
+        
+        const container = document.getElementById('rooms-list-preview');
+        
+        if (!rooms || rooms.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: var(--space-md); color: var(--text-secondary); width: 100%;">
+                    <div style="font-size: 2rem; margin-bottom: var(--space-xs);">🏫</div>
+                    <div style="font-size: 0.875rem;">No rooms added yet</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rooms.map(room => `
+            <div class="room-badge" title="${room.name} - ${room.required_ratio}">
+                <span class="room-badge-name">${room.name}</span>
+                <span class="room-badge-ratio">${room.required_ratio}</span>
+            </div>
+        `).join('');
+
+        // Store globally for spot-check modal
+        facilityRooms = rooms;
+
+    } catch (error) {
+        console.error('Error loading rooms:', error);
+    }
+}
+
+function openAddRoomModal() {
+    document.getElementById('addRoomModal').style.display = 'flex';
+}
+
+function closeAddRoomModal() {
+    document.getElementById('addRoomModal').style.display = 'none';
+    document.getElementById('addRoomForm').reset();
+}
+
+async function submitAddRoom() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        const data = {
+            name: document.getElementById('new-room-name').value.trim(),
+            age_group: document.getElementById('new-room-age-group').value,
+            required_ratio: document.getElementById('new-room-ratio').value,
+            capacity: 0 // Not needed for spot-check logging
+        };
+
+        if (!data.name || !data.age_group || !data.required_ratio) {
+            showError('Please fill in all required fields');
+            return;
+        }
+
+        await apiRequest(`/api/facilities/${facilityId}/rooms`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+
+        showSuccess('Room added successfully!');
+        closeAddRoomModal();
+        
+        // Reload rooms
+        await loadRoomsPreview();
+        await loadRatioSpotCheckWidget();
+
+    } catch (error) {
+        console.error('Error adding room:', error);
+        showError('Failed to add room');
+    }
+}
+
+// ============================================
+// "OTHER" METHOD TOGGLE
+// ============================================
+
+function toggleOtherMethodInput() {
+    const methodSelect = document.getElementById('spotcheck-method');
+    const otherGroup = document.getElementById('other-method-group');
+    const otherInput = document.getElementById('spotcheck-method-other');
+
+    if (methodSelect.value === 'other') {
+        otherGroup.style.display = 'block';
+        otherInput.required = true;
+    } else {
+        otherGroup.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
+
+    // Re-trigger compliance preview
+    updateCompliancePreview();
+}
+
+// ============================================
+// UPDATE SUBMIT FUNCTION
+// ============================================
+
+async function submitSpotCheck() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const roomSelect = document.getElementById('spotcheck-room');
+        const roomId = roomSelect.value;
+        const roomName = roomSelect.options[roomSelect.selectedIndex].text.split(' (')[0];
+        const ratio = roomSelect.options[roomSelect.selectedIndex].dataset.ratio;
+
+        const method = document.getElementById('spotcheck-method').value;
+        const methodOther = document.getElementById('spotcheck-method-other').value;
+
+        // Validation for "other" method
+        if (method === 'other' && !methodOther.trim()) {
+            showError('Please specify how you checked when selecting "Other"');
+            return;
+        }
+
+        const data = {
+            room_id: roomId,
+            room_name: roomName,
+            children_count: parseInt(document.getElementById('spotcheck-children').value),
+            staff_count: parseInt(document.getElementById('spotcheck-staff').value),
+            required_ratio: ratio,
+            check_method: method,
+            check_method_other: method === 'other' ? methodOther : null,
+            checked_by_name: document.getElementById('spotcheck-checker-name').value,
+            notes: document.getElementById('spotcheck-notes').value
+        };
+
+        await apiRequest(`/api/facilities/${facilityId}/ratio-checks`, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+
+        showSuccess('Spot-check logged successfully!');
+        closeSpotCheckModal();
+        
+        // Reload widget
+        await loadRatioSpotCheckWidget();
+
+    } catch (error) {
+        console.error('Error logging spot-check:', error);
+        showError('Failed to log spot-check');
+    }
+}
+
+// ============================================
+// UPDATE DASHBOARD LOAD
+// ============================================
+
+async function loadDashboard() {
+    try {
+        // ... existing code ...
+        
+        // Load rooms first
+        await loadRoomsPreview();
+        
+        // Then load spot-check widget
+        await loadRatioSpotCheckWidget();
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+// ============================================
+// UPDATE DISPLAY FUNCTION FOR "OTHER"
+// ============================================
+
+function displayRecentChecks(checks) {
+    const container = document.getElementById('recent-checks-list');
+
+    if (checks.length === 0) {
+        container.innerHTML = `
+            <div class="checks-loading">
+                <div style="text-align: center; padding: var(--space-lg);">
+                    <div style="font-size: 2rem; margin-bottom: var(--space-sm);">📋</div>
+                    <div>No spot-checks logged today</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+                        Start logging to build your compliance record
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = checks.map(check => {
+        // Format check method display
+        let methodDisplay = check.check_method.replace('_', ' ');
+        if (check.check_method === 'other' && check.check_method_other) {
+            methodDisplay = check.check_method_other;
+        }
+
+        return `
+            <div class="check-item ${check.is_compliant ? 'compliant' : 'violation'}">
+                <div class="check-item-info">
+                    <div class="check-room-name">${check.room_name}</div>
+                    <div class="check-details">
+                        ${check.check_time.substring(0, 5)} • 
+                        ${check.children_count} children / ${check.staff_count} staff • 
+                        ${methodDisplay} •
+                        ${check.checked_by_name}
+                    </div>
+                </div>
+                <div class="check-status">
+                    ${check.is_compliant ? '✅' : '🚨'}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+```
+
+### 5. Add Room Badge Styling
+```css
+/* Room Management Preview */
+.room-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--background-primary);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.room-badge:hover {
+    background: white;
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.room-badge-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.room-badge-ratio {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 2px 8px;
+    background: white;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+/* Modal size variant */
+.modal-small .modal-content {
+    max-width: 500px;
+}
+```
+
+### 6. Update API Endpoint
+
+Update the POST endpoint to handle check_method_other:
+```javascript
+// In backend routes - UPDATE the POST /api/facilities/:id/ratio-checks endpoint
+router.post('/:id/ratio-checks', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const {
+            room_id,
+            room_name,
+            children_count,
+            staff_count,
+            required_ratio,
+            check_method,
+            check_method_other,  // NEW FIELD
+            checked_by_name,
+            notes
+        } = req.body;
+
+        // Calculate compliance
+        const [staffNeeded, childrenAllowed] = required_ratio.split(':').map(Number);
+        const maxChildren = staff_count * childrenAllowed;
+        const is_compliant = staff_count > 0 && children_count <= maxChildren;
+
+        const now = new Date();
+        const check_date = now.toISOString().split('T')[0];
+        const check_time = now.toTimeString().split(' ')[0];
+
+        const result = await pool.query(`
+            INSERT INTO ratio_spot_checks (
+                facility_id, room_id, room_name, check_date, check_time,
+                children_count, staff_count, required_ratio, is_compliant,
+                check_method, check_method_other, checked_by_name, notes
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            RETURNING *
+        `, [
+            facilityId, room_id, room_name, check_date, check_time,
+            children_count, staff_count, required_ratio, is_compliant,
+            check_method, check_method_other, checked_by_name, notes
+        ]);
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error logging spot-check:', error);
+        res.status(500).json({ error: 'Failed to log spot-check' });
+    }
+});
+```
+
+## Expected Outcome
+- ✅ "Your Rooms" section appears above spot-check widget
+- ✅ "+ Add Room" button opens simple modal
+- ✅ Users can add rooms with custom names
+- ✅ Room badges display with name and ratio
+- ✅ Room dropdown populates with user's rooms
+- ✅ "Other" method shows text input field
+- ✅ "Other" method description required when selected
+- ✅ Recent checks display custom "other" method text
+
+## Testing Checklist
+- [ ] "Your Rooms" section appears on dashboard
+- [ ] "+ Add Room" button opens modal
+- [ ] Can create room with custom name (e.g., "Blue Room", "Ms. Sarah's Class")
+- [ ] Room badges appear after creating rooms
+- [ ] Room dropdown populates in spot-check modal
+- [ ] Selecting "Other" check method shows text input
+- [ ] Text input is required when "Other" selected
+- [ ] Can submit spot-check with "Other" method + description
+- [ ] Recent checks show custom "Other" description
+- [ ] Empty state shows when no rooms exist
+
+Apply these fixes!

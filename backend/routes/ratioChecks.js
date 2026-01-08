@@ -42,6 +42,49 @@ router.get('/:id/rooms', authenticateToken, verifyFacilityAccess, async (req, re
     }
 });
 
+router.post('/:id/rooms', authenticateToken, verifyFacilityAccess, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const { name, age_group, required_ratio } = req.body;
+
+        if (!name || typeof name !== 'string' || name.trim().length === 0) {
+            return res.status(400).json({ success: false, error: 'Room name is required' });
+        }
+        if (!age_group || typeof age_group !== 'string') {
+            return res.status(400).json({ success: false, error: 'Age group is required' });
+        }
+        
+        const parsedRatio = parseRatio(required_ratio);
+        if (!parsedRatio) {
+            return res.status(400).json({ success: false, error: 'Invalid ratio format. Expected format: "1:4"' });
+        }
+
+        const validAgeGroups = ['infant', 'toddler', 'preschool', 'school-age', 'mixed'];
+        if (!validAgeGroups.includes(age_group)) {
+            return res.status(400).json({ success: false, error: 'Invalid age group' });
+        }
+
+        const existing = await pool.query(
+            'SELECT id FROM rooms WHERE facility_id = $1 AND name = $2',
+            [facilityId, name.trim()]
+        );
+        if (existing.rows.length > 0) {
+            return res.status(409).json({ success: false, error: 'A room with this name already exists' });
+        }
+
+        const result = await pool.query(`
+            INSERT INTO rooms (facility_id, name, age_group, required_ratio)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *
+        `, [facilityId, name.trim(), age_group, required_ratio]);
+
+        res.status(201).json({ success: true, data: result.rows[0] });
+    } catch (error) {
+        console.error('Error creating room:', error);
+        res.status(500).json({ success: false, error: 'Failed to create room' });
+    }
+});
+
 router.get('/:id/ratio-checks/today', authenticateToken, verifyFacilityAccess, async (req, res) => {
     try {
         const facilityId = req.params.id;
@@ -95,6 +138,7 @@ router.post('/:id/ratio-checks', authenticateToken, verifyFacilityAccess, async 
             staff_count,
             required_ratio,
             check_method,
+            check_method_other,
             checked_by_name,
             notes
         } = req.body;
@@ -126,22 +170,30 @@ router.post('/:id/ratio-checks', authenticateToken, verifyFacilityAccess, async 
         const validMethods = ['in_person', 'cctv', 'other'];
         const safeMethod = validMethods.includes(check_method) ? check_method : 'other';
 
+        if (safeMethod === 'other' && (!check_method_other || check_method_other.trim().length === 0)) {
+            return res.status(400).json({ success: false, error: 'Please specify how you checked when using "Other"' });
+        }
+
         const now = new Date();
         const check_date = now.toISOString().split('T')[0];
         const check_time = now.toTimeString().split(' ')[0];
+
+        const safeMethodOther = safeMethod === 'other' && check_method_other 
+            ? check_method_other.trim().substring(0, 200) 
+            : null;
 
         const result = await pool.query(`
             INSERT INTO ratio_spot_checks (
                 facility_id, room_id, room_name, check_date, check_time,
                 children_count, staff_count, required_ratio, is_compliant,
-                check_method, checked_by_name, notes
+                check_method, check_method_other, checked_by_name, notes
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
             RETURNING *
         `, [
             facilityId, room_id || null, room_name.trim(), check_date, check_time,
             childrenNum, staffNum, required_ratio, is_compliant,
-            safeMethod, checked_by_name.trim(), notes || null
+            safeMethod, safeMethodOther, checked_by_name.trim(), notes || null
         ]);
 
         res.status(201).json({ success: true, data: result.rows[0] });

@@ -862,6 +862,9 @@ async function loadDashboardData() {
         // Load weather data
         await loadWeatherData();
 
+        // Load rooms preview for spot-checks
+        await loadRoomsPreview();
+
         // Update new dashboard metrics
         updateModernDashboard(dashboardData.data);
         
@@ -1377,7 +1380,7 @@ function displayRecentChecks(checks) {
                 <div class="check-details">
                     ${check.check_time ? check.check_time.substring(0, 5) : '--:--'} • 
                     ${check.children_count} children / ${check.staff_count} staff • 
-                    ${(check.check_method || 'in_person').replace('_', ' ')} •
+                    ${check.check_method === 'other' && check.check_method_other ? check.check_method_other : (check.check_method || 'in_person').replace('_', ' ')} •
                     ${check.checked_by_name || 'Unknown'}
                 </div>
             </div>
@@ -1425,6 +1428,9 @@ function closeSpotCheckModal() {
     
     const preview = document.getElementById('compliance-preview');
     if (preview) preview.style.display = 'none';
+    
+    const otherGroup = document.getElementById('other-method-group');
+    if (otherGroup) otherGroup.style.display = 'none';
 }
 
 function updateCompliancePreview() {
@@ -1470,11 +1476,120 @@ function updateCompliancePreview() {
     }
 }
 
+function toggleOtherMethodInput() {
+    const methodSelect = document.getElementById('spotcheck-method');
+    const otherGroup = document.getElementById('other-method-group');
+    const otherInput = document.getElementById('spotcheck-method-other');
+
+    if (methodSelect?.value === 'other') {
+        if (otherGroup) otherGroup.style.display = 'block';
+        if (otherInput) otherInput.required = true;
+    } else {
+        if (otherGroup) otherGroup.style.display = 'none';
+        if (otherInput) {
+            otherInput.required = false;
+            otherInput.value = '';
+        }
+    }
+}
+
+function openAddRoomModal() {
+    const modal = document.getElementById('add-room-modal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeAddRoomModal() {
+    const modal = document.getElementById('add-room-modal');
+    if (modal) modal.style.display = 'none';
+    const form = document.getElementById('addRoomForm');
+    if (form) form.reset();
+}
+
+async function submitAddRoom() {
+    try {
+        const facilityId = AppState.facility?.id;
+        if (!facilityId) {
+            showError('Facility not loaded. Please refresh the page.');
+            return;
+        }
+
+        const name = document.getElementById('new-room-name')?.value?.trim();
+        const ageGroup = document.getElementById('new-room-age-group')?.value;
+        const ratio = document.getElementById('new-room-ratio')?.value;
+
+        if (!name) {
+            showError('Please enter a room name');
+            return;
+        }
+        if (!ageGroup) {
+            showError('Please select an age group');
+            return;
+        }
+        if (!ratio) {
+            showError('Please select a ratio');
+            return;
+        }
+
+        await apiRequest(`/facilities/${facilityId}/rooms`, {
+            method: 'POST',
+            body: JSON.stringify({
+                name: name,
+                age_group: ageGroup,
+                required_ratio: ratio
+            })
+        });
+
+        showSuccess('Room added successfully!');
+        closeAddRoomModal();
+        
+        await loadRoomsPreview();
+        await loadRatioSpotCheckWidget();
+
+    } catch (error) {
+        console.error('Error adding room:', error);
+        showError(error.message || 'Failed to add room');
+    }
+}
+
+async function loadRoomsPreview() {
+    try {
+        const facilityId = AppState.facility?.id;
+        if (!facilityId) return;
+
+        const container = document.getElementById('rooms-list-preview');
+        if (!container) return;
+
+        const response = await apiRequest(`/facilities/${facilityId}/rooms`);
+        const rooms = response?.data || [];
+
+        if (!rooms || rooms.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: var(--space-md); color: var(--text-secondary); width: 100%;">
+                    <div style="font-size: 2rem; margin-bottom: var(--space-xs);">🏫</div>
+                    <div style="font-size: 0.875rem;">No rooms added yet. Click "+ Add Room" to get started.</div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = rooms.map(room => `
+            <div class="room-badge" title="${room.name} - ${room.required_ratio}">
+                <span class="room-badge-name">${room.name}</span>
+                <span class="room-badge-ratio">${room.required_ratio}</span>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading rooms preview:', error);
+    }
+}
+
 async function submitSpotCheck() {
     const roomSelect = document.getElementById('spotcheck-room');
     const childrenCount = parseInt(document.getElementById('spotcheck-children')?.value, 10);
     const staffCount = parseInt(document.getElementById('spotcheck-staff')?.value, 10);
     const method = document.getElementById('spotcheck-method')?.value;
+    const methodOther = document.getElementById('spotcheck-method-other')?.value?.trim();
     const checkerName = document.getElementById('spotcheck-checker-name')?.value?.trim();
     const notes = document.getElementById('spotcheck-notes')?.value;
 
@@ -1492,6 +1607,10 @@ async function submitSpotCheck() {
     }
     if (!checkerName || checkerName.length === 0) {
         showError('Please enter your name');
+        return;
+    }
+    if (method === 'other' && (!methodOther || methodOther.length === 0)) {
+        showError('Please specify how you checked when selecting "Other"');
         return;
     }
 
@@ -1516,6 +1635,7 @@ async function submitSpotCheck() {
                 staff_count: staffCount,
                 required_ratio: ratio,
                 check_method: method,
+                check_method_other: method === 'other' ? methodOther : null,
                 checked_by_name: checkerName,
                 notes: notes
             })
