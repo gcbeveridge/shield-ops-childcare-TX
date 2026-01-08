@@ -4,7 +4,12 @@
 Shield Ops is a comprehensive full-stack child care safety and compliance platform for daycare centers. It manages licensing, staff training, incident reporting, daily checklists, document management, medication tracking, and features an AI-powered compliance assistant. The platform aims to streamline operations and ensure regulatory adherence for childcare facilities.
 
 ## User Preferences
-None specified yet.
+- **Design System:** Guardian Warmth aesthetic (warm, welcoming, supportive)
+- **Brand Colors:** Navy blue (#2c5f7c), Lime green (#b4d333), Gold accent (#f5c842)
+- **Typography:** Outfit (headings), Plus Jakarta Sans (body), Space Grotesk (metrics)
+- **Background:** Warm cream/beige (#faf8f5), not stark white
+- **UI Style:** Soft pastels, rounded cards (16-24px radius), generous spacing
+- **Target Audience:** Childcare directors who need to love logging in daily
 
 ## System Architecture
 The application is a single-page web application with a RESTful API.
