@@ -11,6 +11,10 @@ const routes = [
         handler: async (params) => {
             await window.htmlLoader.loadScreen('dashboard');
             await loadDashboardData();
+            // Start real-time updates for Health Command Center
+            if (typeof startHealthCommandCenterAutoRefresh === 'function') {
+                startHealthCommandCenterAutoRefresh();
+            }
         }
     },
     {
@@ -20,6 +24,10 @@ const routes = [
         handler: async (params) => {
             await window.htmlLoader.loadScreen('dashboard');
             await loadDashboardData();
+            // Start real-time updates for Health Command Center
+            if (typeof startHealthCommandCenterAutoRefresh === 'function') {
+                startHealthCommandCenterAutoRefresh();
+            }
         }
     },
 

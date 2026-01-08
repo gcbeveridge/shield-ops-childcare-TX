@@ -941,8 +941,6 @@ async function loadPriorityHeatMap() {
 
 function updateCenterPulse(priorities) {
     const scoreEl = document.getElementById('center-pulse-score');
-    const messageEl = document.getElementById('pulse-message');
-    const streakEl = document.getElementById('streak-count');
     
     // Calculate score (100 - critical*10 - medium*3)
     let score = 100 - (priorities.critical.length * 10) - (priorities.medium.length * 3);
@@ -950,22 +948,351 @@ function updateCenterPulse(priorities) {
     
     if (scoreEl) scoreEl.textContent = score;
     
-    // Update message based on score
-    if (messageEl) {
-        if (score >= 90) {
-            messageEl.textContent = "Your center is thriving! 🌟";
-        } else if (score >= 70) {
-            messageEl.textContent = "Looking good - a few items need attention";
-        } else if (score >= 50) {
-            messageEl.textContent = "Some priorities need your focus today";
-        } else {
-            messageEl.textContent = "Let's work on these priorities together";
-        }
-    }
+    // Update the new Health Command Center with real data
+    updateHealthCommandCenter(priorities, score);
     
     // Celebrate high scores
     if (score >= 95 && priorities.critical.length === 0) {
         setTimeout(() => triggerConfetti(30), 500);
+    }
+}
+
+// ============================================
+// HEALTH COMMAND CENTER - Real-time Data
+// ============================================
+
+let healthCommandCenterInterval = null;
+
+async function updateHealthCommandCenter(priorities, overallScore) {
+    const facilityId = AppState.facility?.id;
+    if (!facilityId) return;
+    
+    try {
+        // Fetch all data in parallel for real-time update
+        const [staffRes, docsRes, checklistsRes, incidentsRes, trainingRes] = await Promise.all([
+            apiRequest(`/facilities/${facilityId}/staff`).catch(() => ({ data: [] })),
+            apiRequest(`/facilities/${facilityId}/documents`).catch(() => ({ data: [] })),
+            apiRequest(`/facilities/${facilityId}/checklists`).catch(() => ({ data: [] })),
+            apiRequest(`/facilities/${facilityId}/incidents`).catch(() => ({ data: [] })),
+            apiRequest(`/facilities/${facilityId}/training/completions`).catch(() => ({ data: [] }))
+        ]);
+        
+        const staff = staffRes?.data || [];
+        const docs = docsRes?.data || [];
+        const checklists = checklistsRes?.data || [];
+        const incidents = incidentsRes?.data || [];
+        const trainingCompletions = trainingRes?.data || [];
+        
+        // Calculate breakdown percentages
+        const breakdown = calculateScoreBreakdown(staff, docs, checklists, trainingCompletions);
+        
+        // Update breakdown bars
+        updateBreakdownBars(breakdown);
+        
+        // Calculate incident-free streak
+        const streakDays = calculateIncidentFreeStreak(incidents);
+        updateStreakBadge(streakDays);
+        
+        // Calculate and display score trend
+        updateScoreTrend(overallScore);
+        
+        // Generate and display quick wins
+        const quickWins = generateQuickWins(staff, docs, checklists, trainingCompletions, priorities);
+        updateQuickWins(quickWins, overallScore);
+        
+    } catch (error) {
+        console.error('Error updating Health Command Center:', error);
+    }
+}
+
+function calculateScoreBreakdown(staff, docs, checklists, trainingCompletions) {
+    // Staff Certifications Score
+    let staffTotal = 0;
+    let staffCompliant = 0;
+    const today = new Date();
+    
+    staff.forEach(member => {
+        const certs = member.certifications || {};
+        
+        // Count CPR/First Aid
+        staffTotal++;
+        if (certs.cprFirstAid?.expirationDate && new Date(certs.cprFirstAid.expirationDate) > today) {
+            staffCompliant++;
+        }
+        
+        // Count Background Check
+        staffTotal++;
+        if (certs.backgroundCheck?.expirationDate && new Date(certs.backgroundCheck.expirationDate) > today) {
+            staffCompliant++;
+        }
+    });
+    
+    const staffScore = staffTotal > 0 ? Math.round((staffCompliant / staffTotal) * 100) : 100;
+    
+    // Documents Score (percentage of required docs that are current)
+    const requiredDocs = docs.filter(d => d.required || d.is_required);
+    const currentDocs = requiredDocs.filter(d => {
+        if (!d.expiration_date) return true;
+        return new Date(d.expiration_date) > today;
+    });
+    const docsScore = requiredDocs.length > 0 ? Math.round((currentDocs.length / requiredDocs.length) * 100) : 100;
+    
+    // Checklists Score (last 7 days completion rate)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recentChecklists = checklists.filter(c => new Date(c.created_at || c.date) > sevenDaysAgo);
+    const completedChecklists = recentChecklists.filter(c => c.completed || c.status === 'completed');
+    const checklistsScore = recentChecklists.length > 0 
+        ? Math.round((completedChecklists.length / Math.max(recentChecklists.length, 7)) * 100)
+        : 100;
+    
+    // Training Score (percentage of staff with completed training)
+    const trainingScore = staff.length > 0 && trainingCompletions.length > 0
+        ? Math.min(100, Math.round((trainingCompletions.length / (staff.length * 2)) * 100))
+        : staff.length > 0 ? 50 : 100;
+    
+    return {
+        staff: staffScore,
+        docs: docsScore,
+        checklists: Math.min(100, checklistsScore),
+        training: trainingScore
+    };
+}
+
+function updateBreakdownBars(breakdown) {
+    // Update staff bar
+    const barStaff = document.getElementById('bar-staff');
+    const valStaff = document.getElementById('val-staff');
+    if (barStaff) barStaff.style.width = `${breakdown.staff}%`;
+    if (valStaff) valStaff.textContent = `${breakdown.staff}%`;
+    
+    // Update docs bar
+    const barDocs = document.getElementById('bar-docs');
+    const valDocs = document.getElementById('val-docs');
+    if (barDocs) barDocs.style.width = `${breakdown.docs}%`;
+    if (valDocs) valDocs.textContent = `${breakdown.docs}%`;
+    
+    // Update checklists bar
+    const barChecklists = document.getElementById('bar-checklists');
+    const valChecklists = document.getElementById('val-checklists');
+    if (barChecklists) barChecklists.style.width = `${breakdown.checklists}%`;
+    if (valChecklists) valChecklists.textContent = `${breakdown.checklists}%`;
+    
+    // Update training bar
+    const barTraining = document.getElementById('bar-training');
+    const valTraining = document.getElementById('val-training');
+    if (barTraining) barTraining.style.width = `${breakdown.training}%`;
+    if (valTraining) valTraining.textContent = `${breakdown.training}%`;
+}
+
+function calculateIncidentFreeStreak(incidents) {
+    if (!incidents || incidents.length === 0) {
+        // No incidents ever = assume 45 days default (or calculate from facility creation)
+        return 45;
+    }
+    
+    // Sort incidents by date descending
+    const sortedIncidents = [...incidents].sort((a, b) => 
+        new Date(b.created_at || b.date) - new Date(a.created_at || a.date)
+    );
+    
+    const lastIncident = sortedIncidents[0];
+    const lastIncidentDate = new Date(lastIncident.created_at || lastIncident.date);
+    const today = new Date();
+    
+    const diffTime = Math.abs(today - lastIncidentDate);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+}
+
+function updateStreakBadge(streakDays) {
+    const streakEl = document.getElementById('streak-count');
+    const streakBadge = document.getElementById('streak-badge');
+    
+    if (streakEl) {
+        streakEl.textContent = streakDays;
+    }
+    
+    // Add special styling for milestone streaks
+    if (streakBadge) {
+        if (streakDays >= 30) {
+            streakBadge.classList.add('milestone');
+        } else {
+            streakBadge.classList.remove('milestone');
+        }
+    }
+}
+
+function updateScoreTrend(currentScore) {
+    const trendEl = document.getElementById('score-trend');
+    if (!trendEl) return;
+    
+    // Get previous score from localStorage (or default to current)
+    const previousScore = parseInt(localStorage.getItem('lastHealthScore') || currentScore);
+    const diff = currentScore - previousScore;
+    
+    // Save current score for next comparison
+    localStorage.setItem('lastHealthScore', currentScore.toString());
+    localStorage.setItem('lastHealthScoreDate', new Date().toISOString());
+    
+    if (diff > 0) {
+        trendEl.innerHTML = `<span class="trend-arrow up">↗</span><span>+${diff} from last week</span>`;
+    } else if (diff < 0) {
+        trendEl.innerHTML = `<span class="trend-arrow down">↘</span><span>${diff} from last week</span>`;
+    } else {
+        trendEl.innerHTML = `<span class="trend-arrow">→</span><span>Stable this week</span>`;
+    }
+}
+
+function generateQuickWins(staff, docs, checklists, trainingCompletions, priorities) {
+    const quickWins = [];
+    const today = new Date();
+    
+    // Check for expiring certifications (easy wins)
+    staff.forEach(member => {
+        const certs = member.certifications || {};
+        
+        // CPR about to expire
+        if (certs.cprFirstAid?.expirationDate) {
+            const expDate = new Date(certs.cprFirstAid.expirationDate);
+            const daysUntil = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+            if (daysUntil < 0 || daysUntil <= 30) {
+                quickWins.push({
+                    icon: '🏆',
+                    action: `Renew ${member.name.split(' ')[0]}'s CPR`,
+                    impact: daysUntil < 0 ? '+5 points' : '+2 points',
+                    points: daysUntil < 0 ? 5 : 2,
+                    route: '/staff',
+                    staffId: member.id
+                });
+            }
+        }
+    });
+    
+    // Check for missing required documents
+    const requiredDocTypes = ['fire_drill_log', 'emergency_plan', 'license'];
+    const existingDocTypes = docs.map(d => (d.type || d.category || '').toLowerCase());
+    
+    if (!existingDocTypes.some(t => t.includes('fire'))) {
+        quickWins.push({
+            icon: '📁',
+            action: 'Upload fire drill log',
+            impact: '+3 points',
+            points: 3,
+            route: 'upload-document'
+        });
+    }
+    
+    if (!existingDocTypes.some(t => t.includes('emergency'))) {
+        quickWins.push({
+            icon: '🚨',
+            action: 'Add emergency plan',
+            impact: '+4 points',
+            points: 4,
+            route: 'upload-document'
+        });
+    }
+    
+    // Check for incomplete training
+    if (staff.length > 0) {
+        const completedStaffIds = new Set(trainingCompletions.map(t => t.staff_id));
+        const incompleteTraining = staff.filter(s => !completedStaffIds.has(s.id));
+        
+        if (incompleteTraining.length > 0) {
+            quickWins.push({
+                icon: '🎓',
+                action: `Complete ${incompleteTraining[0].name.split(' ')[0]}'s training`,
+                impact: '+3 points',
+                points: 3,
+                route: '/training'
+            });
+        }
+    }
+    
+    // Add checklist completion if not at 100%
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recentChecklists = checklists.filter(c => new Date(c.created_at || c.date) > sevenDaysAgo);
+    if (recentChecklists.length < 7) {
+        quickWins.push({
+            icon: '📋',
+            action: "Complete today's checklist",
+            impact: '+2 points',
+            points: 2,
+            route: '/checklist'
+        });
+    }
+    
+    // Sort by points and return top 3
+    return quickWins.sort((a, b) => b.points - a.points).slice(0, 3);
+}
+
+function updateQuickWins(quickWins, currentScore) {
+    const container = document.getElementById('quick-wins-list');
+    const potentialEl = document.getElementById('potential-score');
+    
+    if (!container) return;
+    
+    if (quickWins.length === 0) {
+        container.innerHTML = `
+            <div class="quick-win-item" style="justify-content: center; cursor: default; background: linear-gradient(135deg, rgba(180, 211, 51, 0.2), rgba(34, 197, 94, 0.2));">
+                <div style="text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 8px;">🏆</div>
+                    <div class="quick-win-action">Perfect score achieved!</div>
+                    <div class="quick-win-impact">You're at 100% compliance</div>
+                </div>
+            </div>
+        `;
+        if (potentialEl) potentialEl.textContent = '100';
+        return;
+    }
+    
+    container.innerHTML = quickWins.map(win => `
+        <div class="quick-win-item" onclick="${win.route.startsWith('/') 
+            ? `if(window.appRouter) window.appRouter.go('${win.route}')` 
+            : `openModal('${win.route}')`}">
+            <div class="quick-win-icon">${win.icon}</div>
+            <div class="quick-win-content">
+                <div class="quick-win-action">${win.action}</div>
+                <div class="quick-win-impact">${win.impact}</div>
+            </div>
+            <span class="quick-win-arrow">→</span>
+        </div>
+    `).join('');
+    
+    // Calculate potential score
+    const totalPotentialPoints = quickWins.reduce((sum, w) => sum + w.points, 0);
+    const potentialScore = Math.min(100, currentScore + totalPotentialPoints);
+    if (potentialEl) potentialEl.textContent = potentialScore;
+}
+
+// Start auto-refresh for Health Command Center
+function startHealthCommandCenterAutoRefresh() {
+    // Clear any existing interval
+    if (healthCommandCenterInterval) {
+        clearInterval(healthCommandCenterInterval);
+    }
+    
+    // Refresh every 30 seconds
+    healthCommandCenterInterval = setInterval(async () => {
+        const facilityId = AppState.facility?.id;
+        if (!facilityId) return;
+        
+        // Only refresh if we're on the dashboard
+        const dashboardScreen = document.getElementById('dashboard-screen');
+        if (!dashboardScreen || !dashboardScreen.classList.contains('active')) return;
+        
+        console.log('🔄 Auto-refreshing Health Command Center...');
+        await loadPriorityHeatMap();
+    }, 30000); // 30 seconds
+}
+
+// Stop auto-refresh when navigating away
+function stopHealthCommandCenterAutoRefresh() {
+    if (healthCommandCenterInterval) {
+        clearInterval(healthCommandCenterInterval);
+        healthCommandCenterInterval = null;
     }
 }
 
