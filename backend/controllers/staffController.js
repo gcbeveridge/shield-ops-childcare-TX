@@ -105,6 +105,14 @@ async function getStaffById(req, res) {
 async function createStaff(req, res) {
   try {
     const { facilityId } = req.params;
+    
+    console.log('🔍 Creating staff member for facility:', facilityId);
+    console.log('📋 Staff data received:', {
+      name: req.body.name,
+      email: req.body.email,
+      role: req.body.role,
+      hireDate: req.body.hireDate
+    });
 
     const { data: staff, error } = await supabase
       .from('staff')
@@ -120,7 +128,10 @@ async function createStaff(req, res) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Supabase insert error:', error);
+      throw error;
+    }
 
     // Map to frontend format
     const mappedStaff = {

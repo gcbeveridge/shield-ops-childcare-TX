@@ -2809,6 +2809,10 @@ async function addStaff(event) {
         return;
     }
 
+    // Helper function to safely get form values
+    const getVal = (id) => document.getElementById(id)?.value?.trim() || '';
+    const getChecked = (id) => document.getElementById(id)?.checked || false;
+    
     const staffData = {
         name,
         role,
@@ -2816,61 +2820,61 @@ async function addStaff(event) {
         hireDate,
         certifications: {
             cda: {
-                has: document.getElementById('staff-has-cda').checked,
-                number: document.getElementById('staff-cda-number').value.trim(),
-                expirationDate: document.getElementById('staff-cda-expiration').value
+                has: getChecked('staff-has-cda'),
+                number: getVal('staff-cda-number'),
+                expirationDate: getVal('staff-cda-expiration')
             },
             teachingCertificate: {
-                has: document.getElementById('staff-has-teaching-cert').checked,
-                number: document.getElementById('staff-teaching-number').value.trim(),
-                type: document.getElementById('staff-teaching-type').value,
-                expirationDate: document.getElementById('staff-teaching-expiration').value
+                has: getChecked('staff-has-teaching-cert'),
+                number: getVal('staff-teaching-number'),
+                type: getVal('staff-teaching-type'),
+                expirationDate: getVal('staff-teaching-expiration')
             },
             foodHandler: {
-                has: document.getElementById('staff-has-food-handler').checked,
-                number: document.getElementById('staff-food-number').value.trim(),
-                expirationDate: document.getElementById('staff-food-expiration').value
+                has: getChecked('staff-has-food-handler'),
+                number: getVal('staff-food-number'),
+                expirationDate: getVal('staff-food-expiration')
             },
             cprFirstAid: {
-                has: document.getElementById('staff-has-cpr').checked,
-                type: document.getElementById('staff-cpr-type').value,
-                provider: document.getElementById('staff-cpr-provider').value.trim(),
-                expirationDate: document.getElementById('staff-cpr-expiration').value
+                has: getChecked('staff-has-cpr'),
+                type: getVal('staff-cpr-type'),
+                provider: getVal('staff-cpr-provider'),
+                expirationDate: getVal('staff-cpr-expiration')
             },
             backgroundCheck: {
-                has: document.getElementById('staff-has-background').checked,
-                status: document.getElementById('staff-background-status').value,
-                date: document.getElementById('staff-background-date').value,
-                expirationDate: document.getElementById('staff-background-expiration').value,
+                has: getChecked('staff-has-background'),
+                status: getVal('staff-background-status'),
+                date: getVal('staff-background-date'),
+                expirationDate: getVal('staff-background-expiration'),
                 types: {
-                    dfps: document.getElementById('staff-bg-dfps')?.checked || false,
-                    fbi: document.getElementById('staff-bg-fbi')?.checked || false,
-                    state: document.getElementById('staff-bg-state')?.checked || false,
-                    sexOffender: document.getElementById('staff-bg-sex-offender')?.checked || false
+                    dfps: getChecked('staff-bg-dfps'),
+                    fbi: getChecked('staff-bg-fbi'),
+                    state: getChecked('staff-bg-state'),
+                    sexOffender: getChecked('staff-bg-sex-offender')
                 }
             },
             tbTest: {
-                has: document.getElementById('staff-has-tb').checked,
-                lastDate: document.getElementById('staff-tb-last-date').value,
-                result: document.getElementById('staff-tb-result').value,
-                nextDue: document.getElementById('staff-tb-next-due').value
+                has: getChecked('staff-has-tb'),
+                lastDate: getVal('staff-tb-last-date'),
+                result: getVal('staff-tb-result'),
+                nextDue: getVal('staff-tb-next-due')
             },
             preServiceTraining: {
-                has: document.getElementById('staff-has-preservice').checked,
-                hours: document.getElementById('staff-preservice-hours').value,
-                completionDate: document.getElementById('staff-preservice-completion').value,
-                topics: document.getElementById('staff-preservice-topics').value.trim()
+                has: getChecked('staff-has-preservice'),
+                hours: getVal('staff-preservice-hours'),
+                completionDate: getVal('staff-preservice-completion'),
+                topics: getVal('staff-preservice-topics')
             },
             annualTraining: {
-                has: document.getElementById('staff-has-annual').checked,
-                currentHours: document.getElementById('staff-annual-hours').value,
-                year: document.getElementById('staff-annual-year').value
+                has: getChecked('staff-has-annual'),
+                currentHours: getVal('staff-annual-hours'),
+                year: getVal('staff-annual-year')
             },
             healthStatement: {
-                has: document.getElementById('staff-has-health').checked,
-                status: document.getElementById('staff-health-status').value,
-                date: document.getElementById('staff-health-date').value,
-                physician: document.getElementById('staff-health-physician').value.trim()
+                has: getChecked('staff-has-health'),
+                status: getVal('staff-health-status'),
+                date: getVal('staff-health-date'),
+                physician: getVal('staff-health-physician')
             }
         }
     };
