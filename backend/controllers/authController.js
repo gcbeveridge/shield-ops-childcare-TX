@@ -60,7 +60,7 @@ async function signup(req, res) {
 
     if (userError) throw userError;
 
-    const token = generateToken({ userId: user.id });
+    const token = generateToken(user);
 
     res.status(201).json({
       token,
@@ -129,7 +129,7 @@ async function login(req, res) {
       console.error('Facility fetch error:', facilityError);
     }
 
-    const token = generateToken({ userId: user.id });
+    const token = generateToken(user);
 
     console.log('Login successful for:', email);
 

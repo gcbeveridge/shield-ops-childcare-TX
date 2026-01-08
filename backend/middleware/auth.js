@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'shield-ops-dev-secret-key-not-for-
 
 function generateToken(user) {
   return jwt.sign(
-    { userId: user.id, email: user.email, role: user.role },
+    { userId: user.id, email: user.email, role: user.role, facilityId: user.facility_id },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
