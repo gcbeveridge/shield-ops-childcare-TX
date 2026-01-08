@@ -1,0 +1,831 @@
+# Phase 2D: Smart Alerts System (Backend + Enhancement)
+
+## Context
+We're building an intelligent alerts system that powers the existing "Today's Priorities" section and adds a notification badge to the header. We're NOT adding a new dashboard widget - instead we're making existing sections smarter with alerts data.
+
+## Goal
+1. Build alerts backend (database, API, auto-generation)
+2. Power "Today's Priorities" from alerts table (not calculations)
+3. Add notification badge to header
+4. Track acknowledgment/resolution for audit trail
+
+## Tasks
+
+### 1. Create Alerts Database Tables
+```sql
+-- Alert configurations (what triggers alerts)
+CREATE TABLE IF NOT EXISTS alert_rules (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    alert_type VARCHAR(100) NOT NULL, -- 'cert_expiring', 'ratio_violation', 'missing_document', etc.
+    enabled BOOLEAN DEFAULT true,
+    threshold_days INTEGER, -- e.g., 30 days before expiration
+    notification_method VARCHAR(50) DEFAULT 'in_app', -- 'in_app', 'email', 'sms', 'all'
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Active alerts (what's currently alerting)
+CREATE TABLE IF NOT EXISTS alerts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    alert_type VARCHAR(100) NOT NULL,
+    severity VARCHAR(20) NOT NULL, -- 'critical', 'warning', 'info'
+    title VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    action_url TEXT, -- Where to go to fix it
+    related_entity_id UUID, -- staff_id, room_id, etc.
+    related_entity_type VARCHAR(50), -- 'staff', 'room', 'document', etc.
+    acknowledged BOOLEAN DEFAULT false,
+    acknowledged_at TIMESTAMP,
+    acknowledged_by_name VARCHAR(100),
+    resolved BOOLEAN DEFAULT false,
+    resolved_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Alert history (for audit trail)
+CREATE TABLE IF NOT EXISTS alert_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    alert_id UUID REFERENCES alerts(id) ON DELETE CASCADE,
+    action VARCHAR(50) NOT NULL, -- 'created', 'acknowledged', 'resolved', 'dismissed'
+    action_by_name VARCHAR(100),
+    action_at TIMESTAMP DEFAULT NOW(),
+    notes TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_alerts_facility ON alerts(facility_id);
+CREATE INDEX IF NOT EXISTS idx_alerts_severity ON alerts(severity);
+CREATE INDEX IF NOT EXISTS idx_alerts_acknowledged ON alerts(acknowledged);
+CREATE INDEX IF NOT EXISTS idx_alerts_resolved ON alerts(resolved);
+```
+
+### 2. Seed Default Alert Rules
+```javascript
+async function seedDefaultAlertRules() {
+    const facilityId = '00000000-0000-0000-0000-000000000001'; // Bright Futures
+    
+    const defaultRules = [
+        { alert_type: 'cert_expiring_30', threshold_days: 30 },
+        { alert_type: 'cert_expired', threshold_days: 0 },
+        { alert_type: 'ratio_violation', threshold_days: null },
+        { alert_type: 'missing_spot_check', threshold_days: null },
+        { alert_type: 'health_score_critical', threshold_days: null }
+    ];
+
+    for (const rule of defaultRules) {
+        await pool.query(`
+            INSERT INTO alert_rules (facility_id, alert_type, threshold_days)
+            VALUES ($1, $2, $3)
+            ON CONFLICT DO NOTHING
+        `, [facilityId, rule.alert_type, rule.threshold_days]);
+    }
+
+    console.log('✅ Default alert rules seeded');
+}
+```
+
+### 3. Create Alert Generation API Endpoints
+```javascript
+// GET /api/facilities/:id/alerts (get active alerts)
+router.get('/:id/alerts', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const showResolved = req.query.showResolved === 'true';
+
+        let query = `
+            SELECT * FROM alerts
+            WHERE facility_id = $1
+        `;
+        
+        if (!showResolved) {
+            query += ` AND resolved = false`;
+        }
+
+        query += ` ORDER BY 
+            CASE severity 
+                WHEN 'critical' THEN 1 
+                WHEN 'warning' THEN 2 
+                WHEN 'info' THEN 3 
+            END,
+            created_at DESC
+        `;
+
+        const result = await pool.query(query, [facilityId]);
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error('Error fetching alerts:', error);
+        res.status(500).json({ error: 'Failed to fetch alerts' });
+    }
+});
+
+// POST /api/facilities/:id/alerts/generate (generate alerts from current data)
+router.post('/:id/alerts/generate', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const newAlerts = [];
+
+        // Check for expired/expiring certifications
+        const staffResult = await pool.query(
+            'SELECT * FROM staff WHERE facility_id = $1',
+            [facilityId]
+        );
+
+        const today = new Date();
+        const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        for (const member of staffResult.rows) {
+            if (!member.certifications) continue;
+
+            const certs = member.certifications;
+            const certTypes = [
+                { key: 'cpr', name: 'CPR' },
+                { key: 'first_aid', name: 'First Aid' },
+                { key: 'background_check', name: 'Background Check' },
+                { key: 'food_handler', name: 'Food Handler' },
+                { key: 'tb_test', name: 'TB Test' }
+            ];
+
+            for (const cert of certTypes) {
+                if (!certs[cert.key] || !certs[cert.key].expiration) continue;
+
+                const expDate = new Date(certs[cert.key].expiration);
+                const daysUntil = Math.floor((expDate - today) / (1000 * 60 * 60 * 24));
+
+                // Check if alert already exists for this
+                const existingAlert = await pool.query(`
+                    SELECT id FROM alerts 
+                    WHERE facility_id = $1 
+                        AND alert_type LIKE $2
+                        AND related_entity_id = $3
+                        AND resolved = false
+                `, [facilityId, `cert_%_${cert.key}`, member.id]);
+
+                if (existingAlert.rows.length > 0) continue; // Already alerted
+
+                let alertData = null;
+
+                if (daysUntil < 0) {
+                    // EXPIRED
+                    alertData = {
+                        alert_type: `cert_expired_${cert.key}`,
+                        severity: 'critical',
+                        title: `${member.name}'s ${cert.name} has EXPIRED`,
+                        message: `Expired ${Math.abs(daysUntil)} days ago. Immediate renewal required.`,
+                        action_url: '/staff',
+                        related_entity_id: member.id,
+                        related_entity_type: 'staff'
+                    };
+                } else if (daysUntil <= 30) {
+                    // EXPIRING SOON
+                    alertData = {
+                        alert_type: `cert_expiring_${cert.key}`,
+                        severity: 'warning',
+                        title: `${member.name}'s ${cert.name} expiring soon`,
+                        message: `Expires in ${daysUntil} days. Schedule renewal now.`,
+                        action_url: '/staff',
+                        related_entity_id: member.id,
+                        related_entity_type: 'staff'
+                    };
+                }
+
+                if (alertData) {
+                    const insertResult = await pool.query(`
+                        INSERT INTO alerts (
+                            facility_id, alert_type, severity, title, message,
+                            action_url, related_entity_id, related_entity_type
+                        )
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                        RETURNING *
+                    `, [
+                        facilityId,
+                        alertData.alert_type,
+                        alertData.severity,
+                        alertData.title,
+                        alertData.message,
+                        alertData.action_url,
+                        alertData.related_entity_id,
+                        alertData.related_entity_type
+                    ]);
+
+                    newAlerts.push(insertResult.rows[0]);
+
+                    // Log to history
+                    await pool.query(`
+                        INSERT INTO alert_history (alert_id, action)
+                        VALUES ($1, 'created')
+                    `, [insertResult.rows[0].id]);
+                }
+            }
+        }
+
+        // Check for missing spot-checks
+        const today_date = new Date().toISOString().split('T')[0];
+        const checksToday = await pool.query(`
+            SELECT COUNT(*) as count FROM ratio_spot_checks
+            WHERE facility_id = $1 AND check_date = $2
+        `, [facilityId, today_date]);
+
+        const checksCount = parseInt(checksToday.rows[0].count);
+        const checksExpected = 2; // Default expectation
+
+        if (checksCount < checksExpected) {
+            const existingSpotCheckAlert = await pool.query(`
+                SELECT id FROM alerts 
+                WHERE facility_id = $1 
+                    AND alert_type = 'missing_spot_check'
+                    AND DATE(created_at) = CURRENT_DATE
+                    AND resolved = false
+            `, [facilityId]);
+
+            if (existingSpotCheckAlert.rows.length === 0) {
+                const alertResult = await pool.query(`
+                    INSERT INTO alerts (
+                        facility_id, alert_type, severity, title, message, action_url
+                    )
+                    VALUES ($1, $2, $3, $4, $5, $6)
+                    RETURNING *
+                `, [
+                    facilityId,
+                    'missing_spot_check',
+                    'warning',
+                    'Ratio spot-checks incomplete',
+                    `${checksCount}/${checksExpected} completed today. Log your checks to maintain compliance.`,
+                    '/dashboard'
+                ]);
+
+                newAlerts.push(alertResult.rows[0]);
+
+                await pool.query(`
+                    INSERT INTO alert_history (alert_id, action)
+                    VALUES ($1, 'created')
+                `, [alertResult.rows[0].id]);
+            }
+        }
+
+        res.json({
+            message: `Generated ${newAlerts.length} new alerts`,
+            alerts: newAlerts
+        });
+
+    } catch (error) {
+        console.error('Error generating alerts:', error);
+        res.status(500).json({ error: 'Failed to generate alerts' });
+    }
+});
+
+// PATCH /api/facilities/:id/alerts/:alertId/acknowledge
+router.patch('/:id/alerts/:alertId/acknowledge', authenticateToken, async (req, res) => {
+    try {
+        const alertId = req.params.alertId;
+        const { acknowledged_by_name } = req.body;
+
+        const result = await pool.query(`
+            UPDATE alerts 
+            SET acknowledged = true,
+                acknowledged_at = NOW(),
+                acknowledged_by_name = $1
+            WHERE id = $2
+            RETURNING *
+        `, [acknowledged_by_name, alertId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Alert not found' });
+        }
+
+        // Log to history
+        await pool.query(`
+            INSERT INTO alert_history (alert_id, action, action_by_name)
+            VALUES ($1, 'acknowledged', $2)
+        `, [alertId, acknowledged_by_name]);
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error('Error acknowledging alert:', error);
+        res.status(500).json({ error: 'Failed to acknowledge alert' });
+    }
+});
+
+// PATCH /api/facilities/:id/alerts/:alertId/resolve
+router.patch('/:id/alerts/:alertId/resolve', authenticateToken, async (req, res) => {
+    try {
+        const alertId = req.params.alertId;
+        const { notes } = req.body;
+
+        const result = await pool.query(`
+            UPDATE alerts 
+            SET resolved = true,
+                resolved_at = NOW()
+            WHERE id = $1
+            RETURNING *
+        `, [alertId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Alert not found' });
+        }
+
+        // Log to history
+        await pool.query(`
+            INSERT INTO alert_history (alert_id, action, notes)
+            VALUES ($1, 'resolved', $2)
+        `, [alertId, notes]);
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error('Error resolving alert:', error);
+        res.status(500).json({ error: 'Failed to resolve alert' });
+    }
+});
+```
+
+### 4. Add Notification Badge to Header
+
+Find your header HTML and add a notification bell:
+```html
+<!-- In your header, add notification badge next to user profile -->
+<div class="header-notifications">
+    <button class="notification-bell" onclick="toggleNotificationDropdown()" id="notification-bell">
+        🔔
+        <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+    </button>
+    
+    <!-- Notification Dropdown -->
+    <div class="notification-dropdown" id="notification-dropdown" style="display: none;">
+        <div class="notification-header">
+            <h3>Notifications</h3>
+            <button class="btn-text-small" onclick="markAllRead()">Mark all read</button>
+        </div>
+        <div class="notification-list" id="notification-list">
+            <div class="notification-loading">Loading...</div>
+        </div>
+        <div class="notification-footer">
+            <button class="btn-text" onclick="closeNotificationDropdown()">Close</button>
+        </div>
+    </div>
+</div>
+```
+
+### 5. Add Notification Styling
+```css
+/* Notification Bell */
+.header-notifications {
+    position: relative;
+}
+
+.notification-bell {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 8px;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.notification-bell:hover {
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: var(--color-critical);
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-family: 'Space Grotesk', monospace;
+}
+
+/* Notification Dropdown */
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 380px;
+    max-height: 500px;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.notification-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.notification-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: var(--background-primary);
+}
+
+.notification-item.unread {
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.notification-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.notification-message {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.notification-footer {
+    padding: var(--space-sm);
+    text-align: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.notification-loading,
+.notification-empty {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.btn-text-small {
+    background: none;
+    border: none;
+    color: var(--shield-navy);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.btn-text-small:hover {
+    text-decoration: underline;
+}
+```
+
+### 6. Update "Today's Priorities" to Use Alerts Data
+
+**REPLACE the existing calculatePriorities function:**
+```javascript
+// ============================================
+// PRIORITY HEAT MAP (NOW POWERED BY ALERTS)
+// ============================================
+
+async function loadPriorityHeatMap() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        // Generate alerts first
+        await apiRequest(`/api/facilities/${facilityId}/alerts/generate`, {
+            method: 'POST'
+        });
+
+        // Fetch alerts by severity
+        const alerts = await apiRequest(`/api/facilities/${facilityId}/alerts`);
+
+        // Group by severity
+        const priorities = {
+            critical: [],
+            medium: [],
+            low: []
+        };
+
+        (alerts || []).forEach(alert => {
+            const priority = {
+                type: alert.alert_type,
+                icon: getSeverityIcon(alert.severity),
+                title: alert.title,
+                description: alert.message,
+                action: 'Take Action',
+                actionUrl: alert.action_url || '/dashboard',
+                alertId: alert.id,
+                acknowledged: alert.acknowledged
+            };
+
+            if (alert.severity === 'critical') {
+                priorities.critical.push(priority);
+            } else if (alert.severity === 'warning') {
+                priorities.medium.push(priority);
+            } else if (alert.severity === 'info') {
+                priorities.low.push(priority);
+            }
+        });
+
+        // Update counts
+        document.getElementById('critical-count').textContent = priorities.critical.length;
+        document.getElementById('medium-count').textContent = priorities.medium.length;
+        document.getElementById('low-count').textContent = priorities.low.length;
+        document.getElementById('total-items').textContent = 
+            priorities.critical.length + priorities.medium.length + priorities.low.length;
+        document.getElementById('immediate-action-count').textContent = priorities.critical.length;
+
+        // Update timestamp
+        document.getElementById('heatmap-timestamp').textContent = 
+            new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        // Populate zones
+        populateZone('critical', priorities.critical);
+        populateZone('medium', priorities.medium);
+        populateZone('low', priorities.low);
+
+    } catch (error) {
+        console.error('Error loading priority heat map:', error);
+        showError('Failed to load priority overview');
+    }
+}
+
+function getSeverityIcon(severity) {
+    const icons = {
+        critical: '🚨',
+        warning: '⚠️',
+        info: '📋'
+    };
+    return icons[severity] || '🔔';
+}
+
+// UPDATE handlePriorityAction to acknowledge alert
+function handlePriorityAction(url, alertId) {
+    // Navigate to the appropriate screen
+    if (url && url !== 'null' && url !== '/dashboard') {
+        const screen = url.replace('/', '');
+        showScreen(screen);
+    }
+    
+    // Auto-acknowledge when taking action
+    if (alertId) {
+        acknowledgeAlertFromPriority(alertId);
+    }
+}
+
+async function acknowledgeAlertFromPriority(alertId) {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const userName = localStorage.getItem('userName') || 'User';
+
+        await apiRequest(`/api/facilities/${facilityId}/alerts/${alertId}/acknowledge`, {
+            method: 'PATCH',
+            body: JSON.stringify({ acknowledged_by_name: userName })
+        });
+
+        // Reload priorities
+        await loadPriorityHeatMap();
+
+    } catch (error) {
+        console.error('Error acknowledging alert:', error);
+    }
+}
+```
+
+### 7. Add Notification Dropdown JavaScript
+```javascript
+// ============================================
+// NOTIFICATION DROPDOWN
+// ============================================
+
+let notificationDropdownOpen = false;
+
+async function toggleNotificationDropdown() {
+    notificationDropdownOpen = !notificationDropdownOpen;
+    const dropdown = document.getElementById('notification-dropdown');
+    
+    if (notificationDropdownOpen) {
+        dropdown.style.display = 'block';
+        await loadNotifications();
+    } else {
+        dropdown.style.display = 'none';
+    }
+}
+
+function closeNotificationDropdown() {
+    notificationDropdownOpen = false;
+    document.getElementById('notification-dropdown').style.display = 'none';
+}
+
+async function loadNotifications() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        // Generate alerts
+        await apiRequest(`/api/facilities/${facilityId}/alerts/generate`, {
+            method: 'POST'
+        });
+
+        // Fetch alerts
+        const alerts = await apiRequest(`/api/facilities/${facilityId}/alerts`);
+        
+        displayNotifications(alerts || []);
+        updateNotificationBadge(alerts || []);
+
+    } catch (error) {
+        console.error('Error loading notifications:', error);
+        document.getElementById('notification-list').innerHTML = `
+            <div class="notification-empty">Failed to load notifications</div>
+        `;
+    }
+}
+
+function displayNotifications(alerts) {
+    const container = document.getElementById('notification-list');
+    
+    if (alerts.length === 0) {
+        container.innerHTML = `
+            <div class="notification-empty">
+                <div style="font-size: 2rem; margin-bottom: 8px;">✨</div>
+                <div>All caught up!</div>
+            </div>
+        `;
+        return;
+    }
+
+    // Show only top 10
+    const recentAlerts = alerts.slice(0, 10);
+
+    container.innerHTML = recentAlerts.map(alert => `
+        <div class="notification-item ${alert.acknowledged ? '' : 'unread'}" 
+             onclick="handleNotificationClick('${alert.id}', '${alert.action_url}')">
+            <div class="notification-icon">${getSeverityIcon(alert.severity)}</div>
+            <div class="notification-content">
+                <div class="notification-title">${alert.title}</div>
+                <div class="notification-message">${alert.message}</div>
+                <div class="notification-time">${getTimeAgo(new Date(alert.created_at))}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateNotificationBadge(alerts) {
+    const unreadCount = alerts.filter(a => !a.acknowledged && !a.resolved).length;
+    const badge = document.getElementById('notification-badge');
+    
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+async function handleNotificationClick(alertId, actionUrl) {
+    // Acknowledge the alert
+    await acknowledgeAlertFromPriority(alertId);
+    
+    // Close dropdown
+    closeNotificationDropdown();
+    
+    // Navigate if URL provided
+    if (actionUrl && actionUrl !== 'null' && actionUrl !== '/dashboard') {
+        const screen = actionUrl.replace('/', '');
+        showScreen(screen);
+    }
+    
+    // Reload dashboard
+    await loadDashboard();
+}
+
+async function markAllRead() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const alerts = await apiRequest(`/api/facilities/${facilityId}/alerts`);
+        const userName = localStorage.getItem('userName') || 'User';
+
+        for (const alert of alerts) {
+            if (!alert.acknowledged) {
+                await apiRequest(`/api/facilities/${facilityId}/alerts/${alert.id}/acknowledge`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ acknowledged_by_name: userName })
+                });
+            }
+        }
+
+        await loadNotifications();
+        showSuccess('All notifications marked as read');
+
+    } catch (error) {
+        console.error('Error marking all read:', error);
+        showError('Failed to mark notifications as read');
+    }
+}
+
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    
+    const intervals = {
+        year: 31536000,
+        month: 2592000,
+        week: 604800,
+        day: 86400,
+        hour: 3600,
+        minute: 60
+    };
+    
+    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+        const interval = Math.floor(seconds / secondsInUnit);
+        if (interval >= 1) {
+            return `${interval} ${unit}${interval !== 1 ? 's' : ''} ago`;
+        }
+    }
+    
+    return 'Just now';
+}
+```
+
+### 8. Update Dashboard Load Function
+```javascript
+async function loadDashboard() {
+    try {
+        // ... existing dashboard code ...
+        
+        // Load alerts-powered priorities
+        await loadPriorityHeatMap();
+        
+        // Update notification badge
+        await loadNotifications();
+        
+        // ... rest of dashboard code ...
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+// Auto-refresh alerts every 2 minutes
+setInterval(() => {
+    if (currentScreen === 'dashboard') {
+        loadPriorityHeatMap();
+        loadNotifications();
+    }
+}, 120000);
+```
+
+## Expected Outcome
+- ✅ Alerts backend built (database, API, auto-generation)
+- ✅ "Today's Priorities" powered by alerts table
+- ✅ Notification bell badge in header (shows count)
+- ✅ Clicking bell opens dropdown with alerts
+- ✅ Clicking alert navigates + acknowledges
+- ✅ "Mark all read" button in dropdown
+- ✅ Audit trail in alert_history table
+- ✅ No new dashboard widgets (clean integration)
+
+## Testing Checklist
+- [ ] Notification bell appears in header
+- [ ] Badge shows count of unread alerts
+- [ ] Clicking bell opens dropdown
+- [ ] Alerts appear in dropdown
+- [ ] "Today's Priorities" shows same alerts
+- [ ] Clicking priority item acknowledges alert
+- [ ] Clicking notification acknowledges + navigates
+- [ ] "Mark all read" works
+- [ ] Badge updates after acknowledgment
+- [ ] Auto-refreshes every 2 minutes
+
+Implement Phase 2D - Smart Alerts (Enhanced Integration)!
