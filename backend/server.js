@@ -21,6 +21,7 @@ const smartImportRoutes = require("./routes/smartImport");
 const onboardingRoutes = require("./routes/onboarding");
 const statesRoutes = require("./routes/states");
 const ratioChecksRoutes = require("./routes/ratioChecks");
+const alertsRoutes = require("./routes/alerts");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -66,6 +67,7 @@ app.use("/api", smartImportRoutes);
 app.use("/api", onboardingRoutes);
 app.use("/api/states", statesRoutes);
 app.use("/api/facilities", ratioChecksRoutes);
+app.use("/api/facilities", alertsRoutes);
 
 // Serve static files from public folder - AFTER API routes
 app.use(express.static(path.join(__dirname, "public")));

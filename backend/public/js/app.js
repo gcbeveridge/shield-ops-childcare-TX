@@ -919,7 +919,55 @@ async function loadPriorityHeatMap() {
         const facilityId = AppState.facility?.id;
         if (!facilityId) return;
         
-        const priorities = await calculatePriorities(facilityId);
+        // Generate alerts from current data
+        try {
+            await apiRequest(`/facilities/${facilityId}/alerts/generate`, { method: 'POST' });
+        } catch (e) {
+            console.log('Alert generation skipped:', e.message);
+        }
+
+        // Fetch active alerts
+        const alertsResponse = await apiRequest(`/facilities/${facilityId}/alerts`);
+        const alerts = alertsResponse?.data || [];
+
+        // Group by severity
+        const priorities = {
+            critical: [],
+            medium: [],
+            low: []
+        };
+
+        let hasNewAlerts = {
+            critical: false,
+            medium: false,
+            low: false
+        };
+
+        alerts.forEach(alert => {
+            const priority = {
+                id: alert.id,
+                type: alert.alert_type,
+                icon: getSeverityIcon(alert.severity),
+                title: alert.title,
+                description: alert.message,
+                action: 'Take Action',
+                actionUrl: alert.action_url || '/dashboard',
+                alertId: alert.id,
+                acknowledged: alert.acknowledged,
+                createdAt: alert.created_at
+            };
+
+            if (alert.severity === 'critical') {
+                priorities.critical.push(priority);
+                if (!alert.acknowledged) hasNewAlerts.critical = true;
+            } else if (alert.severity === 'warning') {
+                priorities.medium.push(priority);
+                if (!alert.acknowledged) hasNewAlerts.medium = true;
+            } else if (alert.severity === 'info') {
+                priorities.low.push(priority);
+                if (!alert.acknowledged) hasNewAlerts.low = true;
+            }
+        });
 
         // Update counts for new Now/Next/Watch structure
         const nowCount = document.getElementById('now-count');
@@ -932,10 +980,10 @@ async function loadPriorityHeatMap() {
         if (watchCount) watchCount.textContent = priorities.low.length;
         if (timestamp) timestamp.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-        // Populate action lanes
-        populateActionLane('now', priorities.critical);
-        populateActionLane('next', priorities.medium);
-        populateActionLane('watch', priorities.low);
+        // Populate action lanes with glow effect for new alerts
+        populateActionLane('now', priorities.critical, hasNewAlerts.critical);
+        populateActionLane('next', priorities.medium, hasNewAlerts.medium);
+        populateActionLane('watch', priorities.low, hasNewAlerts.low);
         
         // Update Center Pulse score based on compliance
         updateCenterPulse(priorities);
@@ -943,6 +991,15 @@ async function loadPriorityHeatMap() {
     } catch (error) {
         console.error('Error loading priority data:', error);
     }
+}
+
+function getSeverityIcon(severity) {
+    const icons = {
+        critical: '🚨',
+        warning: '⚠️',
+        info: '📋'
+    };
+    return icons[severity] || '🔔';
 }
 
 function updateCenterPulse(priorities) {
@@ -1694,9 +1751,21 @@ async function submitSpotCheck() {
     }
 }
 
-function populateActionLane(laneType, items) {
+function populateActionLane(laneType, items, hasNewAlerts = false) {
     const container = document.getElementById(`${laneType}-items`);
     if (!container) return;
+    
+    // Find parent lane card for glow effect
+    const laneMap = { now: 'critical', next: 'medium', watch: 'low' };
+    const laneCard = container.closest('.action-lane') || document.getElementById(`${laneMap[laneType]}-zone`);
+    
+    if (laneCard) {
+        if (hasNewAlerts) {
+            laneCard.classList.add('has-new-alerts');
+        } else {
+            laneCard.classList.remove('has-new-alerts');
+        }
+    }
     
     if (items.length === 0) {
         const emptyMessages = {
@@ -1707,8 +1776,8 @@ function populateActionLane(laneType, items) {
         
         const msg = emptyMessages[laneType];
         container.innerHTML = `
-            <div class="capsule-empty">
-                <div class="capsule-empty-icon">${msg.icon}</div>
+            <div class="capsule-empty zone-empty">
+                <div class="capsule-empty-icon zone-empty-icon">${msg.icon}</div>
                 <h4>${msg.title}</h4>
                 <p>${msg.text}</p>
             </div>
@@ -1716,17 +1785,31 @@ function populateActionLane(laneType, items) {
         return;
     }
 
-    container.innerHTML = items.map((item, index) => createActionItemHTML(item, index)).join('');
+    // Show only top 3 items for compact display
+    const displayItems = items.slice(0, 3);
+    const hiddenCount = items.length - 3;
+
+    let html = displayItems.map((item, index) => createActionItemHTML(item, index)).join('');
+    
+    // Add "X more" indicator if there are hidden items
+    if (hiddenCount > 0) {
+        html += `<div class="more-items-indicator">+ ${hiddenCount} more item${hiddenCount !== 1 ? 's' : ''}</div>`;
+    }
+    
+    container.innerHTML = html;
 }
 
 function createActionItemHTML(item, index) {
+    const newBadge = !item.acknowledged ? '<span class="new-alert-badge">NEW</span>' : '';
+    const newClass = !item.acknowledged ? 'action-item-new priority-item-new' : '';
+    
     return `
-        <div class="action-item" onclick="handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')" style="animation-delay: ${0.1 + index * 0.05}s;">
+        <div class="action-item ${newClass}" onclick="handlePriorityAction('${item.actionUrl}', '${item.alertId || item.staffId || ''}')" style="animation-delay: ${0.1 + index * 0.05}s;">
             <div class="action-item-icon">${item.icon}</div>
             <div class="action-item-content">
-                <div class="action-item-title">${item.title}</div>
+                <div class="action-item-title">${item.title}${newBadge}</div>
                 <div class="action-item-description">${item.description}</div>
-                <button class="action-item-btn" onclick="event.stopPropagation(); handlePriorityAction('${item.actionUrl}', '${item.staffId || ''}')">${item.action}</button>
+                <button class="action-item-btn" onclick="event.stopPropagation(); handlePriorityAction('${item.actionUrl}', '${item.alertId || item.staffId || ''}')">${item.action}</button>
             </div>
         </div>
     `;
@@ -1933,14 +2016,38 @@ function createPriorityItemHTML(item) {
     `;
 }
 
-function handlePriorityAction(url, staffId) {
-    if (url === '/staff' && window.appRouter) {
-        window.appRouter.go('/staff');
-        if (staffId) {
-            console.log('Focus on staff member:', staffId);
+async function handlePriorityAction(url, alertId) {
+    try {
+        // Auto-acknowledge when taking action on an alert
+        if (alertId && alertId !== 'undefined' && alertId !== '' && alertId.includes('-')) {
+            const facilityId = AppState.facility?.id;
+            const userName = AppState.user?.name || 'User';
+
+            try {
+                await apiRequest(`/facilities/${facilityId}/alerts/${alertId}/acknowledge`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ acknowledged_by_name: userName })
+                });
+            } catch (e) {
+                console.log('Alert acknowledge skipped:', e.message);
+            }
         }
-    } else if (window.appRouter) {
-        window.appRouter.go(url);
+
+        // Navigate to action URL
+        if (url && url !== 'null' && url !== '/dashboard') {
+            const screen = url.replace('/', '');
+            if (window.appRouter) {
+                window.appRouter.go(url);
+            } else {
+                showScreen(screen);
+            }
+        }
+
+        // Reload priorities to update UI
+        await loadPriorityHeatMap();
+
+    } catch (error) {
+        console.error('Error handling priority action:', error);
     }
 }
 

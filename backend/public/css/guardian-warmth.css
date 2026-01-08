@@ -2245,3 +2245,96 @@ tr:hover td {
         text-align: center;
     }
 }
+
+/* ============================================
+   PRIORITY CARDS - ENHANCED ALERTS UI
+   ============================================ */
+
+/* Make priority cards more compact */
+.risk-zone {
+    min-height: 240px;
+    padding: 20px;
+}
+
+.risk-zone.has-new-alerts {
+    animation: gentle-glow 2s ease-in-out infinite;
+}
+
+.risk-zone.critical.has-new-alerts {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.risk-zone.medium.has-new-alerts {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.risk-zone.low.has-new-alerts {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+@keyframes gentle-glow {
+    0%, 100% { 
+        opacity: 1;
+    }
+    50% { 
+        opacity: 0.85;
+    }
+}
+
+/* New alert indicator badge */
+.new-alert-badge {
+    display: inline-block;
+    background: var(--status-critical);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 10px;
+    animation: pulse-badge 2s infinite;
+    margin-left: 8px;
+}
+
+@keyframes pulse-badge {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Compact zone content */
+.zone-content {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Priority item with new indicator */
+.priority-item-new {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(255, 255, 255, 0.9) 100%);
+    border-left: 3px solid var(--shield-navy);
+}
+
+.priority-item-new .priority-item-title {
+    font-weight: 700;
+}
+
+/* Empty zone states */
+.zone-empty {
+    text-align: center;
+    padding: var(--space-xl) var(--space-md);
+    color: var(--text-secondary);
+}
+
+.zone-empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+    opacity: 0.8;
+}
+
+/* More items indicator */
+.more-items-indicator {
+    text-align: center;
+    padding: 8px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-top: 1px dashed var(--card-border);
+    margin-top: 8px;
+}

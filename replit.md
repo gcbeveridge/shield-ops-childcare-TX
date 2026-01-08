@@ -95,6 +95,16 @@ The application is a single-page web application with a RESTful API.
     - **Violation Weight Badges:** Color-coded badges (High, Medium-High, Medium, Low).
     - **Facility Information:** Display current facility name, license, capacity, and address.
     - **API Endpoints:** GET /api/states/list, GET /api/states/:code/regulations, GET/PUT /api/states/facility/:id.
+- **Smart Alerts System (Phase 2D):**
+    - **Purpose:** Power priority cards with real alerts data from the database.
+    - **Alert Generation:** Scans for expired/expiring certifications, missing spot-checks, missing/expired documents.
+    - **Severities:** Critical (expired items), Warning (expiring soon), Info (monitoring items).
+    - **Visual Indicators:** Glow effect on cards with new unacknowledged alerts, "NEW" badge on items.
+    - **Auto-acknowledge:** Clicking an alert item auto-acknowledges it and removes glow/badge.
+    - **Compact Display:** Shows top 3 items per zone with "+ X more" indicator.
+    - **Empty States:** Celebratory messages when zones are clear.
+    - **Database Tables:** alert_rules, alerts, alert_history with proper indexes.
+    - **API Endpoints:** POST /generate, GET /alerts, PATCH /acknowledge, PATCH /resolve, GET /summary.
 - **Ratio Compliance Spot-Check Logger (Phase 2C):**
     - **Purpose:** Document staff-to-child ratio compliance through quick spot-checks (in-person or CCTV).
     - **Dashboard Widget:** Single consolidated widget with "🏫 Rooms (X)" button in header, reminder alerts, progress bar, and recent checks list.
