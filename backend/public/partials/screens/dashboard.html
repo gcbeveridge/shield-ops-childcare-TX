@@ -7,17 +7,17 @@
 <div class="dashboard-header" style="animation: slideUp 0.5s ease-out;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
         <div>
-            <h1 id="dashboard-greeting" style="font-size: 2rem; font-weight: 700; margin-bottom: 8px;">
-                <span style="display: block; font-size: 1rem; opacity: 0.85; font-weight: 500; margin-bottom: 4px;">Good morning,</span>
+            <h1 id="dashboard-greeting" style="font-size: 2rem; font-weight: 700; margin-bottom: 8px; color: white;">
+                <span style="display: block; font-size: 1rem; font-weight: 500; margin-bottom: 4px; color: rgba(255,255,255,0.9);">Good morning,</span>
                 Director
             </h1>
-            <p style="opacity: 0.85; font-size: 0.95rem;">Your center is running smoothly. Here's what needs your attention today.</p>
+            <p style="font-size: 0.95rem; color: rgba(255,255,255,0.9);">Your center is running smoothly. Here's what needs your attention today.</p>
         </div>
-        <div id="weather-widget-compact" style="display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); padding: 12px 20px; border-radius: 16px; backdrop-filter: blur(8px);">
+        <div id="weather-widget-compact" class="weather-chip">
             <span id="weather-icon-hero" style="font-size: 32px;">🌤️</span>
             <div>
-                <div id="weather-temp-hero" style="font-size: 1.25rem; font-weight: 700;">72°F</div>
-                <div id="weather-condition-hero" style="font-size: 0.8rem; opacity: 0.85;">Clear skies</div>
+                <div id="weather-temp-hero" style="font-size: 1.25rem; font-weight: 700; color: white;">72°F</div>
+                <div id="weather-condition-hero" style="font-size: 0.8rem; color: rgba(255,255,255,0.9);">Clear skies</div>
             </div>
         </div>
     </div>
@@ -231,16 +231,16 @@
         <h2 class="action-lane-title">
             <span>📰</span> Recent Activity
         </h2>
-        <button onclick="if(window.appRouter) window.appRouter.go('/incidents')" style="background: transparent; border: 1px solid var(--border-medium); border-radius: var(--radius-md); padding: 8px 16px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">
+        <button onclick="if(window.appRouter) window.appRouter.go('/incidents')" class="view-all-btn">
             View All →
         </button>
     </div>
     <div id="recent-activity-container" style="display: flex; flex-direction: column; gap: 12px;">
-        <div style="background: var(--bg-secondary); border-radius: var(--radius-lg); padding: 16px; display: flex; gap: 16px; align-items: center;">
-            <div style="width: 48px; height: 48px; background: var(--status-info-bg); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📝</div>
+        <div class="activity-item">
+            <div class="activity-icon">📝</div>
             <div style="flex: 1;">
-                <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">No recent activity</div>
-                <div style="font-size: 0.8rem; color: var(--text-secondary);">Your activity will appear here</div>
+                <div class="activity-title">No recent activity</div>
+                <div class="activity-description">Your activity will appear here</div>
             </div>
         </div>
     </div>

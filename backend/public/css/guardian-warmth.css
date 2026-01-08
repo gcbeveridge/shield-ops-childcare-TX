@@ -130,21 +130,21 @@
     --shield-gold-dark: #f5c842;
     --shield-gold-light: #fbe49f;
     
-    /* === BACKGROUNDS === */
-    --bg-primary: #0f1419;
-    --bg-secondary: #1a2332;
-    --bg-tertiary: #243447;
-    --bg-surface: #1e2a3a;
-    --bg-elevated: #253545;
-    --bg-sidebar: linear-gradient(180deg, #0f1419 0%, #1a2332 100%);
-    --bg-header: linear-gradient(135deg, #1a2332 0%, #253545 100%);
+    /* === BACKGROUNDS (darker for better contrast) === */
+    --bg-primary: #0a0f14;
+    --bg-secondary: #111920;
+    --bg-tertiary: #1a242e;
+    --bg-surface: #151d28;
+    --bg-elevated: #1e2a38;
+    --bg-sidebar: linear-gradient(180deg, #0a0f14 0%, #111920 100%);
+    --bg-header: linear-gradient(135deg, #151d28 0%, #1e2a38 100%);
     
-    /* === TEXT === */
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-tertiary: #64748b;
-    --text-inverse: #0f1419;
-    --text-accent: #6ab0d0;
+    /* === TEXT (brighter for WCAG AA compliance) === */
+    --text-primary: #f8fafc;
+    --text-secondary: #d1dce8;
+    --text-tertiary: #a8bbd0;
+    --text-inverse: #0a0f14;
+    --text-accent: #7fc4e8;
     
     /* === STATUS COLORS (softer for dark) === */
     --status-critical: #f87171;
@@ -1145,16 +1145,347 @@ tr:hover td {
     border-radius: var(--radius-2xl);
     padding: var(--space-xl) var(--space-2xl);
     margin-bottom: var(--space-xl);
-    color: var(--text-inverse);
+    color: white;
     box-shadow: var(--shadow-lg);
 }
 
 .dashboard-header h1 {
-    color: var(--text-inverse) !important;
+    color: white !important;
 }
 
 .dashboard-header p {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Weather chip with better dark mode contrast */
+.weather-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+}
+
+:root .weather-chip,
+[data-theme="light"] .weather-chip {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .weather-chip {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   RECENT ACTIVITY - Better Dark Mode Contrast
+   ============================================ */
+
+.activity-item,
+#recent-activity-container > div {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    border: 1px solid var(--border-subtle);
+}
+
+.activity-item-title,
+#recent-activity-container .activity-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.activity-item-description,
+#recent-activity-container .activity-description {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.activity-item-date,
+#recent-activity-container .activity-date {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.activity-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--status-info-bg);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.view-all-btn {
+    background: transparent;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-md);
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: all var(--transition-base);
+}
+
+.view-all-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--shield-navy);
+    color: var(--shield-navy);
+}
+
+/* ============================================
+   GLOBAL DARK MODE TEXT FIXES
+   ============================================ */
+
+[data-theme="dark"] .capsule-subtitle {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .action-item-description {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .success-card-description {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] table td {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] table th {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-content {
+    background: var(--bg-surface);
+}
+
+[data-theme="dark"] label {
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: var(--text-tertiary);
+}
+
+[data-theme="dark"] select option {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+/* ============================================
+   COMPREHENSIVE DARK MODE OVERRIDES
+   Fix all hardcoded colors in screens
+   ============================================ */
+
+/* Page headers & titles */
+[data-theme="dark"] .page-title,
+[data-theme="dark"] .cac-page-title,
+[data-theme="dark"] .cac-card-title {
+    color: var(--text-primary) !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .page-subtitle,
+[data-theme="dark"] .cac-page-subtitle {
+    color: var(--text-secondary) !important;
+    opacity: 1 !important;
+}
+
+/* Override hardcoded gray colors */
+[data-theme="dark"] [style*="color: #64748b"],
+[data-theme="dark"] [style*="color: #6b7280"],
+[data-theme="dark"] [style*="color: var(--gray-"],
+[data-theme="dark"] [style*="color: var(--cac-gray-"] {
+    color: var(--text-secondary) !important;
+}
+
+/* Fix opacity-based text */
+[data-theme="dark"] [style*="opacity: 0.8"],
+[data-theme="dark"] [style*="opacity: 0.85"],
+[data-theme="dark"] [style*="opacity: 0.9"] {
+    opacity: 1 !important;
+}
+
+/* Cards and containers */
+[data-theme="dark"] .card,
+[data-theme="dark"] .cac-card {
+    background: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
+}
+
+/* Certification status boxes */
+[data-theme="dark"] .cac-cert-status,
+[data-theme="dark"] [style*="background: rgba(255,255,255,0.7)"] {
+    background: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .cac-cert-status div:first-child,
+[data-theme="dark"] .cac-stat-label {
+    color: var(--text-secondary) !important;
+}
+
+/* Document stats in gradient cards */
+[data-theme="dark"] .card[style*="linear-gradient"] {
+    background: var(--bg-header) !important;
+}
+
+[data-theme="dark"] .card[style*="linear-gradient"] div[style*="opacity: 0.9"] {
+    opacity: 1 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Expiration alert cards */
+[data-theme="dark"] .card[style*="rgba(239, 68, 68"],
+[data-theme="dark"] .card[style*="rgba(245, 158, 11"] {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-medium);
+}
+
+[data-theme="dark"] .card[style*="background: white"],
+[data-theme="dark"] div[style*="background: white"] {
+    background: var(--bg-tertiary) !important;
+}
+
+/* Tabs */
+[data-theme="dark"] .tab,
+[data-theme="dark"] .tabs button {
+    color: var(--text-secondary) !important;
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-medium) !important;
+}
+
+[data-theme="dark"] .tab.active,
+[data-theme="dark"] .tabs button.active {
+    color: var(--text-primary) !important;
+    background: var(--bg-tertiary) !important;
+    border-color: var(--shield-lime) !important;
+}
+
+/* Form inputs */
+[data-theme="dark"] .form-input,
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="search"],
+[data-theme="dark"] select {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-medium) !important;
+}
+
+/* Stat cards */
+[data-theme="dark"] .cac-stat-card,
+[data-theme="dark"] .stat-card {
+    background: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .cac-stat-value,
+[data-theme="dark"] .stat-value {
+    color: var(--text-primary) !important;
+}
+
+/* Buttons - secondary */
+[data-theme="dark"] .btn-secondary,
+[data-theme="dark"] .cac-btn-secondary,
+[data-theme="dark"] .btn-secondary-small {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-medium) !important;
+}
+
+/* Badge fixes */
+[data-theme="dark"] .badge,
+[data-theme="dark"] .cac-badge {
+    opacity: 1;
+}
+
+/* Sidebar already uses dark colors, ensure nav links work */
+[data-theme="dark"] .sidebar {
+    background: var(--bg-sidebar) !important;
+}
+
+/* Page headers in dark mode */
+[data-theme="dark"] .cac-page-header,
+[data-theme="dark"] .page-header {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+}
+
+/* Fix any inline white backgrounds */
+[data-theme="dark"] div[style*="background: #fff"],
+[data-theme="dark"] div[style*="background: #ffffff"],
+[data-theme="dark"] div[style*="background:#fff"],
+[data-theme="dark"] div[style*="background:#ffffff"] {
+    background: var(--bg-tertiary) !important;
+}
+
+/* Ensure paragraphs inherit proper color */
+[data-theme="dark"] p {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+    color: var(--text-primary);
+}
+
+/* Links in dark mode */
+[data-theme="dark"] a {
+    color: var(--text-accent);
+}
+
+/* Zone content in priority heatmap */
+[data-theme="dark"] .zone-description {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .zone-title {
+    color: var(--text-primary);
+}
+
+/* Compliance snapshot cards */
+[data-theme="dark"] .action-lane-container div[onclick] {
+    background: var(--bg-secondary) !important;
+}
+
+/* Success cards */
+[data-theme="dark"] .success-card {
+    background: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .success-card-title {
+    color: var(--text-primary) !important;
+}
+
+/* Auth screens */
+[data-theme="dark"] .auth-container,
+[data-theme="dark"] .login-container {
+    background: var(--bg-header) !important;
+}
+
+[data-theme="dark"] .auth-card,
+[data-theme="dark"] .login-card {
+    background: var(--bg-surface) !important;
+}
+
+[data-theme="dark"] .auth-card h1,
+[data-theme="dark"] .auth-card h2,
+[data-theme="dark"] .login-card h1,
+[data-theme="dark"] .login-card h2 {
+    color: var(--text-primary) !important;
 }
 
 /* ============================================
