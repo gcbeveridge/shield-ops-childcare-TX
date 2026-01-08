@@ -1,0 +1,750 @@
+/* ============================================
+   GUARDIAN WARMTH DESIGN SYSTEM
+   Shield Ops Brand Identity
+   ============================================
+   
+   Brand Colors (from Shield Logo):
+   - Navy Blue: #2c5f7c
+   - Lime Green: #b4d333
+   - Gold Accent: #f5c842
+   
+   Design Philosophy:
+   - Warm, welcoming, supportive
+   - Professional but approachable
+   - Clear hierarchy, generous spacing
+   - Designed for childcare directors who need to love logging in
+   ============================================ */
+
+:root {
+    /* === PRIMARY BRAND COLORS (from Shield logo) === */
+    --shield-navy: #2c5f7c;
+    --shield-navy-dark: #1e4a5f;
+    --shield-navy-light: #3d7a9a;
+    --shield-lime: #b4d333;
+    --shield-lime-dark: #9ab82d;
+    --shield-lime-light: #c8e056;
+    --shield-gold: #f5c842;
+    --shield-gold-dark: #e0b535;
+    --shield-gold-light: #f8d574;
+    
+    /* === BACKGROUNDS - Warm & Welcoming === */
+    --background-primary: #faf8f5;
+    --background-secondary: #f5f3f0;
+    --background-tertiary: #efe9e3;
+    --surface-white: #ffffff;
+    --surface-elevated: #ffffff;
+    
+    /* === STATUS COLORS - Clear but Friendly === */
+    --color-critical: #e74c3c;
+    --color-critical-bg: #fff5f5;
+    --color-warning: #f5c842;
+    --color-warning-bg: #fffbf0;
+    --color-success: #b4d333;
+    --color-success-bg: #f7fdf9;
+    --color-info: #5dade2;
+    --color-info-bg: #f0f9ff;
+    
+    /* === TEXT HIERARCHY === */
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --text-tertiary: #bdc3c7;
+    --text-white: #ffffff;
+    
+    /* === SOFT ACCENT ZONES === */
+    --accent-peach: #fff7ed;
+    --accent-mint: #f0fdf4;
+    --accent-lavender: #faf5ff;
+    --accent-sky: #f0f9ff;
+    
+    /* === SHADOWS - Subtle Depth === */
+    --shadow-xs: 0 1px 2px rgba(44, 95, 124, 0.05);
+    --shadow-sm: 0 2px 8px rgba(44, 95, 124, 0.08);
+    --shadow-md: 0 4px 16px rgba(44, 95, 124, 0.12);
+    --shadow-lg: 0 8px 24px rgba(44, 95, 124, 0.16);
+    --shadow-xl: 0 12px 32px rgba(44, 95, 124, 0.20);
+    
+    /* === BORDER RADIUS - Friendly Curves === */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    
+    /* === SPACING - Generous Breathing Room === */
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+}
+
+/* ============================================
+   GLOBAL TYPOGRAPHY
+   ============================================ */
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+    background: linear-gradient(135deg, var(--background-primary) 0%, var(--background-secondary) 100%) !important;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', -apple-system, sans-serif !important;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stat-value, 
+.zone-count,
+.metric-number,
+.score-display,
+.risk-score-display,
+.streak-days-display {
+    font-family: 'Space Grotesk', monospace !important;
+    font-weight: 600;
+}
+
+/* ============================================
+   SIDEBAR - Warm Navy
+   ============================================ */
+
+.sidebar {
+    background: linear-gradient(180deg, var(--shield-navy) 0%, var(--shield-navy-dark) 100%) !important;
+    border-right: none !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.sidebar-logo {
+    padding: var(--space-xl) var(--space-lg) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-logo h2 {
+    color: var(--text-white) !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.sidebar-logo p {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-radius: var(--radius-md) !important;
+    margin: 4px var(--space-sm) !important;
+    padding: var(--space-sm) var(--space-md) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-white) !important;
+    transform: translateX(4px);
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, var(--shield-lime) 0%, var(--shield-lime-light) 100%) !important;
+    color: var(--shield-navy-dark) !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(180, 211, 51, 0.3) !important;
+}
+
+.nav-link.active:hover {
+    transform: translateX(0);
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+
+.main-content {
+    background: transparent !important;
+    padding: var(--space-xl) !important;
+}
+
+.screen-container,
+#screen-container {
+    background: transparent !important;
+}
+
+/* ============================================
+   DASHBOARD HEADER
+   ============================================ */
+
+.dashboard-header {
+    background: linear-gradient(135deg, var(--shield-navy) 0%, var(--shield-navy-light) 100%) !important;
+    border-radius: var(--radius-2xl) !important;
+    padding: var(--space-xl) var(--space-2xl) !important;
+    margin-bottom: var(--space-xl) !important;
+    box-shadow: var(--shadow-lg) !important;
+    border: none !important;
+}
+
+.dashboard-header h1,
+.dashboard-header h2,
+#dashboard-greeting {
+    color: var(--text-white) !important;
+    font-family: 'Outfit', sans-serif !important;
+}
+
+.dashboard-header p,
+.dashboard-header .date-display {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ============================================
+   PRIORITY HEAT MAP - Redesigned
+   ============================================ */
+
+.priority-heatmap-section {
+    background: var(--surface-white) !important;
+    border-radius: var(--radius-2xl) !important;
+    padding: var(--space-xl) !important;
+    box-shadow: var(--shadow-md) !important;
+    margin-bottom: var(--space-xl) !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+
+.priority-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xl);
+}
+
+.priority-section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.risk-heatmap-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+    gap: var(--space-lg) !important;
+}
+
+/* Individual Zone Cards */
+.risk-zone {
+    border-radius: var(--radius-xl) !important;
+    padding: var(--space-lg) !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 2px solid transparent !important;
+    min-height: 360px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) backwards !important;
+}
+
+.risk-zone::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 4px !important;
+    transition: opacity 0.3s !important;
+}
+
+.risk-zone:hover {
+    transform: translateY(-6px) scale(1.01) !important;
+    box-shadow: var(--shadow-xl) !important;
+}
+
+/* CRITICAL Zone - Urgent but Supportive */
+.risk-zone.critical {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%) !important;
+    border-color: rgba(231, 76, 60, 0.15) !important;
+    animation-delay: 0.1s !important;
+}
+
+.risk-zone.critical::before {
+    background: linear-gradient(90deg, #e74c3c, #ec7063) !important;
+    opacity: 0.8 !important;
+}
+
+.risk-zone.critical .zone-header {
+    border-bottom-color: rgba(231, 76, 60, 0.1) !important;
+}
+
+.risk-zone.critical .zone-count {
+    color: var(--color-critical) !important;
+}
+
+/* ATTENTION Zone - Warm Warning (Gold) */
+.risk-zone.medium {
+    background: linear-gradient(135deg, #fffbf0 0%, #ffffff 100%) !important;
+    border-color: rgba(245, 200, 66, 0.15) !important;
+    animation-delay: 0.25s !important;
+}
+
+.risk-zone.medium::before {
+    background: linear-gradient(90deg, var(--shield-gold), var(--shield-gold-light)) !important;
+    opacity: 0.8 !important;
+}
+
+.risk-zone.medium .zone-header {
+    border-bottom-color: rgba(245, 200, 66, 0.1) !important;
+}
+
+.risk-zone.medium .zone-count {
+    color: var(--shield-gold-dark) !important;
+}
+
+/* MONITORING Zone - Calm & Positive (Lime) */
+.risk-zone.low {
+    background: linear-gradient(135deg, #f7fdf9 0%, #ffffff 100%) !important;
+    border-color: rgba(180, 211, 51, 0.15) !important;
+    animation-delay: 0.4s !important;
+}
+
+.risk-zone.low::before {
+    background: linear-gradient(90deg, var(--shield-lime), var(--shield-lime-light)) !important;
+    opacity: 0.8 !important;
+}
+
+.risk-zone.low .zone-header {
+    border-bottom-color: rgba(180, 211, 51, 0.1) !important;
+}
+
+.risk-zone.low .zone-count {
+    color: var(--shield-lime-dark) !important;
+}
+
+/* Zone Headers */
+.zone-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: var(--space-md) !important;
+    padding-bottom: var(--space-md) !important;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.zone-icon {
+    font-size: 28px !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1)) !important;
+}
+
+.zone-title {
+    font-size: 0.75rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.2px !important;
+    color: var(--text-primary) !important;
+    text-transform: uppercase !important;
+}
+
+.zone-count {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    background: white !important;
+    padding: 8px 18px !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: 2px solid rgba(0, 0, 0, 0.05) !important;
+    min-width: 50px !important;
+    text-align: center !important;
+}
+
+.zone-description {
+    font-size: 0.8125rem !important;
+    color: var(--text-secondary) !important;
+    margin-bottom: var(--space-lg) !important;
+    line-height: 1.6 !important;
+}
+
+/* Zone Content Area */
+.zone-content {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--space-sm) !important;
+    overflow-y: auto !important;
+    max-height: 400px !important;
+}
+
+.zone-content::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.zone-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03) !important;
+    border-radius: 10px !important;
+}
+
+.zone-content::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-radius: 10px !important;
+}
+
+/* Priority Items */
+.priority-item {
+    background: white !important;
+    padding: var(--space-md) !important;
+    border-radius: var(--radius-lg) !important;
+    display: flex !important;
+    gap: var(--space-md) !important;
+    cursor: pointer !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    position: relative !important;
+    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards !important;
+}
+
+.priority-item::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 4px !important;
+    background: var(--shield-navy) !important;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm) !important;
+    transform: scaleY(0) !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.priority-item:hover {
+    transform: translateX(8px) !important;
+    box-shadow: var(--shadow-md) !important;
+    border-color: var(--shield-navy) !important;
+}
+
+.priority-item:hover::before {
+    transform: scaleY(1) !important;
+}
+
+.priority-item:nth-child(1) { animation-delay: 0.15s !important; }
+.priority-item:nth-child(2) { animation-delay: 0.20s !important; }
+.priority-item:nth-child(3) { animation-delay: 0.25s !important; }
+.priority-item:nth-child(4) { animation-delay: 0.30s !important; }
+.priority-item:nth-child(5) { animation-delay: 0.35s !important; }
+
+.priority-item-icon {
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--background-primary) !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.priority-item-title {
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    margin-bottom: 4px !important;
+    color: var(--text-primary) !important;
+    line-height: 1.4 !important;
+}
+
+.priority-item-description {
+    font-size: 0.8125rem !important;
+    color: var(--text-secondary) !important;
+    line-height: 1.5 !important;
+    margin-bottom: var(--space-sm) !important;
+}
+
+.priority-item-action button {
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    padding: 6px 16px !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    background: linear-gradient(135deg, var(--shield-navy) 0%, var(--shield-navy-light) 100%) !important;
+    color: white !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 6px rgba(44, 95, 124, 0.2) !important;
+}
+
+.priority-item-action button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(44, 95, 124, 0.35) !important;
+}
+
+/* Empty States */
+.zone-empty {
+    text-align: center !important;
+    padding: var(--space-2xl) !important;
+    color: var(--text-secondary) !important;
+}
+
+.zone-empty-icon {
+    font-size: 56px !important;
+    margin-bottom: var(--space-md) !important;
+    opacity: 0.6 !important;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.08)) !important;
+}
+
+/* ============================================
+   CARDS - Global Styling
+   ============================================ */
+
+.card,
+.dashboard-card,
+.stat-card,
+.weather-card,
+.quick-action-card {
+    background: var(--surface-white) !important;
+    border-radius: var(--radius-xl) !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.card:hover,
+.dashboard-card:hover,
+.stat-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* ============================================
+   BUTTONS - Brand Styled
+   ============================================ */
+
+.btn-primary,
+button.primary,
+.primary-btn {
+    background: linear-gradient(135deg, var(--shield-navy) 0%, var(--shield-navy-light) 100%) !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(44, 95, 124, 0.25) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn-primary:hover,
+button.primary:hover,
+.primary-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(44, 95, 124, 0.35) !important;
+}
+
+.btn-success,
+button.success {
+    background: linear-gradient(135deg, var(--shield-lime) 0%, var(--shield-lime-light) 100%) !important;
+    color: var(--shield-navy-dark) !important;
+}
+
+.btn-warning,
+button.warning {
+    background: linear-gradient(135deg, var(--shield-gold) 0%, var(--shield-gold-light) 100%) !important;
+    color: var(--shield-navy-dark) !important;
+}
+
+/* ============================================
+   FORMS - Warm Inputs
+   ============================================ */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+    border: 2px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: var(--radius-md) !important;
+    padding: var(--space-sm) var(--space-md) !important;
+    background: var(--surface-white) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    transition: all 0.3s ease !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--shield-navy) !important;
+    box-shadow: 0 0 0 4px rgba(44, 95, 124, 0.1) !important;
+    outline: none !important;
+}
+
+/* ============================================
+   LOGIN SCREEN - Warm Welcome
+   ============================================ */
+
+.auth-container,
+.login-container {
+    background: linear-gradient(135deg, var(--shield-navy) 0%, var(--shield-navy-light) 100%) !important;
+}
+
+.auth-card,
+.login-card {
+    background: var(--surface-white) !important;
+    border-radius: var(--radius-2xl) !important;
+    box-shadow: var(--shadow-xl) !important;
+    border: none !important;
+}
+
+.auth-card h1,
+.login-card h1,
+.auth-card h2,
+.login-card h2 {
+    color: var(--shield-navy) !important;
+    font-family: 'Outfit', sans-serif !important;
+}
+
+/* ============================================
+   MODALS - Friendly Dialogs
+   ============================================ */
+
+.modal-content {
+    background: var(--surface-white) !important;
+    border-radius: var(--radius-2xl) !important;
+    box-shadow: var(--shadow-xl) !important;
+    border: none !important;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+    padding: var(--space-lg) !important;
+}
+
+.modal-header h2,
+.modal-header h3 {
+    font-family: 'Outfit', sans-serif !important;
+    color: var(--text-primary) !important;
+}
+
+/* ============================================
+   TABLES - Clean & Readable
+   ============================================ */
+
+table {
+    background: var(--surface-white) !important;
+    border-radius: var(--radius-lg) !important;
+    overflow: hidden !important;
+}
+
+th {
+    background: var(--background-primary) !important;
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    font-family: 'Outfit', sans-serif !important;
+}
+
+tr:hover td {
+    background: rgba(44, 95, 124, 0.03) !important;
+}
+
+/* ============================================
+   AI CHAT - Brand Styled
+   ============================================ */
+
+.ai-chat-fab {
+    background: linear-gradient(135deg, var(--shield-lime) 0%, var(--shield-lime-light) 100%) !important;
+    color: var(--shield-navy-dark) !important;
+    box-shadow: 0 4px 16px rgba(180, 211, 51, 0.4) !important;
+}
+
+.ai-chat-fab:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 24px rgba(180, 211, 51, 0.5) !important;
+}
+
+.ai-badge {
+    background: var(--shield-navy) !important;
+    color: white !important;
+}
+
+.ai-chat-header {
+    background: linear-gradient(135deg, var(--shield-navy) 0%, var(--shield-navy-light) 100%) !important;
+    color: white !important;
+}
+
+.ai-chat-container {
+    border-radius: var(--radius-2xl) !important;
+    box-shadow: var(--shadow-xl) !important;
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS
+   ============================================ */
+
+.toast {
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-lg) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.toast.success {
+    background: linear-gradient(135deg, var(--shield-lime) 0%, var(--shield-lime-light) 100%) !important;
+    color: var(--shield-navy-dark) !important;
+}
+
+.toast.error {
+    background: linear-gradient(135deg, var(--color-critical) 0%, #ec7063 100%) !important;
+    color: white !important;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-gentle {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: var(--space-md) !important;
+    }
+    
+    .risk-heatmap-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .priority-heatmap-section {
+        padding: var(--space-md) !important;
+    }
+    
+    .dashboard-header {
+        padding: var(--space-lg) !important;
+        border-radius: var(--radius-xl) !important;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-navy { color: var(--shield-navy) !important; }
+.text-lime { color: var(--shield-lime) !important; }
+.text-gold { color: var(--shield-gold) !important; }
+.bg-navy { background: var(--shield-navy) !important; }
+.bg-lime { background: var(--shield-lime) !important; }
+.bg-gold { background: var(--shield-gold) !important; }
+.bg-warm { background: var(--background-primary) !important; }
