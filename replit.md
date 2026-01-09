@@ -38,10 +38,17 @@ The application is a single-page web application with a RESTful API.
 - **Training Hub (Redesigned):**
     - **2-Tab Navigation:** Monthly Curriculum and Required Certifications tabs with DOM-ready tab switching.
     - **Monthly Curriculum Calendar View (Stage 3A):** 12-month calendar grid with module cards, status badges (ACTIVE/PREVIEW/AVAILABLE), progress bars, current month highlight banner, and Training Progress Overview section.
-    - **Module Detail Page (Stage 3B):** Click module card → detail page with back button, header (title/theme/status badge), progress tracker with percentage bar, 5 component tabs (Shield Champion Training 25%, Team Communication 20%, Staff Acknowledgment 25%, Monthly Audit 15%, SafeGrowth Accelerator 15%), placeholder content for each tab.
-    - **Required Certifications:** List view of certification types with status indicators.
-    - **API Endpoints:** GET /training/modules-new (with status/progress), GET /training/progress-summary, GET /certification-types, GET /state-requirements.
+    - **Module Detail Page (Stage 3B):** Click module card → detail page with back button, header (title/theme/status badge), progress tracker with percentage bar, 5 component tabs.
+    - **Component 1 - Shield Champion Training (25%):** Educational content with 4 sections per month (January: New Year Safety Goals, SMART SAFETY Method, Facility Assessment Framework, Goal Implementation). Mark complete button updates progress.
+    - **Component 2 - Team Communication (20%):** Message templates with copy-to-clipboard, emoji response tracking (👍❤️🎉💪✨), staff dropdown selection, auto-completes at 80% response rate.
+    - **Component 3 - Staff Acknowledgment (25%):** Track which staff have reviewed training content, dropdown staff selection, auto-completes at 80% acknowledgment rate.
+    - **Component 4 - Monthly Audit (15%):** 4 facility safety questions with Yes/No/Updates Needed/Maintenance Required/Other options, optional photo upload, auto-completes when all 4 answered.
+    - **Component 5 - SafeGrowth Accelerator (15%):** 4-week social media content plan with visual ideas, sample captions, hashtags, copy buttons, mark as posted tracking. Auto-completes when all 4 weeks posted.
+    - **Progress Calculation:** Weighted progress (0%→25%→45%→70%→85%→100%) with module completion celebration at 100%.
+    - **Required Certifications:** List view of certification types with status indicators (Stage 4).
+    - **API Endpoints:** 20+ endpoints for modules, component progress, staff responses, acknowledgments, audit questions/responses, social content/completions.
     - **Database Tables (14 new):** training_modules_new, training_champion_content, training_team_messages, training_staff_responses, training_acknowledgments, training_audit_questions, training_audit_responses, training_social_content, training_social_completions, training_component_progress, training_module_progress, certification_types, staff_certifications, staff_annual_hours, state_training_requirements.
+    - **January 2026 Content Seeded:** 4 champion sections, team message, 4 audit questions, 4-week SafeGrowth content.
 - **Staff Management:** Provides staff roster, tracks certifications, background checks, training completion, and expiration alerts.
 - **Incident Reporting:** Allows logging of incidents (injury, illness, behavior), supports pattern detection, parent notification, digital signatures, and photo evidence.
 - **Daily Checklist:** Manages morning safety and daily operations checklists, tracks completion, and provides an automated audit trail.
