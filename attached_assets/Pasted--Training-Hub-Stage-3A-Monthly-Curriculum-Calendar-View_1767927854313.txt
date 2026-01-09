@@ -1,0 +1,751 @@
+# Training Hub - Stage 3A: Monthly Curriculum Calendar View
+
+## Context
+Stage 2 completed successfully - we have navigation and tab structure working.
+Now we're building the Monthly Curriculum tab: a 12-month calendar grid showing all training modules with status badges and progress indicators.
+
+## Critical Requirements
+- ⚠️ DO NOT modify the Required Certifications tab yet (that's Stage 4)
+- ⚠️ DO NOT break tab switching functionality
+- ✅ Replace empty state in curriculum tab with 12-month calendar grid
+- ✅ Show module cards with status badges (ACTIVE, PREVIEW, AVAILABLE)
+- ✅ Display progress percentage on each card
+- ✅ Add click handlers (will go to detail page in Stage 3B)
+- ✅ Show overall progress summary at bottom
+
+## Current State
+- Navigation works
+- Tabs switch between curriculum and certifications
+- Curriculum tab shows empty state placeholder
+- Database has 12 training_modules seeded (from Stage 1)
+
+## Goals for Stage 3A
+1. Fetch 12 monthly modules from database
+2. Display as responsive grid of cards
+3. Show status badges based on current month
+4. Display progress indicators (0% for now, will be real in later stages)
+5. Add "Continue Training" / "Preview Module" / "Review Content" buttons
+6. Show training progress overview at bottom
+7. Handle clicks (console log for now, actual navigation in Stage 3B)
+
+## Tasks
+
+### 1. Create API Endpoint for Training Modules
+
+**In your routes file (e.g., routes/dashboard.js or wherever training routes will go), add:**
+```javascript
+// ============================================
+// TRAINING HUB - MONTHLY CURRICULUM ENDPOINTS
+// ============================================
+
+// GET /api/facilities/:id/training/modules
+router.get('/:id/training/modules', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        
+        // Fetch all 12 modules for 2026
+        const modulesResult = await pool.query(`
+            SELECT * FROM training_modules
+            WHERE year = 2026
+            ORDER BY month ASC
+        `);
+        
+        // For each module, get facility's progress (if any)
+        const modules = [];
+        
+        for (const module of modulesResult.rows) {
+            // Check if facility has progress for this module
+            const progressResult = await pool.query(`
+                SELECT overall_percentage, started_at, completed_at
+                FROM training_module_progress
+                WHERE facility_id = $1 AND module_id = $2
+            `, [facilityId, module.id]);
+            
+            const progress = progressResult.rows[0] || {
+                overall_percentage: 0,
+                started_at: null,
+                completed_at: null
+            };
+            
+            // Determine status based on current month
+            const currentMonth = new Date().getMonth() + 1; // 1-12
+            const currentYear = new Date().getFullYear();
+            
+            let status = 'available';
+            if (module.year === currentYear) {
+                if (module.month === currentMonth) {
+                    status = 'active';
+                } else if (module.month === currentMonth + 1) {
+                    status = 'preview';
+                }
+            }
+            
+            modules.push({
+                id: module.id,
+                month: module.month,
+                year: module.year,
+                title: module.title,
+                theme: module.theme,
+                description: module.description,
+                status: status,
+                progress: progress.overall_percentage,
+                started_at: progress.started_at,
+                completed_at: progress.completed_at,
+                estimated_duration_minutes: module.estimated_duration_minutes
+            });
+        }
+        
+        res.json(modules);
+        
+    } catch (error) {
+        console.error('Error fetching training modules:', error);
+        res.status(500).json({ error: 'Failed to fetch training modules' });
+    }
+});
+
+// GET /api/facilities/:id/training/progress-summary
+router.get('/:id/training/progress-summary', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        
+        // Get current month's progress
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        
+        const currentModuleResult = await pool.query(`
+            SELECT tm.id, tm.title, tmp.overall_percentage
+            FROM training_modules tm
+            LEFT JOIN training_module_progress tmp ON tm.id = tmp.module_id AND tmp.facility_id = $1
+            WHERE tm.month = $2 AND tm.year = $3
+        `, [facilityId, currentMonth, currentYear]);
+        
+        const currentModule = currentModuleResult.rows[0] || null;
+        
+        // Count modules started and completed
+        const statsResult = await pool.query(`
+            SELECT 
+                COUNT(*) FILTER (WHERE started_at IS NOT NULL) as modules_started,
+                COUNT(*) FILTER (WHERE completed_at IS NOT NULL) as modules_completed,
+                COALESCE(AVG(overall_percentage), 0) as avg_progress
+            FROM training_module_progress
+            WHERE facility_id = $1
+        `, [facilityId]);
+        
+        const stats = statsResult.rows[0];
+        
+        res.json({
+            current_month: currentModule ? {
+                title: currentModule.title,
+                progress: currentModule.overall_percentage || 0
+            } : null,
+            modules_started: parseInt(stats.modules_started) || 0,
+            modules_completed: parseInt(stats.modules_completed) || 0,
+            annual_progress: Math.round(parseFloat(stats.avg_progress)) || 0
+        });
+        
+    } catch (error) {
+        console.error('Error fetching progress summary:', error);
+        res.status(500).json({ error: 'Failed to fetch progress summary' });
+    }
+});
+```
+
+### 2. Replace Empty State with Calendar Grid HTML
+
+**In index.html, replace the curriculum tab content empty state with this:**
+```html
+<!-- TAB 1: Monthly Curriculum -->
+<div id="curriculum-tab-content" class="training-tab-content active">
+    
+    <!-- Current Month Highlight -->
+    <div id="current-month-highlight" class="current-month-highlight" style="display: none;">
+        <!-- Will be populated by JavaScript -->
+    </div>
+    
+    <!-- 12-Month Calendar Grid -->
+    <div class="training-calendar-grid" id="training-calendar-grid">
+        <div class="calendar-loading">
+            <div class="loading-spinner"></div>
+            <div>Loading training modules...</div>
+        </div>
+    </div>
+    
+    <!-- Training Progress Overview -->
+    <div class="training-progress-overview" id="training-progress-overview" style="display: none;">
+        <h3 class="overview-title">Training Progress Overview</h3>
+        <div class="overview-stats">
+            <div class="overview-stat">
+                <div class="stat-value" id="current-month-progress">0%</div>
+                <div class="stat-label">Current Month</div>
+            </div>
+            <div class="overview-stat">
+                <div class="stat-value" id="modules-started">0</div>
+                <div class="stat-label">Modules Started</div>
+            </div>
+            <div class="overview-stat">
+                <div class="stat-value" id="modules-completed">0</div>
+                <div class="stat-label">Modules Completed</div>
+            </div>
+            <div class="overview-stat">
+                <div class="stat-value" id="annual-progress">0%</div>
+                <div class="stat-label">Annual Progress</div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+```
+
+### 3. Add Calendar Grid CSS
+
+**In styles.css, add these styles for the calendar view:**
+```css
+/* ============================================ */
+/* MONTHLY CURRICULUM - CALENDAR VIEW */
+/* ============================================ */
+
+/* Current Month Highlight */
+.current-month-highlight {
+    background: linear-gradient(135deg, #2c5f7c 0%, #3d7a9a 100%);
+    color: white;
+    padding: 24px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.highlight-content h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.highlight-content p {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 16px;
+}
+
+.highlight-progress {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.highlight-progress-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.highlight-progress-text {
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+/* Calendar Grid */
+.training-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.calendar-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+/* Module Card */
+.module-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid rgba(44, 95, 124, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.module-card:hover {
+    border-color: var(--shield-navy);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(44, 95, 124, 0.15);
+}
+
+.module-card.active {
+    border-color: var(--shield-lime);
+    background: linear-gradient(135deg, rgba(180, 211, 51, 0.05) 0%, white 100%);
+}
+
+.module-card.preview {
+    border-color: #667ee6;
+    border-style: dashed;
+}
+
+/* Status Badge */
+.module-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.module-status-badge.active {
+    background: var(--shield-lime);
+    color: var(--text-primary);
+}
+
+.module-status-badge.preview {
+    background: #667ee6;
+    color: white;
+}
+
+.module-status-badge.available {
+    background: rgba(44, 95, 124, 0.1);
+    color: var(--shield-navy);
+}
+
+.module-status-badge .badge-icon {
+    font-size: 1rem;
+}
+
+/* Module Header */
+.module-card-header {
+    margin-bottom: 12px;
+}
+
+.module-month {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.module-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.module-theme {
+    font-size: 0.8125rem;
+    color: var(--shield-navy);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.module-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+}
+
+/* Progress Bar */
+.module-progress {
+    margin-bottom: 16px;
+}
+
+.module-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.module-progress-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.module-progress-percentage {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--shield-navy);
+}
+
+.module-progress-bar {
+    height: 8px;
+    background: rgba(44, 95, 124, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.module-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--shield-navy), var(--shield-lime));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+/* Module Action Button */
+.module-action {
+    width: 100%;
+}
+
+.module-action button {
+    width: 100%;
+    padding: 10px 16px;
+    background: var(--shield-navy);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.module-action button:hover {
+    background: #3d7a9a;
+    transform: scale(1.02);
+}
+
+.module-card.active .module-action button {
+    background: var(--shield-lime);
+    color: var(--text-primary);
+}
+
+.module-card.active .module-action button:hover {
+    background: #c5e347;
+}
+
+.module-card.preview .module-action button {
+    background: transparent;
+    color: var(--shield-navy);
+    border: 2px solid var(--shield-navy);
+}
+
+.module-card.preview .module-action button:hover {
+    background: var(--shield-navy);
+    color: white;
+}
+
+/* Training Progress Overview */
+.training-progress-overview {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 12px rgba(44, 95, 124, 0.08);
+}
+
+.overview-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 24px;
+}
+
+.overview-stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--shield-navy);
+    margin-bottom: 8px;
+    font-family: 'Space Grotesk', monospace;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .training-calendar-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .current-month-highlight {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+    
+    .overview-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+```
+
+### 4. Add JavaScript to Load and Display Modules
+
+**In app.js, update the loadTrainingHub function:**
+```javascript
+// ============================================
+// TRAINING HUB - MONTHLY CURRICULUM FUNCTIONS
+// ============================================
+
+/**
+ * Load monthly curriculum calendar
+ */
+async function loadMonthlyCurriculum() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        console.log('📚 Loading monthly curriculum...');
+        
+        // Fetch training modules
+        const modules = await apiRequest(`/api/facilities/${facilityId}/training/modules`);
+        
+        // Fetch progress summary
+        const summary = await apiRequest(`/api/facilities/${facilityId}/training/progress-summary`);
+        
+        // Display current month highlight
+        displayCurrentMonthHighlight(modules, summary);
+        
+        // Display calendar grid
+        displayTrainingCalendar(modules);
+        
+        // Display progress overview
+        displayProgressOverview(summary);
+        
+        console.log('✅ Monthly curriculum loaded');
+        
+    } catch (error) {
+        console.error('❌ Error loading monthly curriculum:', error);
+        document.getElementById('training-calendar-grid').innerHTML = `
+            <div class="calendar-loading">
+                <div style="color: var(--color-critical);">Failed to load training modules</div>
+                <button class="btn-secondary" onclick="loadMonthlyCurriculum()">Retry</button>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Display current month highlight
+ */
+function displayCurrentMonthHighlight(modules, summary) {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentModule = modules.find(m => m.month === currentMonth && m.status === 'active');
+    
+    const highlightContainer = document.getElementById('current-month-highlight');
+    
+    if (currentModule) {
+        highlightContainer.style.display = 'flex';
+        highlightContainer.innerHTML = `
+            <div class="highlight-content">
+                <h2>${getMonthName(currentModule.month)} ${currentModule.year}: ${currentModule.title}</h2>
+                <p>${currentModule.description}</p>
+                <div class="highlight-progress-text">
+                    ${currentModule.progress === 100 ? '✓ Complete!' : 'Ready to begin your safety journey!'}
+                </div>
+            </div>
+            <div class="highlight-progress">
+                <div class="highlight-progress-circle">
+                    ${currentModule.progress}%
+                </div>
+                <button class="btn-primary" onclick="openModule('${currentModule.id}')" style="background: white; color: var(--shield-navy);">
+                    ${currentModule.progress > 0 ? 'Continue Training' : 'Start Training'}
+                </button>
+            </div>
+        `;
+    } else {
+        highlightContainer.style.display = 'none';
+    }
+}
+
+/**
+ * Display training calendar grid
+ */
+function displayTrainingCalendar(modules) {
+    const gridContainer = document.getElementById('training-calendar-grid');
+    
+    if (!modules || modules.length === 0) {
+        gridContainer.innerHTML = `
+            <div class="calendar-loading">
+                <div>No training modules found</div>
+            </div>
+        `;
+        return;
+    }
+    
+    gridContainer.innerHTML = modules.map(module => createModuleCard(module)).join('');
+}
+
+/**
+ * Create individual module card HTML
+ */
+function createModuleCard(module) {
+    const monthName = getMonthName(module.month).toUpperCase();
+    const statusConfig = getStatusConfig(module.status);
+    const buttonText = getButtonText(module.status, module.progress);
+    
+    return `
+        <div class="module-card ${module.status}" onclick="openModule('${module.id}')">
+            <div class="module-status-badge ${module.status}">
+                <span class="badge-icon">${statusConfig.icon}</span>
+                <span>${statusConfig.label}</span>
+            </div>
+            
+            <div class="module-card-header">
+                <div class="module-month">${monthName}</div>
+                <div class="module-title">${module.title}</div>
+                <div class="module-theme">${module.theme}</div>
+                <div class="module-description">${module.description}</div>
+            </div>
+            
+            <div class="module-progress">
+                <div class="module-progress-header">
+                    <span class="module-progress-label">Progress</span>
+                    <span class="module-progress-percentage">${module.progress}%</span>
+                </div>
+                <div class="module-progress-bar">
+                    <div class="module-progress-fill" style="width: ${module.progress}%"></div>
+                </div>
+            </div>
+            
+            <div class="module-action">
+                <button onclick="event.stopPropagation(); openModule('${module.id}')">
+                    ${buttonText}
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Display progress overview
+ */
+function displayProgressOverview(summary) {
+    const overviewContainer = document.getElementById('training-progress-overview');
+    overviewContainer.style.display = 'block';
+    
+    document.getElementById('current-month-progress').textContent = 
+        summary.current_month ? `${summary.current_month.progress}%` : '0%';
+    document.getElementById('modules-started').textContent = summary.modules_started;
+    document.getElementById('modules-completed').textContent = summary.modules_completed;
+    document.getElementById('annual-progress').textContent = `${summary.annual_progress}%`;
+}
+
+/**
+ * Get month name from number
+ */
+function getMonthName(monthNumber) {
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[monthNumber - 1] || '';
+}
+
+/**
+ * Get status badge configuration
+ */
+function getStatusConfig(status) {
+    const configs = {
+        active: { icon: '⭐', label: 'ACTIVE' },
+        preview: { icon: '👁️', label: 'PREVIEW AVAILABLE' },
+        available: { icon: '✓', label: 'AVAILABLE' }
+    };
+    return configs[status] || configs.available;
+}
+
+/**
+ * Get button text based on status
+ */
+function getButtonText(status, progress) {
+    if (progress === 100) return 'Review Content';
+    if (status === 'active') return progress > 0 ? 'Continue Training' : 'Start Training';
+    if (status === 'preview') return 'Preview Module';
+    return 'Review Content';
+}
+
+/**
+ * Open training module (placeholder for Stage 3B)
+ */
+function openModule(moduleId) {
+    console.log('📖 Opening module:', moduleId);
+    // Stage 3B will implement actual module detail page
+    showSuccess('Module detail page coming in Stage 3B!');
+}
+
+/**
+ * Update loadTrainingHub to call curriculum loader
+ */
+async function loadTrainingHub() {
+    try {
+        console.log('📚 Loading Training Hub...');
+        
+        // Ensure curriculum tab is active
+        switchTrainingTab('curriculum');
+        
+        // Load monthly curriculum calendar
+        await loadMonthlyCurriculum();
+        
+        console.log('✅ Training Hub loaded');
+        
+    } catch (error) {
+        console.error('❌ Error loading Training Hub:', error);
+        showError('Failed to load Training Hub');
+    }
+}
+```
+
+## Expected Outcome After Stage 3A
+- ✅ Click Training Hub in navigation
+- ✅ Current month module highlighted at top (if January 2026)
+- ✅ 12 module cards display in grid
+- ✅ Status badges show (ACTIVE, PREVIEW, AVAILABLE)
+- ✅ Progress bars display (0% for now)
+- ✅ Buttons show appropriate text based on status
+- ✅ Progress overview displays at bottom (all 0s for now)
+- ✅ Clicking module logs to console (actual navigation in Stage 3B)
+- ✅ Responsive design works on mobile
+- ✅ No breaking changes to other screens
+
+## Testing Checklist Stage 3A
+- [ ] Training Hub loads without errors
+- [ ] Current month highlighted (if January)
+- [ ] 12 module cards display in grid
+- [ ] January shows "ACTIVE" badge with ⭐
+- [ ] February shows "PREVIEW AVAILABLE" badge with 👁️
+- [ ] March-December show "AVAILABLE" badge with ✓
+- [ ] All progress bars show 0%
+- [ ] Clicking module logs moduleId to console
+- [ ] Bottom shows: 0% current, 0 started, 0 completed, 0% annual
+- [ ] Cards are responsive (stack on mobile)
+- [ ] Hover effects work (card lifts, border changes)
+- [ ] No console errors
+- [ ] Required Certifications tab still shows empty state
+
+## Next Stage Preview
+Stage 3B will create the module detail page structure with component tabs
+Stage 3C will add first 3 components (Champion, Communication, Acknowledgment)
+Stage 3D will add last 2 components (Audit, SafeGrowth)
+
+Implement Stage 3A - Monthly Curriculum Calendar!

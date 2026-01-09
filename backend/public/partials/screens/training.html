@@ -28,38 +28,43 @@
     
     <!-- TAB 1: Monthly Curriculum -->
     <div id="curriculum-tab-content" class="training-tab-content active">
-        <div class="curriculum-loading" style="display: none;">
-            <div class="empty-state">
-                <div class="empty-state-icon">⏳</div>
-                <div class="empty-state-title">Loading...</div>
+        
+        <!-- Current Month Highlight -->
+        <div id="current-month-highlight" class="current-month-highlight" style="display: none;">
+        </div>
+        
+        <!-- 12-Month Calendar Grid -->
+        <h3 class="calendar-section-title">2026 Training Calendar</h3>
+        <div class="training-calendar-grid" id="training-calendar-grid">
+            <div class="calendar-loading">
+                <div class="loading-spinner"></div>
+                <div>Loading training modules...</div>
             </div>
         </div>
         
-        <!-- Current Month Highlight Card -->
-        <div id="current-month-card" class="card" style="background: linear-gradient(135deg, rgba(44, 95, 124, 0.1), rgba(180, 211, 51, 0.1)); margin-bottom: 24px; border: 2px solid rgba(44, 95, 124, 0.15);">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                <span style="font-size: 2rem;">📅</span>
-                <div>
-                    <h3 id="current-month-title" style="font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--shield-navy);">January 2026</h3>
-                    <p id="current-month-module" style="font-size: 14px; color: var(--text-secondary); margin: 0;">New Year Safety Goals & Facility Assessment</p>
+        <!-- Training Progress Overview -->
+        <div class="training-progress-overview" id="training-progress-overview" style="display: none;">
+            <h3 class="overview-title">Training Progress Overview</h3>
+            <div class="overview-stats">
+                <div class="overview-stat">
+                    <div class="stat-value" id="current-month-progress-stat">0%</div>
+                    <div class="stat-label">Current Month</div>
+                </div>
+                <div class="overview-stat">
+                    <div class="stat-value" id="modules-started">0</div>
+                    <div class="stat-label">Modules Started</div>
+                </div>
+                <div class="overview-stat">
+                    <div class="stat-value" id="modules-completed">0</div>
+                    <div class="stat-label">Modules Completed</div>
+                </div>
+                <div class="overview-stat">
+                    <div class="stat-value" id="annual-progress">0%</div>
+                    <div class="stat-label">Annual Progress</div>
                 </div>
             </div>
-            <div style="display: flex; gap: 16px; align-items: center;">
-                <div style="flex: 1;">
-                    <div class="progress-bar" style="height: 10px; background: rgba(44, 95, 124, 0.15); border-radius: 5px;">
-                        <div id="current-month-progress" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--shield-navy), var(--shield-lime)); border-radius: 5px; transition: width 0.5s ease;"></div>
-                    </div>
-                </div>
-                <div id="current-month-percent" style="font-size: 24px; font-weight: 700; color: var(--shield-navy);">0%</div>
-            </div>
-            <p id="current-month-status" style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">Start your first training module</p>
         </div>
         
-        <!-- 12-Month Training Grid -->
-        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">📆 2026 Training Calendar</h3>
-        <div id="training-modules-grid" class="training-grid">
-            <!-- Modules will be loaded dynamically -->
-        </div>
     </div>
 
     <!-- TAB 2: Required Certifications -->

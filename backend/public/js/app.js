@@ -6147,64 +6147,173 @@ async function loadTrainingHub() {
 
 async function loadTrainingCurriculum() {
     try {
-        const grid = document.getElementById('training-modules-grid');
+        const grid = document.getElementById('training-calendar-grid');
         if (!grid) return;
+        
+        console.log('📚 Loading monthly curriculum...');
         
         const response = await apiRequest(`/facilities/${AppState.facility.id}/training/modules-new`);
         const modules = response.modules || response.data || [];
         
-        const currentMonth = new Date().getMonth() + 1;
-        const currentYear = new Date().getFullYear();
+        let summary = null;
+        try {
+            const summaryResp = await apiRequest(`/facilities/${AppState.facility.id}/training/progress-summary`);
+            summary = summaryResp;
+        } catch (e) {
+            console.log('Progress summary not available');
+        }
         
         if (modules.length === 0) {
             grid.innerHTML = `
-                <div class="empty-state" style="grid-column: 1 / -1;">
-                    <div class="empty-state-icon">📅</div>
-                    <div class="empty-state-title">No Training Modules</div>
-                    <div class="empty-state-message">Training modules will appear here</div>
+                <div class="calendar-loading">
+                    <div>No training modules found</div>
                 </div>
             `;
             return;
         }
         
-        const currentModule = modules.find(m => m.month === currentMonth && m.year === currentYear) || modules[0];
+        displayCurrentMonthHighlight(modules, summary);
+        displayTrainingCalendar(modules, grid);
+        displayProgressOverview(summary);
         
-        if (currentModule) {
-            const monthTitle = document.getElementById('current-month-title');
-            const moduleTitle = document.getElementById('current-month-module');
-            if (monthTitle) monthTitle.textContent = `${getMonthName(currentModule.month)} ${currentModule.year}`;
-            if (moduleTitle) moduleTitle.textContent = currentModule.title;
-        }
-        
-        grid.innerHTML = modules.map(module => {
-            const isPast = module.year < currentYear || (module.year === currentYear && module.month < currentMonth);
-            const isCurrent = module.month === currentMonth && module.year === currentYear;
-            const statusClass = isPast ? 'complete' : (isCurrent ? 'current' : 'upcoming');
-            const statusText = isPast ? '✓ Complete' : (isCurrent ? '● In Progress' : 'Coming Soon');
-            
-            return `
-                <div class="training-card ${statusClass}" onclick="openTrainingModule('${module.id}')">
-                    <div class="training-month">${getMonthName(module.month)}</div>
-                    <div class="training-title">${module.title}</div>
-                    <div class="training-theme">${module.theme || ''}</div>
-                    <div class="training-completion">${statusText}</div>
-                </div>
-            `;
-        }).join('');
+        console.log('✅ Monthly curriculum loaded');
         
     } catch (error) {
         console.error('Failed to load training curriculum:', error);
-        const grid = document.getElementById('training-modules-grid');
+        const grid = document.getElementById('training-calendar-grid');
         if (grid) {
             grid.innerHTML = `
-                <div class="empty-state" style="grid-column: 1 / -1;">
-                    <div class="empty-state-icon">⚠️</div>
-                    <div class="empty-state-title">Unable to Load</div>
-                    <div class="empty-state-message">Please try refreshing the page</div>
+                <div class="calendar-loading">
+                    <div style="color: var(--status-critical);">Failed to load training modules</div>
+                    <button class="btn-secondary" onclick="loadTrainingCurriculum()" style="margin-top: 16px; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Retry</button>
                 </div>
             `;
         }
     }
+}
+
+function displayCurrentMonthHighlight(modules, summary) {
+    const currentMonth = new Date().getMonth() + 1;
+    const currentModule = modules.find(m => m.month === currentMonth && m.status === 'active');
+    
+    const highlightContainer = document.getElementById('current-month-highlight');
+    if (!highlightContainer) return;
+    
+    if (currentModule) {
+        const prog = parseInt(currentModule.progress) || 0;
+        highlightContainer.style.display = 'flex';
+        highlightContainer.innerHTML = `
+            <div class="highlight-content">
+                <h2>${getMonthName(currentModule.month)} ${currentModule.year}: ${currentModule.title}</h2>
+                <p>${currentModule.description || ''}</p>
+                <div class="highlight-progress-text">
+                    ${prog === 100 ? '✓ Complete!' : 'Ready to begin your safety journey!'}
+                </div>
+            </div>
+            <div class="highlight-progress">
+                <div class="highlight-progress-circle">
+                    ${currentModule.progress}%
+                </div>
+                <button class="btn-primary" onclick="openTrainingModule('${currentModule.id}')" style="background: white; color: var(--shield-navy); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none;">
+                    ${currentModule.progress > 0 ? 'Continue Training' : 'Start Training'}
+                </button>
+            </div>
+        `;
+    } else {
+        highlightContainer.style.display = 'none';
+    }
+}
+
+function displayTrainingCalendar(modules, gridContainer) {
+    if (!modules || modules.length === 0) {
+        gridContainer.innerHTML = `
+            <div class="calendar-loading">
+                <div>No training modules found</div>
+            </div>
+        `;
+        return;
+    }
+    
+    gridContainer.innerHTML = modules.map(module => createModuleCard(module)).join('');
+}
+
+function createModuleCard(module) {
+    const monthName = getMonthName(module.month).toUpperCase();
+    const statusConfig = getStatusConfig(module.status);
+    const buttonText = getButtonText(module.status, module.progress);
+    
+    return `
+        <div class="module-card ${module.status}" onclick="openTrainingModule('${module.id}')">
+            <div class="module-status-badge ${module.status}">
+                <span class="badge-icon">${statusConfig.icon}</span>
+                <span>${statusConfig.label}</span>
+            </div>
+            
+            <div class="module-card-header">
+                <div class="module-month">${monthName}</div>
+                <div class="module-title">${module.title}</div>
+                <div class="module-theme">${module.theme || ''}</div>
+                <div class="module-description">${module.description || ''}</div>
+            </div>
+            
+            <div class="module-progress">
+                <div class="module-progress-header">
+                    <span class="module-progress-label">Progress</span>
+                    <span class="module-progress-percentage">${module.progress}%</span>
+                </div>
+                <div class="module-progress-bar">
+                    <div class="module-progress-fill" style="width: ${module.progress}%"></div>
+                </div>
+            </div>
+            
+            <div class="module-action">
+                <button onclick="event.stopPropagation(); openTrainingModule('${module.id}')">
+                    ${buttonText}
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function displayProgressOverview(summary) {
+    const overviewContainer = document.getElementById('training-progress-overview');
+    if (!overviewContainer) return;
+    
+    overviewContainer.style.display = 'block';
+    
+    if (summary) {
+        const currentProgress = document.getElementById('current-month-progress-stat');
+        const started = document.getElementById('modules-started');
+        const completed = document.getElementById('modules-completed');
+        const annual = document.getElementById('annual-progress');
+        
+        if (currentProgress) currentProgress.textContent = summary.current_month ? `${summary.current_month.progress}%` : '0%';
+        if (started) started.textContent = summary.modules_started || 0;
+        if (completed) completed.textContent = summary.modules_completed || 0;
+        if (annual) annual.textContent = `${summary.annual_progress || 0}%`;
+    }
+}
+
+function getStatusConfig(status) {
+    const configs = {
+        active: { icon: '⭐', label: 'ACTIVE' },
+        preview: { icon: '👁️', label: 'PREVIEW' },
+        available: { icon: '✓', label: 'AVAILABLE' }
+    };
+    return configs[status] || configs.available;
+}
+
+function getButtonText(status, progress) {
+    const prog = parseInt(progress) || 0;
+    if (prog === 100) return 'Review Content';
+    if (status === 'active') return prog > 0 ? 'Continue Training' : 'Start Training';
+    if (status === 'preview') return 'Preview Module';
+    return 'View Module';
+}
+
+function openTrainingModule(moduleId) {
+    console.log('📖 Opening module:', moduleId);
+    showSuccess('Module detail page coming in Stage 3B!');
 }
 
 async function loadTrainingCertifications() {
