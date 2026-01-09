@@ -1,0 +1,441 @@
+# Training Hub - Bug Fix: Night Mode Contrast & Remove Duplicate Acknowledgment Tab
+
+## Context
+Stage 3D completed but two issues found:
+1. Text in light-colored content boxes is too light in night mode (unreadable)
+2. Staff Acknowledgment is tracked twice - once in Team Communication (correct) and once as separate tab (unnecessary duplicate)
+
+## Critical Requirements
+- ⚠️ DO NOT break existing functionality
+- ✅ Fix text contrast for dark mode readability
+- ✅ Remove Staff Acknowledgment as separate tab/component
+- ✅ Keep acknowledgment tracking ONLY in Team Communication tab
+- ✅ Adjust component weights (remove 25% acknowledgment weight, redistribute)
+
+## Goals
+1. Improve text readability in dark mode
+2. Remove duplicate acknowledgment tracking
+3. Update weighted progress calculation (4 components instead of 5)
+4. Update tab navigation (4 tabs instead of 5)
+
+## Tasks
+
+### 1. Fix Text Contrast for Dark Mode
+
+**In styles.css, update these styles for better contrast:**
+```css
+/* Fix Champion Section Contrast */
+.champion-section {
+    padding: 24px;
+    background: var(--background-primary);
+    border-radius: 12px;
+    border-left: 4px solid var(--shield-navy);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--shield-navy);
+    margin-bottom: 16px;
+}
+
+.section-content {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-primary); /* This should be dark in light mode, light in dark mode */
+}
+
+/* Add dark mode specific overrides */
+@media (prefers-color-scheme: dark) {
+    .champion-section {
+        background: rgba(44, 95, 124, 0.1);
+        border-left-color: var(--shield-lime);
+    }
+    
+    .section-title {
+        color: var(--shield-lime);
+    }
+    
+    .section-content {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .message-box {
+        background: rgba(44, 95, 124, 0.1);
+        border-color: rgba(180, 211, 51, 0.3);
+    }
+    
+    .message-content {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .caption-text {
+        background: rgba(44, 95, 124, 0.15);
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .visual-idea p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .customization-tips {
+        background: rgba(180, 211, 51, 0.15);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .response-item {
+        background: rgba(44, 95, 124, 0.1);
+    }
+    
+    .question-response {
+        background: rgba(44, 95, 124, 0.1);
+    }
+    
+    .other-text {
+        background: rgba(44, 95, 124, 0.15);
+    }
+}
+```
+
+### 2. Remove Staff Acknowledgment Tab
+
+**In app.js, update renderComponentTabs function:**
+```javascript
+/**
+ * Render component tabs (4 tabs, not 5)
+ */
+function renderComponentTabs() {
+    const components = [
+        { id: 'champion', icon: '📖', label: 'Shield Champion Training', weight: 25 },
+        { id: 'communication', icon: '💬', label: 'Team Communication', weight: 30 }, // Increased from 20%
+        { id: 'audit', icon: '📋', label: 'Monthly Audit', weight: 25 }, // Increased from 15%
+        { id: 'social', icon: '📱', label: 'SafeGrowth Accelerator', weight: 20 } // Increased from 15%
+        // Removed: acknowledgment tab (now integrated in communication)
+    ];
+    
+    const tabsContainer = document.getElementById('component-tabs');
+    
+    tabsContainer.innerHTML = components.map(comp => `
+        <button class="component-tab" id="tab-${comp.id}" onclick="switchComponent('${comp.id}')">
+            <span class="component-tab-icon">${comp.icon}</span>
+            <div>
+                <div class="component-tab-label">${comp.label}</div>
+                <div class="component-tab-weight">${comp.weight}% weight</div>
+            </div>
+        </button>
+    `).join('');
+}
+```
+
+**Update loadComponentContent function to remove acknowledgment case:**
+```javascript
+/**
+ * Load component content (4 components only)
+ */
+async function loadComponentContent(componentId) {
+    const content = document.getElementById('component-content');
+    const facilityId = localStorage.getItem('facilityId');
+    
+    try {
+        // Fetch component progress
+        const progress = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/component-progress`);
+        
+        switch(componentId) {
+            case 'champion':
+                await loadChampionContent(progress);
+                break;
+            case 'communication':
+                await loadCommunicationContent(progress);
+                break;
+            case 'audit':
+                await loadAuditContent(progress);
+                break;
+            case 'social':
+                await loadSocialContent(progress);
+                break;
+            // REMOVED: acknowledgment case
+        }
+        
+    } catch (error) {
+        console.error('Error loading component content:', error);
+        content.innerHTML = `
+            <div class="component-placeholder">
+                <div style="color: var(--color-critical);">Failed to load component</div>
+                <button class="btn-secondary" onclick="loadComponentContent('${componentId}')">Retry</button>
+            </div>
+        `;
+    }
+}
+```
+
+### 3. Integrate Acknowledgment INTO Communication Tab
+
+**Update loadCommunicationContent to include acknowledgment tracking:**
+```javascript
+/**
+ * Load Team Communication content (with integrated acknowledgment tracking)
+ */
+async function loadCommunicationContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = localStorage.getItem('facilityId');
+    
+    // Fetch message
+    const messageResponse = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/team-message`);
+    const message = messageResponse || {};
+    
+    // Fetch staff responses
+    const responses = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/staff-responses`);
+    
+    // Fetch acknowledgments
+    const acknowledgments = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/acknowledgments`);
+    
+    const isComplete = progress.components.find(c => c.component_type === 'communication')?.completed || false;
+    const responsePercentage = progress.staff_responses.percentage;
+    const ackPercentage = progress.staff_acknowledgments.percentage;
+    
+    // Component completes when EITHER responses OR acknowledgments reach 80%
+    const overallPercentage = Math.max(responsePercentage, ackPercentage);
+    
+    content.innerHTML = `
+        <div class="communication-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700;">💬 Team Communication & Engagement</h2>
+                ${isComplete ? `
+                    <span style="background: var(--shield-lime); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;">
+                        ✓ Complete
+                    </span>
+                ` : ''}
+            </div>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Copy this message and send it to your team via your preferred platform. Then track engagement through either response logging OR acknowledgment tracking.
+            </p>
+            
+            <div class="message-box">
+                <div class="message-header">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 4px;">${message.message_title || 'Team Message'}</h3>
+                </div>
+                <div class="message-content" id="team-message-content">
+                    ${message.message_content ? message.message_content.replace(/\n\n/g, '</p><p>').replace(/^(.*)$/, '<p>$1</p>') : '<p>Message content will be available soon.</p>'}
+                </div>
+                <div class="message-actions">
+                    <button class="btn-primary" onclick="copyTeamMessage()">
+                        📋 Copy Message
+                    </button>
+                </div>
+                ${message.customization_tips ? `
+                    <div class="customization-tips">
+                        <strong>💡 Customization Tips:</strong> ${message.customization_tips}
+                    </div>
+                ` : ''}
+            </div>
+            
+            <!-- Response Tracking Section -->
+            <div class="response-tracking" style="margin-bottom: 24px;">
+                <div class="tracking-header">
+                    <h3 style="font-size: 1.125rem; font-weight: 600;">📊 Response Tracking (Optional)</h3>
+                    <button class="btn-secondary" onclick="openLogResponseModal()">
+                        + Log Staff Response
+                    </button>
+                </div>
+                
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 12px;">
+                    Track emoji responses from team communication platforms (GroupMe, Slack, etc.)
+                </p>
+                
+                <div class="response-progress">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">Responses: ${progress.staff_responses.completed}/${progress.staff_responses.total} staff (${responsePercentage}%)</span>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);">Target: 80% for completion</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${responsePercentage}%; background: ${responsePercentage >= 80 ? 'var(--shield-lime)' : 'var(--shield-navy)'}"></div>
+                    </div>
+                </div>
+                
+                <div class="response-list" style="max-height: 200px; overflow-y: auto;">
+                    ${responses && responses.length > 0 ? responses.slice(0, 5).map(r => `
+                        <div class="response-item">
+                            <span class="response-emoji">${r.emoji_used || '👍'}</span>
+                            <div class="response-info">
+                                <div class="response-name">${r.staff_name}</div>
+                                <div class="response-time">${formatDate(r.responded_at)}</div>
+                            </div>
+                        </div>
+                    `).join('') : `
+                        <div style="text-align: center; padding: 16px; color: var(--text-secondary); font-size: 0.875rem;">
+                            No responses logged yet
+                        </div>
+                    `}
+                </div>
+            </div>
+            
+            <!-- Acknowledgment Tracking Section -->
+            <div class="response-tracking">
+                <div class="tracking-header">
+                    <h3 style="font-size: 1.125rem; font-weight: 600;">✓ Staff Acknowledgment (Alternative)</h3>
+                    <button class="btn-secondary" onclick="openLogAcknowledgmentModal()">
+                        + Log Acknowledgment
+                    </button>
+                </div>
+                
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 12px;">
+                    Or manually track which staff confirmed they reviewed this month's training
+                </p>
+                
+                <div class="response-progress">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">Acknowledged: ${progress.staff_acknowledgments.completed}/${progress.staff_acknowledgments.total} staff (${ackPercentage}%)</span>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);">Target: 80% for completion</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${ackPercentage}%; background: ${ackPercentage >= 80 ? 'var(--shield-lime)' : 'var(--shield-navy)'}"></div>
+                    </div>
+                </div>
+                
+                <div class="response-list" style="max-height: 200px; overflow-y: auto;">
+                    ${acknowledgments && acknowledgments.length > 0 ? acknowledgments.slice(0, 5).map(a => `
+                        <div class="response-item">
+                            <span class="response-emoji">✓</span>
+                            <div class="response-info">
+                                <div class="response-name">${a.staff_name}</div>
+                                <div class="response-time">${formatDate(a.acknowledged_at)}</div>
+                            </div>
+                        </div>
+                    `).join('') : `
+                        <div style="text-align: center; padding: 16px; color: var(--text-secondary); font-size: 0.875rem;">
+                            No acknowledgments logged yet
+                        </div>
+                    `}
+                </div>
+            </div>
+            
+            ${overallPercentage < 80 ? `
+                <div style="margin-top: 24px; padding: 16px; background: rgba(180, 211, 51, 0.1); border-radius: 8px; font-size: 0.875rem;">
+                    <strong>💡 Tip:</strong> This component auto-completes when 80% of staff either respond OR acknowledge. You don't need to do both!
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+```
+
+### 4. Update Component Weight Calculation
+
+**Update recalculateModuleProgress helper function:**
+```javascript
+async function recalculateModuleProgress(facilityId, moduleId) {
+    try {
+        // Get all component progress
+        const components = await pool.query(`
+            SELECT component_type, completion_percentage
+            FROM training_component_progress
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        // Updated component weights (4 components, acknowledgment removed as separate component)
+        const weights = {
+            champion: 25,
+            communication: 30,  // Increased from 20%
+            audit: 25,          // Increased from 15%
+            social: 20          // Increased from 15%
+            // REMOVED: acknowledgment: 25
+        };
+        
+        // Calculate weighted average
+        let totalProgress = 0;
+        let totalWeight = 0;
+        
+        components.rows.forEach(comp => {
+            const weight = weights[comp.component_type] || 0;
+            totalProgress += (comp.completion_percentage * weight);
+            totalWeight += weight;
+        });
+        
+        const overallPercentage = totalWeight > 0 ? Math.round(totalProgress / totalWeight) : 0;
+        
+        // Update module progress
+        const started = components.rows.length > 0;
+        const completed = overallPercentage === 100;
+        
+        await pool.query(`
+            INSERT INTO training_module_progress 
+            (facility_id, module_id, overall_percentage, started_at, completed_at)
+            VALUES ($1, $2, $3, ${started ? 'NOW()' : 'NULL'}, ${completed ? 'NOW()' : 'NULL'})
+            ON CONFLICT (facility_id, module_id)
+            DO UPDATE SET 
+                overall_percentage = $3,
+                started_at = COALESCE(training_module_progress.started_at, NOW()),
+                completed_at = ${completed ? 'NOW()' : 'NULL'},
+                updated_at = NOW()
+        `, [facilityId, moduleId, overallPercentage]);
+        
+        return overallPercentage;
+        
+    } catch (error) {
+        console.error('Error recalculating module progress:', error);
+        throw error;
+    }
+}
+```
+
+### 5. Update Auto-Completion Logic
+
+**Update both response and acknowledgment endpoints to auto-complete communication component:**
+```javascript
+// In POST staff-responses endpoint, after checking 80% threshold:
+if (percentage >= 80) {
+    await pool.query(`
+        INSERT INTO training_component_progress 
+        (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+        VALUES ($1, $2, 'communication', true, 100, NOW())
+        ON CONFLICT (facility_id, module_id, component_type)
+        DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+    `, [facilityId, moduleId]);
+    
+    await recalculateModuleProgress(facilityId, moduleId);
+}
+
+// In POST acknowledgments endpoint, after checking 80% threshold:
+if (percentage >= 80) {
+    await pool.query(`
+        INSERT INTO training_component_progress 
+        (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+        VALUES ($1, $2, 'communication', true, 100, NOW())
+        ON CONFLICT (facility_id, module_id, component_type)
+        DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+    `, [facilityId, moduleId]);
+    
+    await recalculateModuleProgress(facilityId, moduleId);
+}
+```
+
+### 6. Update Module Completion Check
+
+**Update markWeekPosted function:**
+```javascript
+// Check if module 100% complete (now 4 components, not 5)
+if (progress.components.filter(c => c.completed).length === 4) {
+    showModuleCompletionCelebration();
+}
+```
+
+## Expected Outcome After Fix
+- ✅ Text readable in both light and dark mode
+- ✅ Only 4 tabs show (Champion, Communication, Audit, Social)
+- ✅ Staff tracking integrated in Communication tab (both response + acknowledgment)
+- ✅ Component weights updated (25% + 30% + 25% + 20% = 100%)
+- ✅ Module completes at 100% with 4 components
+- ✅ No duplicate tracking
+- ✅ Cleaner, less overwhelming UI
+
+## Testing Checklist
+- [ ] Toggle dark mode - all text readable
+- [ ] Only 4 tabs display (no standalone acknowledgment tab)
+- [ ] Communication tab shows both response AND acknowledgment sections
+- [ ] Completing either responses or acknowledgments marks communication done
+- [ ] Progress calculation correct (Champion 25% → Communication 55% → Audit 80% → Social 100%)
+- [ ] Module completion at 100% with all 4 components
+- [ ] No console errors
+
+Implement Bug Fixes - Dark Mode Text & Remove Duplicate Acknowledgment!

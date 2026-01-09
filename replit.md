@@ -38,13 +38,13 @@ The application is a single-page web application with a RESTful API.
 - **Training Hub (Redesigned):**
     - **2-Tab Navigation:** Monthly Curriculum and Required Certifications tabs with DOM-ready tab switching.
     - **Monthly Curriculum Calendar View (Stage 3A):** 12-month calendar grid with module cards, status badges (ACTIVE/PREVIEW/AVAILABLE), progress bars, current month highlight banner, and Training Progress Overview section.
-    - **Module Detail Page (Stage 3B):** Click module card → detail page with back button, header (title/theme/status badge), progress tracker with percentage bar, 5 component tabs.
+    - **Module Detail Page (Stage 3B):** Click module card → detail page with back button, header (title/theme/status badge), progress tracker with percentage bar, 4 component tabs.
     - **Component 1 - Shield Champion Training (25%):** Educational content with 4 sections per month (January: New Year Safety Goals, SMART SAFETY Method, Facility Assessment Framework, Goal Implementation). Mark complete button updates progress.
-    - **Component 2 - Team Communication (20%):** Message templates with copy-to-clipboard, emoji response tracking (👍❤️🎉💪✨), staff dropdown selection, auto-completes at 80% response rate.
-    - **Component 3 - Staff Acknowledgment (25%):** Track which staff have reviewed training content, dropdown staff selection, auto-completes at 80% acknowledgment rate.
-    - **Component 4 - Monthly Audit (15%):** 4 facility safety questions with Yes/No/Updates Needed/Maintenance Required/Other options, optional photo upload, auto-completes when all 4 answered.
-    - **Component 5 - SafeGrowth Accelerator (15%):** 4-week social media content plan with visual ideas, sample captions, hashtags, copy buttons, mark as posted tracking. Auto-completes when all 4 weeks posted.
-    - **Progress Calculation:** Weighted progress (0%→25%→45%→70%→85%→100%) with module completion celebration at 100%.
+    - **Component 2 - Team Communication (30%):** Combined Team Communication & Staff Acknowledgment in one tab. Message templates with copy-to-clipboard, emoji response tracking (👍❤️🎉💪✨), AND staff acknowledgment tracking. Auto-completes at 80% response rate OR 80% acknowledgment rate.
+    - **Component 3 - Monthly Audit (25%):** 4 facility safety questions with Yes/No/Updates Needed/Maintenance Required/Other options, optional photo upload, auto-completes when all 4 answered.
+    - **Component 4 - SafeGrowth Accelerator (20%):** 4-week social media content plan with visual ideas, sample captions, hashtags, copy buttons, mark as posted tracking. Auto-completes when all 4 weeks posted.
+    - **Progress Calculation:** Weighted progress (0%→25%→55%→80%→100%) with module completion celebration at 100%.
+    - **Dark Mode Support:** Improved text contrast for night mode readability across all Training Hub components.
     - **Required Certifications:** List view of certification types with status indicators (Stage 4).
     - **API Endpoints:** 20+ endpoints for modules, component progress, staff responses, acknowledgments, audit questions/responses, social content/completions.
     - **Database Tables (14 new):** training_modules_new, training_champion_content, training_team_messages, training_staff_responses, training_acknowledgments, training_audit_questions, training_audit_responses, training_social_content, training_social_completions, training_component_progress, training_module_progress, certification_types, staff_certifications, staff_annual_hours, state_training_requirements.

@@ -164,18 +164,20 @@ router.get('/facilities/:facilityId/state-requirements', authenticateToken, asyn
 
 async function recalculateModuleProgress(facilityId, moduleId) {
     try {
+        // Only count the 4 canonical components (acknowledgment merged into communication)
         const components = await pool.query(`
             SELECT component_type, completion_percentage
             FROM training_component_progress
             WHERE facility_id = $1 AND module_id = $2
+            AND component_type IN ('champion', 'communication', 'audit', 'social')
         `, [facilityId, moduleId]);
         
         const weights = {
             champion: 25,
-            communication: 20,
-            acknowledgment: 25,
-            audit: 15,
-            social: 15
+            communication: 30,  // Increased from 20% (absorbs acknowledgment tracking)
+            audit: 25,          // Increased from 15%
+            social: 20          // Increased from 15%
+            // Note: acknowledgment removed as separate component - now integrated in communication
         };
         
         let totalProgress = 0;
@@ -214,10 +216,12 @@ router.get('/facilities/:facilityId/training/modules/:moduleId/component-progres
         const facilityId = req.params.facilityId;
         const moduleId = req.params.moduleId;
         
+        // Only return the 4 canonical components (acknowledgment merged into communication)
         const components = await pool.query(`
             SELECT component_type, completed, completion_percentage, completed_at
             FROM training_component_progress
             WHERE facility_id = $1 AND module_id = $2
+            AND component_type IN ('champion', 'communication', 'audit', 'social')
         `, [facilityId, moduleId]);
         
         const totalStaff = await pool.query(
@@ -382,11 +386,12 @@ router.post('/facilities/:facilityId/training/modules/:moduleId/acknowledgments'
         const acknowledgementsNum = parseInt(acknowledgementsCount.rows[0].count);
         const percentage = staffCount > 0 ? Math.round((acknowledgementsNum / staffCount) * 100) : 0;
         
+        // Acknowledgment now completes the 'communication' component (merged tabs)
         if (percentage >= 80) {
             await pool.query(`
                 INSERT INTO training_component_progress 
                 (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
-                VALUES ($1, $2, 'acknowledgment', true, 100, NOW())
+                VALUES ($1, $2, 'communication', true, 100, NOW())
                 ON CONFLICT (facility_id, module_id, component_type)
                 DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
             `, [facilityId, moduleId]);

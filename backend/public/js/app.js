@@ -6413,10 +6413,10 @@ function renderModuleProgressTracker() {
 function renderComponentTabs() {
     const components = [
         { id: 'champion', icon: '📖', label: 'Shield Champion Training', weight: 25 },
-        { id: 'communication', icon: '💬', label: 'Team Communication', weight: 20 },
-        { id: 'acknowledgment', icon: '✓', label: 'Staff Acknowledgment', weight: 25 },
-        { id: 'audit', icon: '📋', label: 'Monthly Audit', weight: 15 },
-        { id: 'social', icon: '📱', label: 'SafeGrowth Accelerator', weight: 15 }
+        { id: 'communication', icon: '💬', label: 'Team Communication', weight: 30 },
+        { id: 'audit', icon: '📋', label: 'Monthly Audit', weight: 25 },
+        { id: 'social', icon: '📱', label: 'SafeGrowth Accelerator', weight: 20 }
+        // Note: Staff Acknowledgment removed as separate tab - now integrated in Team Communication
     ];
     
     const tabsContainer = document.getElementById('component-tabs');
@@ -6467,9 +6467,6 @@ async function loadComponentContent(componentId) {
                 break;
             case 'communication':
                 await loadCommunicationContent(progress);
-                break;
-            case 'acknowledgment':
-                await loadAcknowledgmentContent(progress);
                 break;
             case 'audit':
                 await loadAuditContent(progress);
@@ -6597,21 +6594,37 @@ async function loadCommunicationContent(progress) {
     const facilityId = AppState.facility.id;
     const moduleId = currentTrainingModuleDetail.id;
     
-    const [message, responses, staffList] = await Promise.all([
+    const [message, responses, acknowledgments, staffList] = await Promise.all([
         apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/team-message`),
         apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/staff-responses`),
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/acknowledgments`),
         apiRequest(`/facilities/${facilityId}/staff`)
     ]);
     
     const staff = staffList.data || staffList || [];
     const respondedIds = new Set(responses.map(r => r.staff_id));
+    const acknowledgedIds = new Set(acknowledgments.map(a => a.staff_id));
     const unrespondedStaff = staff.filter(s => !respondedIds.has(s.id));
+    const unacknowledgedStaff = staff.filter(s => !acknowledgedIds.has(s.id));
     
     const responsePercentage = progress.staff_responses?.percentage || 0;
+    const ackPercentage = progress.staff_acknowledgments?.percentage || 0;
     const isComplete = progress.components?.find(c => c.component_type === 'communication')?.completed;
+    
+    // Component completes when EITHER responses OR acknowledgments reach 80%
+    const overallPercentage = Math.max(responsePercentage, ackPercentage);
     
     content.innerHTML = `
         <div class="communication-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">💬 Team Communication & Engagement</h2>
+                ${isComplete ? '<span style="background: var(--shield-lime); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;">✓ Complete</span>' : ''}
+            </div>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Copy this message and send it to your team via your preferred platform. Then track engagement through either response logging OR acknowledgment tracking.
+            </p>
+            
             <div class="message-box">
                 <div class="message-header">
                     <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--shield-navy); margin: 0;">${message.message_title || 'Team Message'}</h3>
@@ -6623,13 +6636,17 @@ async function loadCommunicationContent(progress) {
                 ${message.customization_tips ? `<div class="customization-tips"><strong>💡 Tip:</strong> ${message.customization_tips}</div>` : ''}
             </div>
             
-            <div class="response-tracking">
+            <!-- Response Tracking Section -->
+            <div class="response-tracking" style="margin-bottom: 24px;">
                 <div class="tracking-header">
-                    <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">📊 Team Response Tracking</h3>
-                    ${isComplete ? '<span class="completion-badge" style="background: rgba(180, 211, 51, 0.15); padding: 6px 12px; border-radius: 6px; font-size: 0.875rem; font-weight: 600;">✓ Complete</span>' : ''}
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">📊 Response Tracking (Option 1)</h3>
                 </div>
                 
-                <div class="response-progress" style="margin: 20px 0;">
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 8px 0 16px;">
+                    Track emoji responses from team communication platforms (GroupMe, Slack, etc.)
+                </p>
+                
+                <div class="response-progress" style="margin: 16px 0;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <span style="font-weight: 600;">${progress.staff_responses?.completed || 0} of ${progress.staff_responses?.total || 0} staff responded</span>
                         <span style="font-weight: 700; color: var(--shield-navy);">${responsePercentage}%</span>
@@ -6640,7 +6657,7 @@ async function loadCommunicationContent(progress) {
                     <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">Auto-completes at 80% response rate</p>
                 </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px;">
                     <div>
                         <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Log Staff Response</h4>
                         <select id="comm-staff-select" style="width: 100%; padding: 10px; border: 2px solid var(--border-subtle); border-radius: 8px; margin-bottom: 12px;">
@@ -6656,9 +6673,9 @@ async function loadCommunicationContent(progress) {
                     </div>
                     <div>
                         <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Recent Responses</h4>
-                        <div class="response-list" style="max-height: 200px; overflow-y: auto;">
+                        <div class="response-list" style="max-height: 150px; overflow-y: auto;">
                             ${responses.length === 0 ? '<p style="color: var(--text-secondary); font-size: 0.875rem;">No responses yet</p>' :
-                            responses.slice(0, 10).map(r => `
+                            responses.slice(0, 5).map(r => `
                                 <div class="response-item">
                                     <span class="response-emoji">${r.emoji_used || '👍'}</span>
                                     <div class="response-info">
@@ -6671,6 +6688,60 @@ async function loadCommunicationContent(progress) {
                     </div>
                 </div>
             </div>
+            
+            <!-- Acknowledgment Tracking Section -->
+            <div class="response-tracking">
+                <div class="tracking-header">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">✓ Staff Acknowledgment (Option 2)</h3>
+                </div>
+                
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 8px 0 16px;">
+                    Or manually track which staff confirmed they reviewed this month's training
+                </p>
+                
+                <div class="response-progress" style="margin: 16px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">${progress.staff_acknowledgments?.completed || 0} of ${progress.staff_acknowledgments?.total || 0} staff acknowledged</span>
+                        <span style="font-weight: 700; color: var(--shield-navy);">${ackPercentage}%</span>
+                    </div>
+                    <div style="height: 8px; background: rgba(44, 95, 124, 0.1); border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${ackPercentage}%; height: 100%; background: linear-gradient(90deg, var(--shield-navy), var(--shield-lime)); transition: width 0.3s;"></div>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">Auto-completes at 80% acknowledgment rate</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px;">
+                    <div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Log Acknowledgment</h4>
+                        <select id="ack-staff-select" style="width: 100%; padding: 10px; border: 2px solid var(--border-subtle); border-radius: 8px; margin-bottom: 12px;">
+                            <option value="">Select staff member...</option>
+                            ${unacknowledgedStaff.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                        </select>
+                        <button class="btn-primary" onclick="logAcknowledgment()" style="width: 100%;">✓ Log Acknowledgment</button>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Acknowledged Staff</h4>
+                        <div class="response-list" style="max-height: 150px; overflow-y: auto;">
+                            ${acknowledgments.length === 0 ? '<p style="color: var(--text-secondary); font-size: 0.875rem;">No acknowledgments yet</p>' :
+                            acknowledgments.slice(0, 5).map(a => `
+                                <div class="response-item">
+                                    <span class="response-emoji">✓</span>
+                                    <div class="response-info">
+                                        <div class="response-name">${a.staff_name}</div>
+                                        <div class="response-time">${formatRelativeTime(a.acknowledged_at)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            ${overallPercentage < 80 ? `
+                <div style="margin-top: 24px; padding: 16px; background: rgba(180, 211, 51, 0.1); border-radius: 8px; font-size: 0.875rem;">
+                    <strong>💡 Tip:</strong> This component auto-completes when 80% of staff either respond OR acknowledge. You don't need to do both!
+                </div>
+            ` : ''}
         </div>
     `;
 }
@@ -6806,7 +6877,7 @@ async function logAcknowledgment() {
         });
         
         showSuccess('Acknowledgment logged!');
-        loadComponentContent('acknowledgment');
+        loadComponentContent('communication');
     } catch (error) {
         console.error('Error logging acknowledgment:', error);
         showError('Failed to log acknowledgment');
@@ -6831,7 +6902,7 @@ function formatRelativeTime(dateString) {
 function updateComponentTabStates(components) {
     const completedTypes = new Set(components?.filter(c => c.completed).map(c => c.component_type) || []);
     
-    ['champion', 'communication', 'acknowledgment', 'audit', 'social'].forEach(type => {
+    ['champion', 'communication', 'audit', 'social'].forEach(type => {
         const tab = document.getElementById(`comp-tab-${type}`);
         if (tab) {
             if (completedTypes.has(type)) {
@@ -7190,7 +7261,7 @@ async function markWeekPosted(weekNumber) {
         await loadSocialContent(progress);
         updateComponentTabStates(progress.components);
         
-        const allComplete = progress.components?.filter(c => c.completed).length === 5;
+        const allComplete = progress.components?.filter(c => c.completed).length === 4;
         
         if (progress.components?.find(c => c.component_type === 'social')?.completed) {
             currentTrainingModuleDetail.progress = await getModuleProgress(facilityId, moduleId);
@@ -7208,7 +7279,7 @@ async function markWeekPosted(weekNumber) {
 }
 
 function showModuleCompletionCelebration() {
-    showSuccess('🎉 MODULE COMPLETE! You have finished all 5 components. Excellent work on building your safety foundation!', 5000);
+    showSuccess('🎉 MODULE COMPLETE! You have finished all 4 components. Excellent work on building your safety foundation!', 5000);
 }
 
 async function loadTrainingCertifications() {

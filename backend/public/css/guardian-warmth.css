@@ -3345,6 +3345,94 @@ tr:hover td {
 }
 
 /* ============================================
+   DARK MODE CONTRAST FIXES (Training Hub)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    .champion-section {
+        background: rgba(44, 95, 124, 0.1);
+        border-left-color: var(--shield-lime);
+    }
+    
+    .section-title {
+        color: var(--shield-lime);
+    }
+    
+    .section-content {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .message-box {
+        background: rgba(44, 95, 124, 0.1);
+        border-color: rgba(180, 211, 51, 0.3);
+    }
+    
+    .message-content {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .caption-text {
+        background: rgba(44, 95, 124, 0.15);
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .visual-idea p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .customization-tips {
+        background: rgba(180, 211, 51, 0.15);
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .response-item {
+        background: rgba(44, 95, 124, 0.1);
+    }
+    
+    .response-tracking,
+    .acknowledgment-tracking {
+        background: rgba(44, 95, 124, 0.1);
+        border-color: rgba(180, 211, 51, 0.2);
+    }
+    
+    .audit-question-card {
+        background: rgba(44, 95, 124, 0.1);
+        border-color: rgba(180, 211, 51, 0.2);
+    }
+    
+    .audit-question-card.answered {
+        background: rgba(180, 211, 51, 0.1);
+    }
+    
+    .social-week-card {
+        background: rgba(44, 95, 124, 0.1);
+        border-color: rgba(180, 211, 51, 0.2);
+    }
+    
+    .social-week-card.posted {
+        background: rgba(180, 211, 51, 0.1);
+    }
+    
+    .question-response {
+        background: rgba(44, 95, 124, 0.1);
+    }
+    
+    .other-text {
+        background: rgba(44, 95, 124, 0.15);
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .emoji-btn {
+        background: rgba(44, 95, 124, 0.1) !important;
+        border-color: rgba(180, 211, 51, 0.3) !important;
+    }
+    
+    .emoji-btn:hover {
+        background: rgba(180, 211, 51, 0.1) !important;
+    }
+}
+
+/* ============================================
    AUDIT & SOCIAL CONTENT STYLES (Stage 3D)
    ============================================ */
 
