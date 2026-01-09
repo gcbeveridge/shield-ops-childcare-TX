@@ -3346,90 +3346,204 @@ tr:hover td {
 
 /* ============================================
    DARK MODE CONTRAST FIXES (Training Hub)
+   Uses [data-theme="dark"] selector to match app theme
    ============================================ */
 
-@media (prefers-color-scheme: dark) {
-    .champion-section {
-        background: rgba(44, 95, 124, 0.1);
-        border-left-color: var(--shield-lime);
-    }
-    
-    .section-title {
-        color: var(--shield-lime);
-    }
-    
-    .section-content {
-        color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .message-box {
-        background: rgba(44, 95, 124, 0.1);
-        border-color: rgba(180, 211, 51, 0.3);
-    }
-    
-    .message-content {
-        color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .caption-text {
-        background: rgba(44, 95, 124, 0.15);
-        color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .visual-idea p {
-        color: rgba(255, 255, 255, 0.7);
-    }
-    
-    .customization-tips {
-        background: rgba(180, 211, 51, 0.15);
-        color: rgba(255, 255, 255, 0.8);
-    }
-    
-    .response-item {
-        background: rgba(44, 95, 124, 0.1);
-    }
-    
-    .response-tracking,
-    .acknowledgment-tracking {
-        background: rgba(44, 95, 124, 0.1);
-        border-color: rgba(180, 211, 51, 0.2);
-    }
-    
-    .audit-question-card {
-        background: rgba(44, 95, 124, 0.1);
-        border-color: rgba(180, 211, 51, 0.2);
-    }
-    
-    .audit-question-card.answered {
-        background: rgba(180, 211, 51, 0.1);
-    }
-    
-    .social-week-card {
-        background: rgba(44, 95, 124, 0.1);
-        border-color: rgba(180, 211, 51, 0.2);
-    }
-    
-    .social-week-card.posted {
-        background: rgba(180, 211, 51, 0.1);
-    }
-    
-    .question-response {
-        background: rgba(44, 95, 124, 0.1);
-    }
-    
-    .other-text {
-        background: rgba(44, 95, 124, 0.15);
-        color: rgba(255, 255, 255, 0.9);
-    }
-    
-    .emoji-btn {
-        background: rgba(44, 95, 124, 0.1) !important;
-        border-color: rgba(180, 211, 51, 0.3) !important;
-    }
-    
-    .emoji-btn:hover {
-        background: rgba(180, 211, 51, 0.1) !important;
-    }
+/* Component Tabs Dark Mode - Fix tab bar visibility */
+[data-theme="dark"] .component-tabs {
+    background: transparent;
+}
+
+[data-theme="dark"] .component-tab {
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(180, 211, 51, 0.3);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .component-tab:hover {
+    background: rgba(44, 95, 124, 0.5);
+    border-color: var(--shield-lime);
+}
+
+[data-theme="dark"] .component-tab.active {
+    background: var(--shield-navy);
+    color: white;
+    border-color: var(--shield-lime);
+}
+
+[data-theme="dark"] .component-tab.complete {
+    background: rgba(180, 211, 51, 0.2);
+    border-color: var(--shield-lime);
+}
+
+[data-theme="dark"] .component-tab-label {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="dark"] .component-tab-weight {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Module content containers - Dark mode backgrounds */
+[data-theme="dark"] .component-content {
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(180, 211, 51, 0.2);
+}
+
+[data-theme="dark"] .champion-section {
+    background: rgba(44, 95, 124, 0.2);
+    border-left-color: var(--shield-lime);
+}
+
+[data-theme="dark"] .section-title {
+    color: var(--shield-lime) !important;
+}
+
+[data-theme="dark"] .section-content {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="dark"] .section-content p {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Message box styling for dark mode */
+[data-theme="dark"] .message-box {
+    background: rgba(44, 95, 124, 0.15);
+    border-color: rgba(180, 211, 51, 0.3);
+}
+
+[data-theme="dark"] .message-box h3 {
+    color: var(--shield-lime) !important;
+}
+
+[data-theme="dark"] .message-content {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="dark"] .customization-tips {
+    background: rgba(180, 211, 51, 0.15);
+    color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(180, 211, 51, 0.3);
+}
+
+/* Response tracking dark mode */
+[data-theme="dark"] .response-tracking,
+[data-theme="dark"] .acknowledgment-tracking {
+    background: rgba(44, 95, 124, 0.15);
+    border-color: rgba(180, 211, 51, 0.25);
+}
+
+[data-theme="dark"] .response-tracking h3,
+[data-theme="dark"] .response-tracking h4,
+[data-theme="dark"] .acknowledgment-tracking h3,
+[data-theme="dark"] .acknowledgment-tracking h4 {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-theme="dark"] .response-tracking p,
+[data-theme="dark"] .acknowledgment-tracking p {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+[data-theme="dark"] .response-item {
+    background: rgba(44, 95, 124, 0.2);
+}
+
+[data-theme="dark"] .response-name {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="dark"] .response-time {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Emoji buttons dark mode */
+[data-theme="dark"] .emoji-btn {
+    background: rgba(44, 95, 124, 0.2) !important;
+    border-color: rgba(180, 211, 51, 0.4) !important;
+}
+
+[data-theme="dark"] .emoji-btn:hover {
+    background: rgba(180, 211, 51, 0.2) !important;
+    border-color: var(--shield-lime) !important;
+}
+
+/* Audit cards dark mode */
+[data-theme="dark"] .audit-question-card {
+    background: rgba(44, 95, 124, 0.15);
+    border-color: rgba(180, 211, 51, 0.25);
+}
+
+[data-theme="dark"] .audit-question-card.answered {
+    background: rgba(180, 211, 51, 0.15);
+}
+
+[data-theme="dark"] .audit-question-card h4,
+[data-theme="dark"] .question-text {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-theme="dark"] .question-response {
+    background: rgba(44, 95, 124, 0.2);
+}
+
+[data-theme="dark"] .other-text {
+    background: rgba(44, 95, 124, 0.25);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(180, 211, 51, 0.3);
+}
+
+/* Social content dark mode */
+[data-theme="dark"] .social-week-card {
+    background: rgba(44, 95, 124, 0.15);
+    border-color: rgba(180, 211, 51, 0.25);
+}
+
+[data-theme="dark"] .social-week-card.posted {
+    background: rgba(180, 211, 51, 0.15);
+}
+
+[data-theme="dark"] .social-week-card h4 {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-theme="dark"] .visual-idea,
+[data-theme="dark"] .visual-idea p {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+[data-theme="dark"] .caption-text {
+    background: rgba(44, 95, 124, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(180, 211, 51, 0.2);
+}
+
+[data-theme="dark"] .hashtags {
+    color: var(--shield-lime);
+}
+
+/* Generic dark mode text fixes for inline styles */
+[data-theme="dark"] .communication-content h2,
+[data-theme="dark"] .communication-content h3,
+[data-theme="dark"] .communication-content h4 {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+[data-theme="dark"] .communication-content p,
+[data-theme="dark"] .communication-content span {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Progress bar text in dark mode */
+[data-theme="dark"] .response-progress span {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Tip boxes in dark mode */
+[data-theme="dark"] div[style*="background: rgba(180, 211, 51, 0.1)"] {
+    background: rgba(180, 211, 51, 0.15) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* ============================================
