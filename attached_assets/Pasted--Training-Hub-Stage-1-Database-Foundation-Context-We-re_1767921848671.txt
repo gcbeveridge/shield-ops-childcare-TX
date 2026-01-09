@@ -1,0 +1,431 @@
+# Training Hub - Stage 1: Database Foundation
+
+## Context
+We're building a comprehensive Training Hub for Shield Ops with two purposes:
+1. Monthly Curriculum (Shield Ops training modules)
+2. Required Certifications (state compliance tracking)
+
+This is STAGE 1 of a multi-stage build. We're only creating the database foundation - NO UI changes yet.
+
+## Critical Requirements
+- ⚠️ DO NOT modify any existing tables
+- ⚠️ DO NOT change any existing routes
+- ⚠️ DO NOT modify app.js, index.html, or styles.css
+- ✅ Only CREATE new tables
+- ✅ Only ADD seed data
+- ✅ Make sure paths are ready for content to be added later
+
+## Current Tech Stack
+- Backend: Node.js + Express + PostgreSQL
+- Frontend: Vanilla JavaScript + HTML + CSS
+- Staff data comes from existing `staff` table (DO NOT duplicate)
+- Facilities have state_code in `facilities` table
+
+## Goals for Stage 1
+1. Create all database tables for training system
+2. Seed 12 empty monthly modules (structure only, content added later)
+3. Seed state-specific certification types
+4. Create database indexes for performance
+5. Prepare for content insertion in future stages
+
+## Tasks
+
+### 1. Create Training Database Tables
+```sql
+-- ============================================
+-- MONTHLY CURRICULUM TABLES
+-- ============================================
+
+-- Training modules (12 per year, structure only for now)
+CREATE TABLE IF NOT EXISTS training_modules (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    month INTEGER NOT NULL, -- 1-12
+    year INTEGER NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    theme VARCHAR(100) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'available', -- 'active', 'preview', 'available'
+    estimated_duration_minutes INTEGER,
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(month, year)
+);
+
+-- Shield Champion training content (text-based educational content)
+-- Content will be added in future stage
+CREATE TABLE IF NOT EXISTS training_champion_content (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    section_number INTEGER NOT NULL,
+    section_title VARCHAR(200) NOT NULL,
+    section_content TEXT NOT NULL,
+    weight_percentage INTEGER DEFAULT 25,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Team communication messages (ready-to-copy messages)
+-- Content will be added in future stage
+CREATE TABLE IF NOT EXISTS training_team_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    message_title VARCHAR(200) NOT NULL,
+    message_content TEXT NOT NULL,
+    customization_tips TEXT,
+    weight_percentage INTEGER DEFAULT 20,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Staff response tracking (who responded to team message via GroupMe/Slack/etc)
+-- Uses existing staff table via staff_id foreign key
+CREATE TABLE IF NOT EXISTS training_staff_responses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    staff_id UUID REFERENCES staff(id) ON DELETE CASCADE,
+    responded BOOLEAN DEFAULT true,
+    emoji_used VARCHAR(10),
+    responded_at TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(facility_id, module_id, staff_id)
+);
+
+-- Staff acknowledgment tracking (manual checklist)
+-- Uses existing staff table via staff_id foreign key
+CREATE TABLE IF NOT EXISTS training_acknowledgments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    staff_id UUID REFERENCES staff(id) ON DELETE CASCADE,
+    acknowledged BOOLEAN DEFAULT true,
+    acknowledged_at TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(facility_id, module_id, staff_id)
+);
+
+-- Monthly audit questions (4 per module)
+-- Content will be added in future stage
+CREATE TABLE IF NOT EXISTS training_audit_questions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    question_number INTEGER NOT NULL, -- 1-4
+    question_text TEXT NOT NULL,
+    question_category VARCHAR(100),
+    weight_percentage INTEGER DEFAULT 15,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Facility audit responses (Yes/No/Other + optional photo)
+CREATE TABLE IF NOT EXISTS training_audit_responses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    question_id UUID REFERENCES training_audit_questions(id) ON DELETE CASCADE,
+    answer VARCHAR(50) NOT NULL, -- 'yes', 'no', 'other'
+    other_text TEXT, -- If answer is 'other'
+    photo_url TEXT,
+    photo_filename VARCHAR(255),
+    answered_at TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(facility_id, module_id, question_id)
+);
+
+-- SafeGrowth Accelerator content (4-week social media plans)
+-- Content will be added in future stage
+CREATE TABLE IF NOT EXISTS training_social_content (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    week_number INTEGER NOT NULL, -- 1-4
+    week_title VARCHAR(200) NOT NULL,
+    week_theme VARCHAR(100),
+    visual_idea TEXT, -- What to photograph/create
+    sample_caption TEXT, -- Ready-to-copy post
+    hashtags TEXT, -- Comma-separated hashtags
+    weight_percentage INTEGER DEFAULT 15,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Facility social content completions (which weeks posted)
+CREATE TABLE IF NOT EXISTS training_social_completions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    week_number INTEGER NOT NULL, -- 1-4
+    completed BOOLEAN DEFAULT true,
+    completed_at TIMESTAMP DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(facility_id, module_id, week_number)
+);
+
+-- Component progress tracking (for weighted completion)
+CREATE TABLE IF NOT EXISTS training_component_progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    component_type VARCHAR(50) NOT NULL, -- 'champion', 'communication', 'acknowledgment', 'audit', 'social'
+    completed BOOLEAN DEFAULT false,
+    completion_percentage INTEGER DEFAULT 0, -- For partial completion
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(facility_id, module_id, component_type)
+);
+
+-- Overall module progress (calculated from components)
+CREATE TABLE IF NOT EXISTS training_module_progress (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    module_id UUID REFERENCES training_modules(id) ON DELETE CASCADE,
+    overall_percentage INTEGER DEFAULT 0, -- Weighted across all components
+    started_at TIMESTAMP,
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(facility_id, module_id)
+);
+
+-- ============================================
+-- REQUIRED CERTIFICATIONS TABLES
+-- ============================================
+
+-- Certification types (pre-populated by state)
+CREATE TABLE IF NOT EXISTS certification_types (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(200) NOT NULL,
+    state_code VARCHAR(2), -- NULL = all states, or specific state like 'TX', 'CA'
+    typical_duration_years INTEGER, -- e.g., 2 for CPR
+    required_hours DECIMAL(4,2),
+    description TEXT,
+    category VARCHAR(100), -- 'health_safety', 'child_protection', 'food_safety', etc.
+    is_common BOOLEAN DEFAULT true, -- Show in dropdown by default
+    active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Staff certifications (logged by facility)
+-- Uses existing staff table via staff_id foreign key
+CREATE TABLE IF NOT EXISTS staff_certifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    staff_id UUID REFERENCES staff(id) ON DELETE CASCADE,
+    certification_type VARCHAR(200) NOT NULL,
+    completion_date DATE NOT NULL,
+    expiration_date DATE NOT NULL,
+    training_provider VARCHAR(200),
+    training_hours DECIMAL(4,2),
+    certificate_file_url TEXT,
+    certificate_file_name VARCHAR(255),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Annual training hours tracking (per staff member per year)
+CREATE TABLE IF NOT EXISTS staff_annual_hours (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
+    staff_id UUID REFERENCES staff(id) ON DELETE CASCADE,
+    year INTEGER NOT NULL,
+    total_hours DECIMAL(5,2) DEFAULT 0,
+    required_hours DECIMAL(5,2), -- Based on state requirements
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(facility_id, staff_id, year)
+);
+
+-- State training requirements (annual hours by state)
+CREATE TABLE IF NOT EXISTS state_training_requirements (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    state_code VARCHAR(2) NOT NULL UNIQUE,
+    state_name VARCHAR(100) NOT NULL,
+    annual_hours_required DECIMAL(4,2) NOT NULL,
+    director_hours_required DECIMAL(4,2), -- Some states require more for directors
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ============================================
+-- INDEXES FOR PERFORMANCE
+-- ============================================
+
+-- Monthly Curriculum indexes
+CREATE INDEX IF NOT EXISTS idx_training_modules_month_year ON training_modules(month, year);
+CREATE INDEX IF NOT EXISTS idx_champion_content_module ON training_champion_content(module_id);
+CREATE INDEX IF NOT EXISTS idx_team_messages_module ON training_team_messages(module_id);
+CREATE INDEX IF NOT EXISTS idx_staff_responses_facility_module ON training_staff_responses(facility_id, module_id);
+CREATE INDEX IF NOT EXISTS idx_staff_responses_staff ON training_staff_responses(staff_id);
+CREATE INDEX IF NOT EXISTS idx_acknowledgments_facility_module ON training_acknowledgments(facility_id, module_id);
+CREATE INDEX IF NOT EXISTS idx_acknowledgments_staff ON training_acknowledgments(staff_id);
+CREATE INDEX IF NOT EXISTS idx_audit_questions_module ON training_audit_questions(module_id);
+CREATE INDEX IF NOT EXISTS idx_audit_responses_facility_module ON training_audit_responses(facility_id, module_id);
+CREATE INDEX IF NOT EXISTS idx_social_content_module ON training_social_content(module_id);
+CREATE INDEX IF NOT EXISTS idx_social_completions_facility_module ON training_social_completions(facility_id, module_id);
+CREATE INDEX IF NOT EXISTS idx_component_progress_facility_module ON training_component_progress(facility_id, module_id);
+CREATE INDEX IF NOT EXISTS idx_module_progress_facility ON training_module_progress(facility_id);
+
+-- Required Certifications indexes
+CREATE INDEX IF NOT EXISTS idx_certification_types_state ON certification_types(state_code);
+CREATE INDEX IF NOT EXISTS idx_certification_types_common ON certification_types(is_common, active);
+CREATE INDEX IF NOT EXISTS idx_staff_certs_facility ON staff_certifications(facility_id);
+CREATE INDEX IF NOT EXISTS idx_staff_certs_staff ON staff_certifications(staff_id);
+CREATE INDEX IF NOT EXISTS idx_staff_certs_expiration ON staff_certifications(expiration_date);
+CREATE INDEX IF NOT EXISTS idx_annual_hours_facility_staff_year ON staff_annual_hours(facility_id, staff_id, year);
+CREATE INDEX IF NOT EXISTS idx_state_requirements_code ON state_training_requirements(state_code);
+```
+
+### 2. Seed 12 Empty Modules (Structure Only)
+```javascript
+async function seed12MonthModules() {
+    const modules = [
+        { month: 1, year: 2026, title: 'New Year Safety Goals & Facility Assessment', theme: 'Goal-Setting & Assessment', description: 'Professional goal-setting and comprehensive safety evaluation' },
+        { month: 2, year: 2026, title: 'Health & Hygiene Excellence', theme: 'Cleanliness & Illness Prevention', description: 'Cleanliness protocols and illness prevention' },
+        { month: 3, year: 2026, title: 'Emergency Preparedness', theme: 'Fire Safety & Evacuation', description: 'Fire safety, evacuation plans, emergency protocols' },
+        { month: 4, year: 2026, title: 'Equipment Safety & Maintenance', theme: 'Maintenance & Safety Protocols', description: 'Systematic Equipment Management & Safety Protocols' },
+        { month: 5, year: 2026, title: 'Summer Safety & Heat Protection', theme: 'Summer Safety Excellence', description: 'Comprehensive Summer Safety & Heat Prevention Excellence' },
+        { month: 6, year: 2026, title: 'Access Control & Transportation Safety', theme: 'Security & Vehicle Safety', description: 'Professional Security & Vehicle Safety Excellence' },
+        { month: 7, year: 2026, title: 'Staff Safety Training Spotlight', theme: 'Emergency Response', description: 'Professional Competency & Emergency Response Excellence' },
+        { month: 8, year: 2026, title: 'Back-to-School Safety Preparation', theme: 'Enrollment Safety', description: 'Enrollment safety and orientation protocols' },
+        { month: 9, year: 2026, title: 'Mental Health & Wellness', theme: 'Emotional Safety', description: 'Creating Emotionally Safe Environments' },
+        { month: 10, year: 2026, title: 'Stranger Danger & Security Awareness', theme: 'Vigilance & Awareness', description: 'Professional Vigilance & Situational Awareness' },
+        { month: 11, year: 2026, title: 'Staff & Child Protection Policies', theme: 'Boundaries & Protection', description: 'Professional Boundaries & Child Protection Excellence' },
+        { month: 12, year: 2026, title: 'Winter Weather & Holiday Safety', theme: 'Seasonal Safety', description: 'Seasonal Safety & Environmental Risk Management' }
+    ];
+
+    for (const module of modules) {
+        await pool.query(`
+            INSERT INTO training_modules (month, year, title, theme, description, estimated_duration_minutes)
+            VALUES ($1, $2, $3, $4, $5, 45)
+            ON CONFLICT (month, year) DO NOTHING
+        `, [module.month, module.year, module.title, module.theme, module.description]);
+    }
+
+    console.log('✅ 12 monthly training modules seeded (structure only, content to be added later)');
+}
+```
+
+### 3. Seed State-Specific Certification Types
+```javascript
+async function seedCertificationTypes() {
+    const certTypes = [
+        // COMMON - All States
+        { name: 'CPR Certification', state_code: null, typical_duration_years: 2, category: 'health_safety', is_common: true },
+        { name: 'First Aid Certification', state_code: null, typical_duration_years: 2, category: 'health_safety', is_common: true },
+        { name: 'Child Abuse Recognition & Reporting', state_code: null, typical_duration_years: 2, category: 'child_protection', is_common: true },
+        { name: 'SIDS Prevention', state_code: null, typical_duration_years: 2, category: 'health_safety', is_common: true },
+        { name: 'Food Handler Certification', state_code: null, typical_duration_years: 2, category: 'food_safety', is_common: true },
+        { name: 'Bloodborne Pathogens Training', state_code: null, typical_duration_years: 1, category: 'health_safety', is_common: true },
+        { name: 'Shaken Baby Syndrome Prevention', state_code: null, typical_duration_years: 2, category: 'child_protection', is_common: true },
+        
+        // TEXAS-SPECIFIC
+        { name: 'Texas Minimum Standards Training', state_code: 'TX', typical_duration_years: 1, required_hours: 24, category: 'state_specific', is_common: true },
+        { name: 'Texas Director Certification', state_code: 'TX', typical_duration_years: 2, category: 'state_specific', is_common: true },
+        { name: 'Texas Annual Director Training', state_code: 'TX', typical_duration_years: 1, required_hours: 30, category: 'state_specific', is_common: true },
+        
+        // CALIFORNIA-SPECIFIC
+        { name: 'California Health & Safety Training', state_code: 'CA', typical_duration_years: 2, required_hours: 15, category: 'state_specific', is_common: true },
+        { name: 'California Preventive Health Practices', state_code: 'CA', typical_duration_years: 2, category: 'state_specific', is_common: true },
+        
+        // FLORIDA-SPECIFIC
+        { name: 'Florida 40-Hour Introductory Training', state_code: 'FL', typical_duration_years: 1, required_hours: 40, category: 'state_specific', is_common: true },
+        { name: 'Florida Director Credential', state_code: 'FL', typical_duration_years: 2, category: 'state_specific', is_common: true },
+        
+        // NEW YORK-SPECIFIC
+        { name: 'New York MAT (Medication Administration)', state_code: 'NY', typical_duration_years: 2, category: 'state_specific', is_common: true },
+        { name: 'New York Health & Safety Training', state_code: 'NY', typical_duration_years: 2, required_hours: 15, category: 'state_specific', is_common: true }
+    ];
+
+    for (const cert of certTypes) {
+        await pool.query(`
+            INSERT INTO certification_types (name, state_code, typical_duration_years, required_hours, category, is_common)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT DO NOTHING
+        `, [cert.name, cert.state_code, cert.typical_duration_years, cert.required_hours || null, cert.category, cert.is_common]);
+    }
+
+    console.log('✅ Certification types seeded (common + state-specific)');
+}
+```
+
+### 4. Seed State Training Requirements
+```javascript
+async function seedStateTrainingRequirements() {
+    const stateReqs = [
+        { state_code: 'TX', state_name: 'Texas', annual_hours_required: 24, director_hours_required: 30 },
+        { state_code: 'CA', state_name: 'California', annual_hours_required: 15, director_hours_required: 15 },
+        { state_code: 'FL', state_name: 'Florida', annual_hours_required: 10, director_hours_required: 10 },
+        { state_code: 'NY', state_name: 'New York', annual_hours_required: 15, director_hours_required: 15 },
+        { state_code: 'IL', state_name: 'Illinois', annual_hours_required: 15, director_hours_required: 15 },
+        { state_code: 'OH', state_name: 'Ohio', annual_hours_required: 6, director_hours_required: 6 },
+        { state_code: 'GA', state_name: 'Georgia', annual_hours_required: 10, director_hours_required: 10 },
+        { state_code: 'NC', state_name: 'North Carolina', annual_hours_required: 20, director_hours_required: 20 },
+        { state_code: 'PA', state_name: 'Pennsylvania', annual_hours_required: 6, director_hours_required: 6 },
+        { state_code: 'AZ', state_name: 'Arizona', annual_hours_required: 12, director_hours_required: 24 }
+    ];
+
+    for (const state of stateReqs) {
+        await pool.query(`
+            INSERT INTO state_training_requirements (state_code, state_name, annual_hours_required, director_hours_required)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (state_code) DO NOTHING
+        `, [state.state_code, state.state_name, state.annual_hours_required, state.director_hours_required]);
+    }
+
+    console.log('✅ State training requirements seeded');
+}
+```
+
+### 5. Run All Seed Functions
+
+Update your existing seed script to include these:
+```javascript
+// In your existing initializeDatabase() or seed script
+async function initializeTrainingTables() {
+    try {
+        console.log('🔧 Creating training tables...');
+        
+        // Tables are created via SQL above
+        
+        console.log('📦 Seeding training data...');
+        await seed12MonthModules();
+        await seedCertificationTypes();
+        await seedStateTrainingRequirements();
+        
+        console.log('✅ Training Hub database foundation complete!');
+        console.log('📝 Structure ready for content insertion in future stages');
+        
+    } catch (error) {
+        console.error('❌ Error initializing training tables:', error);
+        throw error;
+    }
+}
+
+// Call this in your main initialization
+// initializeTrainingTables();
+```
+
+## Expected Outcome After Stage 1
+- ✅ All training database tables created
+- ✅ 12 empty monthly modules in database (structure only)
+- ✅ Common certification types seeded
+- ✅ State-specific certification types seeded
+- ✅ State training hour requirements seeded
+- ✅ Database indexes created for performance
+- ✅ NO changes to existing UI or functionality
+- ✅ App still works exactly as before
+- ✅ Ready for content insertion in next stages
+
+## Testing Checklist Stage 1
+- [ ] App loads and functions normally (no breaking changes)
+- [ ] Existing features still work (dashboard, staff, etc.)
+- [ ] Database tables created successfully
+- [ ] Can query: `SELECT * FROM training_modules;` (returns 12 rows)
+- [ ] Can query: `SELECT * FROM certification_types;` (returns ~15 rows)
+- [ ] Can query: `SELECT * FROM state_training_requirements;` (returns 10 rows)
+- [ ] No errors in server console
+- [ ] No errors in browser console
+
+## Next Stages Preview
+Stage 2 will add navigation and tab structure
+Stage 3 will build monthly curriculum UI
+Stage 4 will build certifications UI
+Stage 5 will integrate with alerts and health score
+
+Implement Stage 1 - Training Hub Database Foundation!

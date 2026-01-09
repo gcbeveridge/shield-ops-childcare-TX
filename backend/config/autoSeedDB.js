@@ -4,6 +4,7 @@ const StaffDB = require('../models/StaffDB');
 const runMigrations = require('../scripts/runMigrations');
 const seedStateRegulations = require('../scripts/seedStateRegulations');
 const { seedSampleRooms } = require('../scripts/seedRooms');
+const { seedTrainingHub } = require('../scripts/seedTrainingHub');
 
 async function autoSeedDB() {
   try {
@@ -18,6 +19,13 @@ async function autoSeedDB() {
       await seedSampleRooms();
     } catch (error) {
       console.log('ℹ️  Rooms seeding skipped (tables may not exist yet)');
+    }
+    
+    // Seed Training Hub data (modules, certification types, state requirements)
+    try {
+      await seedTrainingHub();
+    } catch (error) {
+      console.log('ℹ️  Training Hub seeding skipped (tables may not exist yet)');
     }
     
     const fixedFacilityId = '00000000-0000-0000-0000-000000000001';

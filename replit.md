@@ -28,7 +28,7 @@ The application is a single-page web application with a RESTful API.
 
 ### Database
 - **Technology:** PostgreSQL (Neon) with Supabase migration support
-- **Schema:** 18 tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, training_modules, training_completions, documents, day_one_orientation_content, week_one_checkins_content, onboarding_records, state_regulations, rooms, ratio_spot_checks, ratio_check_schedule).
+- **Schema:** 32+ tables including core tables (facilities, users, staff, incidents, medications, medication_logs, compliance_items, daily_checklists, documents), onboarding tables (day_one_orientation_content, week_one_checkins_content, onboarding_records), compliance tables (state_regulations, rooms, ratio_spot_checks, ratio_check_schedule, alerts, alert_rules, alert_history), and Training Hub tables (training_modules_new, training_champion_content, training_team_messages, training_staff_responses, training_acknowledgments, training_audit_questions, training_audit_responses, training_social_content, training_social_completions, training_component_progress, training_module_progress, certification_types, staff_certifications, staff_annual_hours, state_training_requirements).
 - **Data Persistence:** Data persists across server restarts and page refreshes.
 - **Auto-seeding:** Database auto-populates on server startup with fixed UUIDs for consistent login.
 - **Database Migrations:** Auto-running SQL migrations in `backend/config/migrations/` directory. Migrations run on server startup and track completion in `schema_migrations` table.
