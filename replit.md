@@ -35,7 +35,12 @@ The application is a single-page web application with a RESTful API.
 - **Authentication:** Standard user login, sign-up, and profile management.
 - **Dashboard:** Features a priority heat map (CRITICAL, ATTENTION NEEDED, MONITORING), real-time weather integration with safety recommendations, a safety performance card with a risk score, priority alerts for missing/expired documents, quick actions, and recent activity display.
 - **Compliance Management:** Tracks state licensing requirements, displays compliance status, generates audit reports, and supports nationwide state regulations via a configurable settings page.
-- **Training Hub:** Manages monthly curriculum modules and required certifications, tracks state training requirements, and features 14 dedicated database tables for comprehensive training management.
+- **Training Hub (Redesigned):**
+    - **2-Tab Navigation:** Monthly Curriculum and Required Certifications tabs with DOM-ready tab switching.
+    - **Monthly Curriculum Calendar View (Stage 3A):** 12-month calendar grid with module cards, status badges (ACTIVE/PREVIEW/AVAILABLE), progress bars, current month highlight banner, and Training Progress Overview section.
+    - **Required Certifications:** List view of certification types with status indicators.
+    - **API Endpoints:** GET /training/modules-new (with status/progress), GET /training/progress-summary, GET /certification-types, GET /state-requirements.
+    - **Database Tables (14 new):** training_modules_new, training_champion_content, training_team_messages, training_staff_responses, training_acknowledgments, training_audit_questions, training_audit_responses, training_social_content, training_social_completions, training_component_progress, training_module_progress, certification_types, staff_certifications, staff_annual_hours, state_training_requirements.
 - **Staff Management:** Provides staff roster, tracks certifications, background checks, training completion, and expiration alerts.
 - **Incident Reporting:** Allows logging of incidents (injury, illness, behavior), supports pattern detection, parent notification, digital signatures, and photo evidence.
 - **Daily Checklist:** Manages morning safety and daily operations checklists, tracks completion, and provides an automated audit trail.
