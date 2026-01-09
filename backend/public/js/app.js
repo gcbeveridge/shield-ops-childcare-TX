@@ -6472,10 +6472,10 @@ async function loadComponentContent(componentId) {
                 await loadAcknowledgmentContent(progress);
                 break;
             case 'audit':
-                loadPlaceholderContent('audit', '📋', 'Monthly Audit Questions', 'Coming in Stage 3D');
+                await loadAuditContent(progress);
                 break;
             case 'social':
-                loadPlaceholderContent('social', '📱', 'SafeGrowth Accelerator', 'Coming in Stage 3D');
+                await loadSocialContent(progress);
                 break;
         }
         
@@ -6841,6 +6841,374 @@ function updateComponentTabStates(components) {
             }
         }
     });
+}
+
+async function loadAuditContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = AppState.facility.id;
+    const moduleId = currentTrainingModuleDetail.id;
+    
+    const [questions, responses] = await Promise.all([
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/audit-questions`),
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/audit-responses`)
+    ]);
+    
+    const isComplete = progress.components?.find(c => c.component_type === 'audit')?.completed;
+    const responseCount = responses?.length || 0;
+    
+    if (!questions || questions.length === 0) {
+        content.innerHTML = `
+            <div class="audit-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700;">📋 Monthly Facility Audit</h2>
+                </div>
+                <p style="color: var(--text-secondary);">Audit questions for this module are being prepared. Please check back soon.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const questionsHtml = questions.map(q => {
+        const response = responses?.find(r => r.question_id === q.id);
+        const isAnswered = !!response;
+        
+        return `
+            <div class="audit-question-card ${isAnswered ? 'answered' : ''}" data-question-id="${q.id}">
+                <div class="question-header">
+                    <span class="question-number">${q.question_number}</span>
+                    <div class="question-info">
+                        <div class="question-category">${q.question_category}</div>
+                        <div class="question-text">${q.question_text}</div>
+                    </div>
+                    ${isAnswered ? '<span class="question-answered-badge">✓ Answered</span>' : ''}
+                </div>
+                
+                ${isAnswered ? `
+                    <div class="question-response">
+                        <div class="response-answer">
+                            <strong>Answer:</strong> 
+                            <span class="answer-badge answer-${response.answer}">${formatAuditAnswer(response.answer)}</span>
+                            ${response.other_text ? `<div class="other-text">${response.other_text}</div>` : ''}
+                        </div>
+                        ${response.photo_filename ? `
+                            <div class="response-photo">
+                                <strong>Photo attached:</strong> ${response.photo_filename}
+                            </div>
+                        ` : ''}
+                        <button class="btn-secondary btn-small" onclick="openAnswerAuditModal('${q.id}', ${q.question_number}, \`${q.question_text.replace(/`/g, "'")}\`, '${response.answer}', '${(response.other_text || '').replace(/'/g, "\\'")}')">
+                            Edit Answer
+                        </button>
+                    </div>
+                ` : `
+                    <div class="question-actions">
+                        <button class="btn-primary" onclick="openAnswerAuditModal('${q.id}', ${q.question_number}, \`${q.question_text.replace(/`/g, "'")}\`)">
+                            Answer Question
+                        </button>
+                    </div>
+                `}
+            </div>
+        `;
+    }).join('');
+    
+    content.innerHTML = `
+        <div class="audit-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700;">📋 Monthly Facility Audit</h2>
+                ${isComplete ? `
+                    <span class="completion-badge" style="background: rgba(180, 211, 51, 0.15); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;">✓ Complete</span>
+                ` : ''}
+            </div>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Answer these 4 facility safety questions. Optionally attach photos for documentation.
+            </p>
+            
+            <div class="audit-progress-bar" style="margin-bottom: 32px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">Progress: ${responseCount}/4 questions answered</span>
+                    <span style="font-size: 0.875rem; color: var(--text-secondary);">Complete all 4 to finish</span>
+                </div>
+                <div style="height: 8px; background: rgba(44, 95, 124, 0.1); border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${(responseCount / 4) * 100}%; height: 100%; background: ${responseCount >= 4 ? 'var(--shield-lime)' : 'var(--shield-navy)'}; transition: width 0.3s;"></div>
+                </div>
+            </div>
+            
+            <div class="audit-questions">
+                ${questionsHtml}
+            </div>
+        </div>
+    `;
+}
+
+function formatAuditAnswer(answer) {
+    const labels = {
+        'yes': 'YES',
+        'no': 'NO',
+        'updates_needed': 'UPDATES NEEDED',
+        'maintenance_required': 'MAINTENANCE REQUIRED',
+        'other': 'OTHER'
+    };
+    return labels[answer] || answer.toUpperCase();
+}
+
+let currentAuditQuestion = null;
+
+function openAnswerAuditModal(questionId, questionNumber, questionText, existingAnswer = null, existingOther = null) {
+    currentAuditQuestion = { id: questionId, number: questionNumber, text: questionText };
+    
+    const questionDisplay = document.getElementById('audit-question-display');
+    if (questionDisplay) {
+        questionDisplay.textContent = `Question ${questionNumber}: ${questionText}`;
+    }
+    
+    const answerSelect = document.getElementById('audit-answer-select');
+    const otherTextGroup = document.getElementById('audit-other-text-group');
+    const otherTextInput = document.getElementById('audit-other-text');
+    const photoInput = document.getElementById('audit-photo-upload');
+    
+    if (answerSelect) {
+        answerSelect.value = existingAnswer || '';
+    }
+    
+    if (otherTextGroup) {
+        otherTextGroup.style.display = existingAnswer === 'other' ? 'block' : 'none';
+    }
+    
+    if (otherTextInput) {
+        otherTextInput.value = existingOther || '';
+    }
+    
+    if (photoInput) {
+        photoInput.value = '';
+    }
+    
+    showModal('answerAuditModal');
+}
+
+function toggleOtherText(answer) {
+    const otherGroup = document.getElementById('audit-other-text-group');
+    if (otherGroup) {
+        otherGroup.style.display = answer === 'other' ? 'block' : 'none';
+    }
+}
+
+async function submitAuditResponse() {
+    try {
+        const facilityId = AppState.facility.id;
+        const moduleId = currentTrainingModuleDetail.id;
+        const answer = document.getElementById('audit-answer-select')?.value;
+        const otherText = document.getElementById('audit-other-text')?.value;
+        const photoInput = document.getElementById('audit-photo-upload');
+        
+        if (!answer) {
+            showError('Please select an answer');
+            return;
+        }
+        
+        if (answer === 'other' && !otherText?.trim()) {
+            showError('Please provide details for "Other" answer');
+            return;
+        }
+        
+        let photoUrl = null;
+        let photoFilename = null;
+        
+        if (photoInput?.files?.length > 0) {
+            const file = photoInput.files[0];
+            photoFilename = file.name;
+            photoUrl = `/uploads/audit-photos/${Date.now()}-${photoFilename}`;
+        }
+        
+        await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/audit-responses`, {
+            method: 'POST',
+            body: JSON.stringify({
+                question_id: currentAuditQuestion.id,
+                answer: answer,
+                other_text: answer === 'other' ? otherText : null,
+                photo_url: photoUrl,
+                photo_filename: photoFilename
+            })
+        });
+        
+        showSuccess('Audit response saved!');
+        hideModal('answerAuditModal');
+        
+        const progress = await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/component-progress`);
+        await loadAuditContent(progress);
+        updateComponentTabStates(progress.components);
+        
+        if (progress.components?.find(c => c.component_type === 'audit')?.completed) {
+            currentTrainingModuleDetail.progress = await getModuleProgress(facilityId, moduleId);
+            renderModuleProgressTracker();
+        }
+        
+    } catch (error) {
+        console.error('Error submitting audit response:', error);
+        showError('Failed to save response');
+    }
+}
+
+async function getModuleProgress(facilityId, moduleId) {
+    try {
+        const progress = await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/component-progress`);
+        const weights = { champion: 25, communication: 20, acknowledgment: 25, audit: 15, social: 15 };
+        let total = 0;
+        progress.components?.forEach(c => {
+            if (c.completed) total += weights[c.component_type] || 0;
+        });
+        return total;
+    } catch (error) {
+        return 0;
+    }
+}
+
+async function loadSocialContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = AppState.facility.id;
+    const moduleId = currentTrainingModuleDetail.id;
+    
+    const [weeks, completions] = await Promise.all([
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/social-content`),
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/social-completions`)
+    ]);
+    
+    const isComplete = progress.components?.find(c => c.component_type === 'social')?.completed;
+    const completedCount = completions?.filter(c => c.completed)?.length || 0;
+    
+    if (!weeks || weeks.length === 0) {
+        content.innerHTML = `
+            <div class="social-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2 style="font-size: 1.5rem; font-weight: 700;">📱 SafeGrowth Accelerator</h2>
+                </div>
+                <p style="color: var(--text-secondary);">Social media content for this module is being prepared. Please check back soon.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const weeksHtml = weeks.map(week => {
+        const completion = completions?.find(c => c.week_number === week.week_number);
+        const isPosted = completion?.completed || false;
+        
+        return `
+            <div class="social-week-card ${isPosted ? 'posted' : ''}">
+                <div class="week-header">
+                    <div>
+                        <span class="week-number-label">Week ${week.week_number}</span>
+                        <h3 class="week-title">${week.week_title}</h3>
+                        <span class="week-theme">${week.week_theme}</span>
+                    </div>
+                    ${isPosted ? '<span class="posted-badge">✓ Posted</span>' : ''}
+                </div>
+                
+                <div class="week-content">
+                    <div class="visual-idea">
+                        <strong>📸 Visual Idea:</strong>
+                        <p>${week.visual_idea}</p>
+                    </div>
+                    
+                    <div class="sample-caption">
+                        <strong>✍️ Sample Caption:</strong>
+                        <div class="caption-text" id="caption-week-${week.week_number}">${week.sample_caption}</div>
+                    </div>
+                    
+                    <div class="hashtags">
+                        <strong>🏷️ Hashtags:</strong>
+                        <div class="hashtag-list">${week.hashtags}</div>
+                    </div>
+                </div>
+                
+                <div class="week-actions">
+                    <button class="btn-secondary" onclick="copySocialContent(${week.week_number})">
+                        📋 Copy Content & Hashtags
+                    </button>
+                    ${!isPosted ? `
+                        <button class="btn-primary" onclick="markWeekPosted(${week.week_number})">
+                            ✓ Mark as Posted
+                        </button>
+                    ` : `
+                        <span style="color: var(--shield-lime); font-weight: 600; font-size: 0.875rem;">Posted!</span>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    content.innerHTML = `
+        <div class="social-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700;">📱 SafeGrowth Accelerator</h2>
+                ${isComplete ? `
+                    <span class="completion-badge" style="background: rgba(180, 211, 51, 0.15); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;">✓ Complete</span>
+                ` : ''}
+            </div>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                4-week social media & parent engagement plan. Copy content and post to build trust and showcase your safety excellence.
+            </p>
+            
+            <div class="social-progress-bar" style="margin-bottom: 32px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="font-weight: 600;">Progress: ${completedCount}/4 weeks posted</span>
+                    <span style="font-size: 0.875rem; color: var(--text-secondary);">Complete all 4 to finish</span>
+                </div>
+                <div style="height: 8px; background: rgba(44, 95, 124, 0.1); border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${(completedCount / 4) * 100}%; height: 100%; background: ${completedCount >= 4 ? 'var(--shield-lime)' : 'var(--shield-navy)'}; transition: width 0.3s;"></div>
+                </div>
+            </div>
+            
+            <div class="social-weeks">
+                ${weeksHtml}
+            </div>
+        </div>
+    `;
+}
+
+async function copySocialContent(weekNumber) {
+    const captionElement = document.getElementById(`caption-week-${weekNumber}`);
+    if (captionElement) {
+        const text = captionElement.textContent;
+        await navigator.clipboard.writeText(text);
+        showSuccess(`Week ${weekNumber} content copied to clipboard!`);
+    }
+}
+
+async function markWeekPosted(weekNumber) {
+    try {
+        const facilityId = AppState.facility.id;
+        const moduleId = currentTrainingModuleDetail.id;
+        
+        await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/social-completions`, {
+            method: 'POST',
+            body: JSON.stringify({ week_number: weekNumber })
+        });
+        
+        showSuccess(`Week ${weekNumber} marked as posted!`);
+        
+        const progress = await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/component-progress`);
+        await loadSocialContent(progress);
+        updateComponentTabStates(progress.components);
+        
+        const allComplete = progress.components?.filter(c => c.completed).length === 5;
+        
+        if (progress.components?.find(c => c.component_type === 'social')?.completed) {
+            currentTrainingModuleDetail.progress = await getModuleProgress(facilityId, moduleId);
+            renderModuleProgressTracker();
+        }
+        
+        if (allComplete) {
+            showModuleCompletionCelebration();
+        }
+        
+    } catch (error) {
+        console.error('Error marking week posted:', error);
+        showError('Failed to mark as posted');
+    }
+}
+
+function showModuleCompletionCelebration() {
+    showSuccess('🎉 MODULE COMPLETE! You have finished all 5 components. Excellent work on building your safety foundation!', 5000);
 }
 
 async function loadTrainingCertifications() {

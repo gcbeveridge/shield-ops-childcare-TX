@@ -461,4 +461,170 @@ router.get('/facilities/:facilityId/training/modules/:moduleId/team-message', au
     }
 });
 
+router.get('/facilities/:facilityId/training/modules/:moduleId/audit-questions', authenticateToken, async (req, res) => {
+    try {
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT id, question_number, question_text, question_category
+            FROM training_audit_questions
+            WHERE module_id = $1
+            ORDER BY question_number ASC
+        `, [moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching audit questions:', error);
+        res.status(500).json({ error: 'Failed to fetch questions' });
+    }
+});
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/audit-responses', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT ar.*, aq.question_text, aq.question_category
+            FROM training_audit_responses ar
+            JOIN training_audit_questions aq ON ar.question_id = aq.id
+            WHERE ar.facility_id = $1 AND ar.module_id = $2
+            ORDER BY aq.question_number ASC
+        `, [facilityId, moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching audit responses:', error);
+        res.status(500).json({ error: 'Failed to fetch responses' });
+    }
+});
+
+router.post('/facilities/:facilityId/training/modules/:moduleId/audit-responses', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        const { question_id, answer, other_text, photo_url, photo_filename } = req.body;
+        
+        await pool.query(`
+            INSERT INTO training_audit_responses 
+            (facility_id, module_id, question_id, answer, other_text, photo_url, photo_filename, answered_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+            ON CONFLICT (facility_id, module_id, question_id)
+            DO UPDATE SET 
+                answer = $4, 
+                other_text = $5, 
+                photo_url = $6, 
+                photo_filename = $7, 
+                answered_at = NOW()
+        `, [facilityId, moduleId, question_id, answer, other_text, photo_url, photo_filename]);
+        
+        const answeredCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_audit_responses
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const count = parseInt(answeredCount.rows[0].count);
+        
+        if (count >= 4) {
+            await pool.query(`
+                INSERT INTO training_component_progress 
+                (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+                VALUES ($1, $2, 'audit', true, 100, NOW())
+                ON CONFLICT (facility_id, module_id, component_type)
+                DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+            `, [facilityId, moduleId]);
+            
+            await recalculateModuleProgress(facilityId, moduleId);
+        }
+        
+        res.json({ success: true, answered_count: count });
+        
+    } catch (error) {
+        console.error('Error saving audit response:', error);
+        res.status(500).json({ error: 'Failed to save response' });
+    }
+});
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/social-content', authenticateToken, async (req, res) => {
+    try {
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT week_number, week_title, week_theme, visual_idea, sample_caption, hashtags
+            FROM training_social_content
+            WHERE module_id = $1
+            ORDER BY week_number ASC
+        `, [moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching social content:', error);
+        res.status(500).json({ error: 'Failed to fetch content' });
+    }
+});
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/social-completions', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT week_number, completed, completed_at
+            FROM training_social_completions
+            WHERE facility_id = $1 AND module_id = $2
+            ORDER BY week_number ASC
+        `, [facilityId, moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching social completions:', error);
+        res.status(500).json({ error: 'Failed to fetch completions' });
+    }
+});
+
+router.post('/facilities/:facilityId/training/modules/:moduleId/social-completions', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        const { week_number } = req.body;
+        
+        await pool.query(`
+            INSERT INTO training_social_completions 
+            (facility_id, module_id, week_number, completed, completed_at)
+            VALUES ($1, $2, $3, true, NOW())
+            ON CONFLICT (facility_id, module_id, week_number)
+            DO UPDATE SET completed = true, completed_at = NOW()
+        `, [facilityId, moduleId, week_number]);
+        
+        const completedCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_social_completions
+            WHERE facility_id = $1 AND module_id = $2 AND completed = true
+        `, [facilityId, moduleId]);
+        
+        const count = parseInt(completedCount.rows[0].count);
+        
+        if (count >= 4) {
+            await pool.query(`
+                INSERT INTO training_component_progress 
+                (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+                VALUES ($1, $2, 'social', true, 100, NOW())
+                ON CONFLICT (facility_id, module_id, component_type)
+                DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+            `, [facilityId, moduleId]);
+            
+            await recalculateModuleProgress(facilityId, moduleId);
+        }
+        
+        res.json({ success: true, completed_count: count });
+        
+    } catch (error) {
+        console.error('Error marking social week complete:', error);
+        res.status(500).json({ error: 'Failed to mark complete' });
+    }
+});
+
 module.exports = router;

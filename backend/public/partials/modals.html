@@ -1866,3 +1866,49 @@
         </div>
     </div>
 </div>
+
+<!-- Answer Audit Question Modal -->
+<div id="answerAuditModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Answer Audit Question</h2>
+            <button class="modal-close" onclick="hideModal('answerAuditModal')">&times;</button>
+        </div>
+        <form onsubmit="event.preventDefault(); submitAuditResponse();">
+            <div class="form-group">
+                <label class="form-label">Question</label>
+                <div id="audit-question-display" style="padding: 12px; background: var(--bg-secondary); border-radius: 8px; font-size: 0.875rem; line-height: 1.5;"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Answer *</label>
+                <select id="audit-answer-select" class="form-input" onchange="toggleOtherText(this.value)" required>
+                    <option value="">Select answer...</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="updates_needed">Updates or Training Needed</option>
+                    <option value="maintenance_required">Maintenance Required</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="audit-other-text-group" style="display: none;">
+                <label class="form-label">Please specify</label>
+                <textarea id="audit-other-text" class="form-input" rows="3" placeholder="Provide details..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Upload Photo (optional)</label>
+                <input type="file" id="audit-photo-upload" class="form-input" accept="image/*">
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+                    Photo documentation helps with compliance verification
+                </p>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="hideModal('answerAuditModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Answer</button>
+            </div>
+        </form>
+    </div>
+</div>
