@@ -6083,31 +6083,213 @@ async function toggleChecklistTask(taskId) {
 }
 
 // TRAINING HUB
-async function loadTrainingModules() {
-    try {
-        const data = await apiRequest(`/facilities/${AppState.facility.id}/training/modules`);
-        const container = document.querySelector('#training .training-modules');
-        if (!container) return;
+// ============================================
+// TRAINING HUB FUNCTIONS
+// ============================================
 
-        container.innerHTML = data.modules.map(module => {
-            const completionRate = module.completedByStaff ?
-                (module.completedByStaff.length / (data.totalStaff || 1) * 100).toFixed(0) : 0;
+function switchTrainingTab(tabName) {
+    const selectedTab = document.getElementById(`tab-${tabName}`);
+    const selectedContent = document.getElementById(`${tabName}-tab-content`);
+    
+    if (!selectedTab || !selectedContent) {
+        console.log('Training tab elements not found, retrying...');
+        setTimeout(() => switchTrainingTab(tabName), 100);
+        return;
+    }
+    
+    document.querySelectorAll('.training-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    document.querySelectorAll('.training-tab-content').forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+    
+    selectedTab.classList.add('active');
+    selectedContent.style.display = 'block';
+    selectedContent.classList.add('active');
+    
+    if (tabName === 'curriculum') {
+        loadTrainingCurriculum();
+    } else if (tabName === 'certifications') {
+        loadTrainingCertifications();
+    }
+    
+    console.log(`✅ Switched to ${tabName} tab`);
+}
+
+async function loadTrainingHub() {
+    try {
+        console.log('📚 Loading Training Hub...');
+        
+        const waitForTrainingDOM = () => {
+            return new Promise((resolve) => {
+                const check = () => {
+                    if (document.getElementById('tab-curriculum')) {
+                        resolve();
+                    } else {
+                        setTimeout(check, 50);
+                    }
+                };
+                check();
+            });
+        };
+        
+        await waitForTrainingDOM();
+        switchTrainingTab('curriculum');
+        console.log('✅ Training Hub loaded');
+    } catch (error) {
+        console.error('❌ Error loading Training Hub:', error);
+        showError('Failed to load Training Hub');
+    }
+}
+
+async function loadTrainingCurriculum() {
+    try {
+        const grid = document.getElementById('training-modules-grid');
+        if (!grid) return;
+        
+        const response = await apiRequest(`/facilities/${AppState.facility.id}/training/modules-new`);
+        const modules = response.modules || response.data || [];
+        
+        const currentMonth = new Date().getMonth() + 1;
+        const currentYear = new Date().getFullYear();
+        
+        if (modules.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-state-icon">📅</div>
+                    <div class="empty-state-title">No Training Modules</div>
+                    <div class="empty-state-message">Training modules will appear here</div>
+                </div>
+            `;
+            return;
+        }
+        
+        const currentModule = modules.find(m => m.month === currentMonth && m.year === currentYear) || modules[0];
+        
+        if (currentModule) {
+            const monthTitle = document.getElementById('current-month-title');
+            const moduleTitle = document.getElementById('current-month-module');
+            if (monthTitle) monthTitle.textContent = `${getMonthName(currentModule.month)} ${currentModule.year}`;
+            if (moduleTitle) moduleTitle.textContent = currentModule.title;
+        }
+        
+        grid.innerHTML = modules.map(module => {
+            const isPast = module.year < currentYear || (module.year === currentYear && module.month < currentMonth);
+            const isCurrent = module.month === currentMonth && module.year === currentYear;
+            const statusClass = isPast ? 'complete' : (isCurrent ? 'current' : 'upcoming');
+            const statusText = isPast ? '✓ Complete' : (isCurrent ? '● In Progress' : 'Coming Soon');
+            
             return `
-                <div class="training-card">
-                    <h3>${module.title}</h3>
-                    <p>${module.description}</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${completionRate}%"></div>
-                    </div>
-                    <p><small>${completionRate}% of staff completed</small></p>
-                    <button class="btn btn-sm btn-primary" onclick="completeTraining('${module.id}')">Complete Training</button>
+                <div class="training-card ${statusClass}" onclick="openTrainingModule('${module.id}')">
+                    <div class="training-month">${getMonthName(module.month)}</div>
+                    <div class="training-title">${module.title}</div>
+                    <div class="training-theme">${module.theme || ''}</div>
+                    <div class="training-completion">${statusText}</div>
                 </div>
             `;
         }).join('');
+        
     } catch (error) {
-        console.error('Failed to load training modules:', error);
-        showError('Failed to load training modules');
+        console.error('Failed to load training curriculum:', error);
+        const grid = document.getElementById('training-modules-grid');
+        if (grid) {
+            grid.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <div class="empty-state-icon">⚠️</div>
+                    <div class="empty-state-title">Unable to Load</div>
+                    <div class="empty-state-message">Please try refreshing the page</div>
+                </div>
+            `;
+        }
     }
+}
+
+async function loadTrainingCertifications() {
+    try {
+        const list = document.getElementById('certification-types-list');
+        if (!list) return;
+        
+        const response = await apiRequest(`/facilities/${AppState.facility.id}/certification-types`);
+        const certTypes = response.certificationTypes || response.data || [];
+        
+        if (certTypes.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📜</div>
+                    <div class="empty-state-title">No Certification Types</div>
+                    <div class="empty-state-message">Certification types will appear here</div>
+                </div>
+            `;
+            return;
+        }
+        
+        const stateReq = await apiRequest(`/facilities/${AppState.facility.id}/state-requirements`).catch(() => null);
+        if (stateReq && stateReq.data) {
+            const titleEl = document.getElementById('state-req-title');
+            const hoursEl = document.getElementById('state-req-hours');
+            if (titleEl) titleEl.textContent = `${stateReq.data.state_name} Training Requirements`;
+            if (hoursEl) hoursEl.textContent = `${stateReq.data.annual_hours_required} hours/year for staff • ${stateReq.data.director_hours_required || stateReq.data.annual_hours_required} hours/year for directors`;
+        }
+        
+        list.innerHTML = certTypes.map(cert => {
+            const categoryIcon = getCertCategoryIcon(cert.category);
+            const badgeClass = cert.state_code ? 'state' : 'common';
+            const badgeText = cert.state_code ? cert.state_code : 'All States';
+            
+            return `
+                <div class="certification-item">
+                    <div class="cert-icon">${categoryIcon}</div>
+                    <div class="cert-info">
+                        <div class="cert-name">${cert.name}</div>
+                        <div class="cert-details">Renew every ${cert.typical_duration_years || 2} years${cert.required_hours ? ` • ${cert.required_hours} hours` : ''}</div>
+                    </div>
+                    <span class="cert-badge ${badgeClass}">${badgeText}</span>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Failed to load certifications:', error);
+        const list = document.getElementById('certification-types-list');
+        if (list) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <div class="empty-state-title">Unable to Load</div>
+                    <div class="empty-state-message">Please try refreshing the page</div>
+                </div>
+            `;
+        }
+    }
+}
+
+function getMonthName(monthNum) {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[monthNum - 1] || 'Unknown';
+}
+
+function getCertCategoryIcon(category) {
+    const icons = {
+        'health_safety': '🏥',
+        'child_protection': '🛡️',
+        'food_safety': '🍎',
+        'state_specific': '🏛️',
+        'emergency': '🚨'
+    };
+    return icons[category] || '📜';
+}
+
+function openTrainingModule(moduleId) {
+    console.log('Opening training module:', moduleId);
+    showSuccess('Module details coming in Stage 3');
+}
+
+async function loadTrainingModules() {
+    await loadTrainingHub();
 }
 
 let currentTrainingModuleId = null;

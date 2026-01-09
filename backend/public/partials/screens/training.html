@@ -1,81 +1,116 @@
+<!-- Training Hub Header -->
 <div class="page-header">
-    <h1 class="page-title">Training Hub 📚</h1>
-    <p class="page-subtitle">12-Month Safety & Compliance Curriculum</p>
+    <div>
+        <h1 class="page-title">
+            <span style="margin-right: 8px;">📚</span>
+            Training Hub
+        </h1>
+        <p class="page-subtitle">Professional development & compliance tracking</p>
+    </div>
 </div>
 
-<div class="card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));">
-    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Current Month: October 2025</h3>
-    <p style="font-size: 14px; color: var(--gray-700); margin-bottom: 16px;">Module: OSHA Compliance Review</p>
-    <div style="display: flex; gap: 16px; align-items: center;">
-        <div style="flex: 1;">
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: 100%;"></div>
+<!-- Tab Navigation -->
+<div class="training-tabs">
+    <button class="training-tab active" id="tab-curriculum" onclick="switchTrainingTab('curriculum')">
+        <span class="tab-icon">🎓</span>
+        <span class="tab-label">Monthly Curriculum</span>
+        <span class="tab-description">Shield Ops Training Program</span>
+    </button>
+    <button class="training-tab" id="tab-certifications" onclick="switchTrainingTab('certifications')">
+        <span class="tab-icon">📜</span>
+        <span class="tab-label">Required Certifications</span>
+        <span class="tab-description">State Compliance Tracking</span>
+    </button>
+</div>
+
+<!-- Tab Content Area -->
+<div class="training-content">
+    
+    <!-- TAB 1: Monthly Curriculum -->
+    <div id="curriculum-tab-content" class="training-tab-content active">
+        <div class="curriculum-loading" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-state-icon">⏳</div>
+                <div class="empty-state-title">Loading...</div>
             </div>
         </div>
-        <div style="font-size: 24px; font-weight: 700; color: var(--success);">100%</div>
+        
+        <!-- Current Month Highlight Card -->
+        <div id="current-month-card" class="card" style="background: linear-gradient(135deg, rgba(44, 95, 124, 0.1), rgba(180, 211, 51, 0.1)); margin-bottom: 24px; border: 2px solid rgba(44, 95, 124, 0.15);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <span style="font-size: 2rem;">📅</span>
+                <div>
+                    <h3 id="current-month-title" style="font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--shield-navy);">January 2026</h3>
+                    <p id="current-month-module" style="font-size: 14px; color: var(--text-secondary); margin: 0;">New Year Safety Goals & Facility Assessment</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div style="flex: 1;">
+                    <div class="progress-bar" style="height: 10px; background: rgba(44, 95, 124, 0.15); border-radius: 5px;">
+                        <div id="current-month-progress" class="progress-fill" style="width: 0%; background: linear-gradient(90deg, var(--shield-navy), var(--shield-lime)); border-radius: 5px; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+                <div id="current-month-percent" style="font-size: 24px; font-weight: 700; color: var(--shield-navy);">0%</div>
+            </div>
+            <p id="current-month-status" style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">Start your first training module</p>
+        </div>
+        
+        <!-- 12-Month Training Grid -->
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">📆 2026 Training Calendar</h3>
+        <div id="training-modules-grid" class="training-grid">
+            <!-- Modules will be loaded dynamically -->
+        </div>
     </div>
-    <p style="font-size: 13px; color: var(--gray-700); margin-top: 8px;">All 15 staff members completed ✓</p>
-</div>
 
-<div class="training-grid">
-    <div class="training-card complete">
-        <div class="training-month">January</div>
-        <div class="training-title">Emergency Preparedness & Fire Safety</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
+    <!-- TAB 2: Required Certifications -->
+    <div id="certifications-tab-content" class="training-tab-content" style="display: none;">
+        <div class="certifications-loading" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-state-icon">⏳</div>
+                <div class="empty-state-title">Loading...</div>
+            </div>
+        </div>
+        
+        <!-- Certification Stats Cards -->
+        <div class="cert-stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <div class="card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">👥</div>
+                <div id="cert-total-staff" style="font-size: 2rem; font-weight: 700; color: var(--shield-navy);">--</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary);">Total Staff</div>
+            </div>
+            <div class="card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">✅</div>
+                <div id="cert-compliant" style="font-size: 2rem; font-weight: 700; color: var(--success);">--</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary);">Fully Compliant</div>
+            </div>
+            <div class="card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">⚠️</div>
+                <div id="cert-expiring" style="font-size: 2rem; font-weight: 700; color: var(--warning);">--</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary);">Expiring Soon</div>
+            </div>
+            <div class="card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 2rem; margin-bottom: 8px;">🎯</div>
+                <div id="cert-hours-avg" style="font-size: 2rem; font-weight: 700; color: var(--shield-lime);">--</div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary);">Avg Annual Hours</div>
+            </div>
+        </div>
+        
+        <!-- State Requirements Card -->
+        <div class="card" style="margin-bottom: 24px; border-left: 4px solid var(--shield-navy);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <span style="font-size: 1.5rem;">🏛️</span>
+                <div>
+                    <h3 id="state-req-title" style="font-size: 1rem; font-weight: 700; margin: 0;">Texas Training Requirements</h3>
+                    <p id="state-req-hours" style="font-size: 0.875rem; color: var(--text-secondary); margin: 4px 0 0 0;">24 hours/year for staff • 30 hours/year for directors</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Certification Types List -->
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">📜 Required Certification Types</h3>
+        <div id="certification-types-list" class="certification-list">
+            <!-- Certification types will be loaded dynamically -->
+        </div>
     </div>
-    <div class="training-card complete">
-        <div class="training-month">February</div>
-        <div class="training-title">Child Protection & Abuse Prevention</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">March</div>
-        <div class="training-title">First Aid & Medical Emergencies</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">April</div>
-        <div class="training-title">Food Safety & Allergy Management</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">May</div>
-        <div class="training-title">Playground Safety & Equipment Inspection</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">June</div>
-        <div class="training-title">Water Safety & Summer Protocols</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">July</div>
-        <div class="training-title">Active Threat Response</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">August</div>
-        <div class="training-title">Health & Illness Management</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">September</div>
-        <div class="training-title">Transportation Safety</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card complete">
-        <div class="training-month">October</div>
-        <div class="training-title">OSHA Compliance Review</div>
-        <div class="training-completion">✓ Complete - 15/15 staff</div>
-    </div>
-    <div class="training-card">
-        <div class="training-month">November</div>
-        <div class="training-title">Severe Weather Preparedness</div>
-        <div class="training-completion">Coming soon</div>
-    </div>
-    <div class="training-card">
-        <div class="training-month">December</div>
-        <div class="training-title">Holiday Safety & Year-End Review</div>
-        <div class="training-completion">Coming soon</div>
-    </div>
+
 </div>

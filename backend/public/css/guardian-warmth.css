@@ -2338,3 +2338,285 @@ tr:hover td {
     border-top: 1px dashed var(--card-border);
     margin-top: 8px;
 }
+
+/* ============================================
+   TRAINING HUB STYLES
+   ============================================ */
+
+/* Tab Navigation */
+.training-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.training-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.training-tab:hover {
+    border-color: var(--shield-navy);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.training-tab.active {
+    border-color: var(--shield-navy);
+    background: linear-gradient(135deg, rgba(44, 95, 124, 0.05) 0%, var(--card-bg) 100%);
+    box-shadow: 0 4px 12px rgba(44, 95, 124, 0.15);
+}
+
+.training-tab .tab-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.training-tab .tab-label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.training-tab .tab-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: block;
+}
+
+/* Tab Content */
+.training-content {
+    position: relative;
+    min-height: 400px;
+}
+
+.training-tab-content {
+    animation: trainingFadeIn 0.3s ease;
+}
+
+.training-tab-content.active {
+    display: block;
+}
+
+@keyframes trainingFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Training Grid */
+.training-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.training-card {
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.training-card:hover {
+    border-color: var(--shield-navy);
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.training-card.complete {
+    border-left: 4px solid var(--status-success);
+    background: linear-gradient(135deg, var(--status-success-bg) 0%, var(--card-bg) 100%);
+}
+
+.training-card.current {
+    border-left: 4px solid var(--shield-navy);
+    background: linear-gradient(135deg, rgba(44, 95, 124, 0.08) 0%, var(--card-bg) 100%);
+}
+
+.training-card.upcoming {
+    border-left: 4px solid var(--text-tertiary);
+    opacity: 0.7;
+}
+
+.training-card .training-month {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--shield-navy);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.training-card .training-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.training-card .training-theme {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.training-card .training-completion {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.training-card.complete .training-completion {
+    background: var(--status-success-bg);
+    color: var(--status-success);
+}
+
+.training-card.current .training-completion {
+    background: rgba(44, 95, 124, 0.1);
+    color: var(--shield-navy);
+}
+
+.training-card.upcoming .training-completion {
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
+}
+
+/* Certification List */
+.certification-list {
+    display: grid;
+    gap: 12px;
+}
+
+.certification-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.certification-item:hover {
+    border-color: var(--shield-navy);
+    box-shadow: var(--card-shadow);
+}
+
+.certification-item .cert-icon {
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border-radius: 10px;
+}
+
+.certification-item .cert-info {
+    flex: 1;
+}
+
+.certification-item .cert-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.certification-item .cert-details {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.certification-item .cert-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.certification-item .cert-badge.common {
+    background: rgba(44, 95, 124, 0.1);
+    color: var(--shield-navy);
+}
+
+.certification-item .cert-badge.state {
+    background: var(--status-warning-bg);
+    color: var(--status-warning);
+}
+
+/* Empty State (Placeholder) */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    text-align: center;
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 2px dashed rgba(44, 95, 124, 0.2);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 24px;
+    opacity: 0.6;
+}
+
+.empty-state-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.empty-state-message {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.empty-state-detail {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    padding: 12px 24px;
+    background: rgba(44, 95, 124, 0.05);
+    border-radius: 8px;
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .training-tabs {
+        grid-template-columns: 1fr;
+    }
+    
+    .training-grid {
+        grid-template-columns: 1fr;
+    }
+}

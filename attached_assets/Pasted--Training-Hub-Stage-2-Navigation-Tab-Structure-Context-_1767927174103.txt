@@ -1,0 +1,425 @@
+# Training Hub - Stage 2: Navigation & Tab Structure
+
+## Context
+Stage 1 completed successfully - we have all database tables and seed data.
+Now we're building the UI foundation: navigation item and two-tab layout.
+
+## Critical Requirements
+- ⚠️ DO NOT modify existing navigation items or their functionality
+- ⚠️ DO NOT break existing screens (dashboard, staff, compliance, etc.)
+- ✅ Add "Training Hub" to navigation sidebar
+- ✅ Create training hub page with clean 2-tab layout
+- ✅ Tabs switch smoothly (Monthly Curriculum / Required Certifications)
+- ✅ Empty state placeholders only (no full functionality yet)
+
+## Current Navigation Structure
+Looking at the existing app, navigation includes:
+- Dashboard
+- State Licensing (under COMPLIANCE)
+- Staff Management (under OPERATIONS)
+- Incident Reports
+- Daily Checklist
+- Document Vault
+- Medication Tracking
+- Settings
+
+We're adding "Training Hub" under OPERATIONS section.
+
+## Goals for Stage 2
+1. Add Training Hub to navigation sidebar
+2. Create training hub page structure
+3. Implement 2-tab layout with smooth switching
+4. Add basic styling matching Shield Ops aesthetic
+5. Display empty state placeholders in each tab
+
+## Tasks
+
+### 1. Add Navigation Item
+
+**In index.html, find the OPERATIONS section and add Training Hub:**
+```html
+<!-- OPERATIONS Section in Navigation -->
+<div class="nav-section">
+    <div class="nav-section-title">OPERATIONS</div>
+    
+    <!-- EXISTING: Training Hub (if it exists, update it. If not, add it) -->
+    <a href="#" class="nav-item" onclick="showScreen('training'); return false;">
+        <span class="nav-icon">📚</span>
+        <span class="nav-text">Training Hub</span>
+    </a>
+    
+    <!-- Keep all other existing nav items -->
+    <a href="#" class="nav-item" onclick="showScreen('staff'); return false;">
+        <span class="nav-icon">👥</span>
+        <span class="nav-text">Staff Management</span>
+    </a>
+    
+    <!-- ... other existing items ... -->
+</div>
+```
+
+### 2. Add Training Hub HTML Structure
+
+**In index.html, add this new screen section (after other screens, before closing body):**
+```html
+<!-- ============================================ -->
+<!-- TRAINING HUB SCREEN -->
+<!-- ============================================ -->
+<div id="training-screen" class="screen-content" style="display: none;">
+    
+    <!-- Header -->
+    <div class="screen-header">
+        <div>
+            <h1 class="screen-title">
+                <span class="screen-icon">📚</span>
+                Training Hub
+            </h1>
+            <p class="screen-subtitle">Professional development & compliance tracking</p>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="training-tabs">
+        <button class="training-tab active" id="tab-curriculum" onclick="switchTrainingTab('curriculum')">
+            <span class="tab-icon">🎓</span>
+            <span class="tab-label">Monthly Curriculum</span>
+            <span class="tab-description">Shield Ops Training Program</span>
+        </button>
+        <button class="training-tab" id="tab-certifications" onclick="switchTrainingTab('certifications')">
+            <span class="tab-icon">📜</span>
+            <span class="tab-label">Required Certifications</span>
+            <span class="tab-description">State Compliance Tracking</span>
+        </button>
+    </div>
+
+    <!-- Tab Content Area -->
+    <div class="training-content">
+        
+        <!-- TAB 1: Monthly Curriculum -->
+        <div id="curriculum-tab-content" class="training-tab-content active">
+            <div class="empty-state">
+                <div class="empty-state-icon">🎓</div>
+                <div class="empty-state-title">Monthly Curriculum</div>
+                <div class="empty-state-message">
+                    12-month safety & compliance training program
+                </div>
+                <div class="empty-state-detail">
+                    Coming in Stage 3: Calendar view with monthly training modules
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Required Certifications -->
+        <div id="certifications-tab-content" class="training-tab-content" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-state-icon">📜</div>
+                <div class="empty-state-title">Required Certifications</div>
+                <div class="empty-state-message">
+                    State-mandated training & certificate tracking
+                </div>
+                <div class="empty-state-detail">
+                    Coming in Stage 4: Certification logging and compliance reports
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+```
+
+### 3. Add Training Hub CSS
+
+**In styles.css, add these new styles at the end:**
+```css
+/* ============================================ */
+/* TRAINING HUB STYLES */
+/* ============================================ */
+
+/* Tab Navigation */
+.training-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.training-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    background: white;
+    border: 2px solid rgba(44, 95, 124, 0.1);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.training-tab:hover {
+    border-color: var(--shield-navy);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(44, 95, 124, 0.1);
+}
+
+.training-tab.active {
+    border-color: var(--shield-navy);
+    background: linear-gradient(135deg, rgba(44, 95, 124, 0.05) 0%, white 100%);
+    box-shadow: 0 4px 12px rgba(44, 95, 124, 0.15);
+}
+
+.training-tab .tab-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.training-tab .tab-label {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.training-tab .tab-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    display: block;
+}
+
+/* Tab Content */
+.training-content {
+    position: relative;
+    min-height: 400px;
+}
+
+.training-tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
+.training-tab-content.active {
+    display: block;
+}
+
+/* Empty State (Placeholder) */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 40px;
+    text-align: center;
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed rgba(44, 95, 124, 0.2);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 24px;
+    opacity: 0.6;
+}
+
+.empty-state-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.empty-state-message {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.empty-state-detail {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    padding: 12px 24px;
+    background: rgba(44, 95, 124, 0.05);
+    border-radius: 8px;
+    font-style: italic;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .training-tabs {
+        grid-template-columns: 1fr;
+    }
+}
+```
+
+### 4. Add Training Hub JavaScript
+
+**In app.js, add these new functions (at the end, before closing):**
+```javascript
+// ============================================
+// TRAINING HUB FUNCTIONS
+// ============================================
+
+/**
+ * Switch between training tabs
+ */
+function switchTrainingTab(tabName) {
+    // Remove active class from all tabs
+    document.querySelectorAll('.training-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Hide all tab content
+    document.querySelectorAll('.training-tab-content').forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+    
+    // Activate selected tab
+    const selectedTab = document.getElementById(`tab-${tabName}`);
+    const selectedContent = document.getElementById(`${tabName}-tab-content`);
+    
+    if (selectedTab && selectedContent) {
+        selectedTab.classList.add('active');
+        selectedContent.style.display = 'block';
+        selectedContent.classList.add('active');
+    }
+    
+    console.log(`✅ Switched to ${tabName} tab`);
+}
+
+/**
+ * Load training hub (called when screen shown)
+ */
+async function loadTrainingHub() {
+    try {
+        console.log('📚 Loading Training Hub...');
+        
+        // For now, just ensure curriculum tab is active by default
+        switchTrainingTab('curriculum');
+        
+        // Future stages will load actual content here
+        
+        console.log('✅ Training Hub loaded');
+        
+    } catch (error) {
+        console.error('❌ Error loading Training Hub:', error);
+        showError('Failed to load Training Hub');
+    }
+}
+
+// Update the existing showScreen function to handle training screen
+// Find showScreen function and add training case:
+
+// In your existing showScreen function, add this case:
+/*
+case 'training':
+    await loadTrainingHub();
+    break;
+*/
+```
+
+### 5. Update showScreen Function
+
+**Find your existing `showScreen` function in app.js and add the training case:**
+```javascript
+async function showScreen(screenName) {
+    // Hide all screens
+    document.querySelectorAll('.screen-content').forEach(screen => {
+        screen.style.display = 'none';
+    });
+
+    // Remove active class from all nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    // Show selected screen
+    const screen = document.getElementById(`${screenName}-screen`);
+    if (screen) {
+        screen.style.display = 'block';
+        
+        // Add active class to corresponding nav item
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(screenName)) {
+                item.classList.add('active');
+            }
+        });
+    }
+
+    // Update current screen tracker
+    currentScreen = screenName;
+
+    // Load screen-specific content
+    switch (screenName) {
+        case 'dashboard':
+            await loadDashboard();
+            break;
+        case 'staff':
+            await loadStaffManagement();
+            break;
+        case 'training':  // ← ADD THIS CASE
+            await loadTrainingHub();
+            break;
+        // ... other existing cases ...
+    }
+}
+```
+
+### 6. Test Navigation Integration
+
+Add a console log to verify everything connects:
+```javascript
+// Add this at the end of app.js to verify training hub is ready
+console.log('📚 Training Hub navigation registered');
+```
+
+## Expected Outcome After Stage 2
+- ✅ "Training Hub" appears in navigation sidebar under OPERATIONS
+- ✅ Clicking Training Hub loads the training screen
+- ✅ Two tab buttons display (Monthly Curriculum / Required Certifications)
+- ✅ Tabs switch smoothly when clicked
+- ✅ Empty state placeholders show in each tab
+- ✅ Clean styling matching Shield Ops aesthetic
+- ✅ No breaking changes to existing screens
+- ✅ Console logs confirm successful loading
+
+## Testing Checklist Stage 2
+- [ ] Training Hub navigation item appears in sidebar
+- [ ] Clicking Training Hub shows training screen
+- [ ] Other nav items still work (Dashboard, Staff, etc.)
+- [ ] Two tabs display correctly
+- [ ] Clicking "Monthly Curriculum" tab activates it (visual change)
+- [ ] Clicking "Required Certifications" tab activates it (visual change)
+- [ ] Active tab has darker border and gradient background
+- [ ] Empty state placeholders display in each tab
+- [ ] Page responsive on mobile (tabs stack vertically)
+- [ ] No console errors
+- [ ] No breaking changes to existing functionality
+
+## Design Notes
+- Using Shield Ops colors: navy (#2c5f7c), lime (#b4d333), gold (#f5c842)
+- Tab buttons are large and prominent (easy to click)
+- Empty states clearly communicate "coming soon" 
+- Smooth transitions with CSS animations
+- Matches existing screen header patterns
+
+## Next Stage Preview
+Stage 3A will build the Monthly Curriculum calendar view (12 module cards)
+Stage 3B will build the module detail page structure
+Stage 3C-3D will add component functionality
+
+Implement Stage 2 - Training Hub Navigation & Tabs!
