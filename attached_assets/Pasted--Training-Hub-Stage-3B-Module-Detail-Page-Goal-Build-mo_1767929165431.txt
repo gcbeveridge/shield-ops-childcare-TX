@@ -1,0 +1,395 @@
+# Training Hub - Stage 3B: Module Detail Page
+
+## Goal
+Build module detail page with 5 component tabs and progress tracker. Click module card → Show detail page with tab navigation.
+
+## Tasks
+
+### 1. Add Module Detail HTML to index.html
+
+```html
+<!-- Add after training-screen div, before closing body -->
+<div id="training-module-detail-screen" class="screen-content" style="display: none;">
+    
+    <!-- Back Button -->
+    <button class="btn-back" onclick="backToTrainingHub()">
+        ← Back to Training Calendar
+    </button>
+    
+    <!-- Module Header -->
+    <div id="module-detail-header" class="module-detail-header">
+        <!-- Populated by JavaScript -->
+    </div>
+    
+    <!-- Progress Tracker -->
+    <div id="module-progress-tracker" class="module-progress-tracker">
+        <!-- Populated by JavaScript -->
+    </div>
+    
+    <!-- Component Tabs -->
+    <div class="component-tabs" id="component-tabs">
+        <!-- Populated by JavaScript -->
+    </div>
+    
+    <!-- Component Content Area -->
+    <div class="component-content" id="component-content">
+        <!-- Populated by JavaScript based on active tab -->
+    </div>
+    
+</div>
+```
+
+### 2. Add CSS for Module Detail Page
+
+```css
+/* Module Detail Page */
+.module-detail-header {
+    background: linear-gradient(135deg, #2c5f7c 0%, #3d7a9a 100%);
+    color: white;
+    padding: 32px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+}
+
+.module-detail-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.module-detail-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.module-detail-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    font-size: 0.875rem;
+}
+
+/* Progress Tracker */
+.module-progress-tracker {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(44, 95, 124, 0.08);
+}
+
+.progress-tracker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.progress-percentage {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--shield-navy);
+}
+
+.progress-message {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.progress-tracker-bar {
+    height: 12px;
+    background: rgba(44, 95, 124, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.progress-tracker-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--shield-navy), var(--shield-lime));
+    transition: width 0.5s ease;
+}
+
+/* Component Tabs */
+.component-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.component-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: white;
+    border: 2px solid rgba(44, 95, 124, 0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.component-tab:hover {
+    border-color: var(--shield-navy);
+}
+
+.component-tab.active {
+    background: var(--shield-navy);
+    color: white;
+    border-color: var(--shield-navy);
+}
+
+.component-tab.complete {
+    background: rgba(180, 211, 51, 0.1);
+    border-color: var(--shield-lime);
+}
+
+.component-tab-icon {
+    font-size: 1.25rem;
+}
+
+.component-tab-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.component-tab-weight {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+
+/* Component Content */
+.component-content {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    min-height: 400px;
+}
+
+.component-placeholder {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+}
+
+.btn-back {
+    margin-bottom: 24px;
+    padding: 10px 16px;
+    background: white;
+    border: 2px solid rgba(44, 95, 124, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    background: var(--shield-navy);
+    color: white;
+    border-color: var(--shield-navy);
+}
+
+@media (max-width: 768px) {
+    .component-tabs {
+        flex-direction: column;
+    }
+}
+```
+
+### 3. Add JavaScript Functions
+
+```javascript
+// ============================================
+// MODULE DETAIL PAGE FUNCTIONS
+// ============================================
+
+let currentModule = null;
+
+/**
+ * Open module detail page
+ */
+async function openModule(moduleId) {
+    try {
+        console.log('📖 Opening module:', moduleId);
+        
+        const facilityId = localStorage.getItem('facilityId');
+        
+        // Fetch module details
+        const modules = await apiRequest(`/api/facilities/${facilityId}/training/modules`);
+        currentModule = modules.find(m => m.id === moduleId);
+        
+        if (!currentModule) {
+            showError('Module not found');
+            return;
+        }
+        
+        // Hide training calendar, show detail page
+        document.getElementById('training-screen').style.display = 'none';
+        document.getElementById('training-module-detail-screen').style.display = 'block';
+        
+        // Render module detail
+        renderModuleHeader();
+        renderProgressTracker();
+        renderComponentTabs();
+        
+        // Load first component by default
+        switchComponent('champion');
+        
+    } catch (error) {
+        console.error('Error opening module:', error);
+        showError('Failed to load module details');
+    }
+}
+
+/**
+ * Back to training hub calendar
+ */
+function backToTrainingHub() {
+    document.getElementById('training-module-detail-screen').style.display = 'none';
+    document.getElementById('training-screen').style.display = 'block';
+    currentModule = null;
+}
+
+/**
+ * Render module header
+ */
+function renderModuleHeader() {
+    const header = document.getElementById('module-detail-header');
+    const monthName = getMonthName(currentModule.month).toUpperCase();
+    const statusConfig = getStatusConfig(currentModule.status);
+    
+    header.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <span class="module-status-badge ${currentModule.status}">
+                <span class="badge-icon">${statusConfig.icon}</span>
+                <span>${statusConfig.label}</span>
+            </span>
+            <span style="opacity: 0.8;">${monthName} ${currentModule.year}</span>
+        </div>
+        <h1 class="module-detail-title">${currentModule.title}</h1>
+        <p class="module-detail-subtitle">${currentModule.description}</p>
+        <div class="module-detail-meta">
+            <span>📚 Theme: ${currentModule.theme}</span>
+            <span>⏱️ ${currentModule.estimated_duration_minutes} minutes</span>
+        </div>
+    `;
+}
+
+/**
+ * Render progress tracker
+ */
+function renderProgressTracker() {
+    const tracker = document.getElementById('module-progress-tracker');
+    const progress = currentModule.progress || 0;
+    
+    let message = 'Ready to start';
+    if (progress > 0 && progress < 100) message = 'In progress - keep going!';
+    if (progress === 100) message = 'Module complete! 🎉';
+    
+    tracker.innerHTML = `
+        <div class="progress-tracker-header">
+            <div>
+                <div class="progress-percentage">${progress}%</div>
+                <div class="progress-message">${message}</div>
+            </div>
+        </div>
+        <div class="progress-tracker-bar">
+            <div class="progress-tracker-fill" style="width: ${progress}%"></div>
+        </div>
+    `;
+}
+
+/**
+ * Render component tabs
+ */
+function renderComponentTabs() {
+    const components = [
+        { id: 'champion', icon: '📖', label: 'Shield Champion Training', weight: 25 },
+        { id: 'communication', icon: '💬', label: 'Team Communication', weight: 20 },
+        { id: 'acknowledgment', icon: '✓', label: 'Staff Acknowledgment', weight: 25 },
+        { id: 'audit', icon: '📋', label: 'Monthly Audit', weight: 15 },
+        { id: 'social', icon: '📱', label: 'SafeGrowth Accelerator', weight: 15 }
+    ];
+    
+    const tabsContainer = document.getElementById('component-tabs');
+    
+    tabsContainer.innerHTML = components.map(comp => `
+        <button class="component-tab" id="tab-${comp.id}" onclick="switchComponent('${comp.id}')">
+            <span class="component-tab-icon">${comp.icon}</span>
+            <div>
+                <div class="component-tab-label">${comp.label}</div>
+                <div class="component-tab-weight">${comp.weight}% weight</div>
+            </div>
+        </button>
+    `).join('');
+}
+
+/**
+ * Switch between components
+ */
+function switchComponent(componentId) {
+    // Update active tab
+    document.querySelectorAll('.component-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.getElementById(`tab-${componentId}`).classList.add('active');
+    
+    // Load component content
+    loadComponentContent(componentId);
+}
+
+/**
+ * Load component content (placeholder for Stage 3C/3D)
+ */
+function loadComponentContent(componentId) {
+    const content = document.getElementById('component-content');
+    
+    const placeholders = {
+        champion: { icon: '📖', title: 'Shield Champion Training', description: 'Educational content will be added in Stage 3C' },
+        communication: { icon: '💬', title: 'Team Communication Distribution', description: 'Message copying and response tracking will be added in Stage 3C' },
+        acknowledgment: { icon: '✓', title: 'Staff Acknowledgment Tracking', description: 'Staff checklist will be added in Stage 3C' },
+        audit: { icon: '📋', title: 'Monthly Audit Questions', description: '4 facility safety questions will be added in Stage 3D' },
+        social: { icon: '📱', title: 'SafeGrowth Accelerator Planning', description: '4-week social media content will be added in Stage 3D' }
+    };
+    
+    const placeholder = placeholders[componentId];
+    
+    content.innerHTML = `
+        <div class="component-placeholder">
+            <div style="font-size: 4rem; margin-bottom: 16px;">${placeholder.icon}</div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;">${placeholder.title}</h2>
+            <p style="color: var(--text-secondary);">${placeholder.description}</p>
+            <button class="btn-secondary" style="margin-top: 24px;" onclick="backToTrainingHub()">
+                Back to Calendar
+            </button>
+        </div>
+    `;
+}
+```
+
+## Expected Outcome Stage 3B
+- ✅ Click module card → Navigates to detail page
+- ✅ Back button returns to calendar
+- ✅ Module header shows title, theme, status badge
+- ✅ Progress tracker shows 0% (or actual if exists)
+- ✅ 5 component tabs display horizontally
+- ✅ Tabs switch when clicked
+- ✅ Placeholder content shows in each tab
+- ✅ Responsive design works
+
+## Testing Checklist Stage 3B
+- [ ] Click January module → Detail page loads
+- [ ] Header shows "NEW YEAR SAFETY GOALS & FACILITY ASSESSMENT"
+- [ ] Progress shows 0%
+- [ ] 5 tabs visible (Champion, Communication, Acknowledgment, Audit, Social)
+- [ ] Click tabs → Content switches (placeholders for now)
+- [ ] Back button returns to calendar
+- [ ] Can click different module → Shows that module's details
+- [ ] No console errors
+
+## Next: Stage 3C will add actual component functionality (Champion, Communication, Acknowledgment)
+
+Implement Stage 3B - Module Detail Page Structure!

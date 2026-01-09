@@ -6311,9 +6311,183 @@ function getButtonText(status, progress) {
     return 'View Module';
 }
 
-function openTrainingModule(moduleId) {
+let currentTrainingModuleDetail = null;
+
+async function openTrainingModule(moduleId) {
     console.log('📖 Opening module:', moduleId);
-    showSuccess('Module detail page coming in Stage 3B!');
+    
+    try {
+        const response = await apiRequest(`/facilities/${AppState.facility.id}/training/modules-new`);
+        const modules = response.modules || [];
+        
+        currentTrainingModuleDetail = modules.find(m => m.id === moduleId);
+        
+        if (!currentTrainingModuleDetail) {
+            showError('Module not found');
+            return;
+        }
+        
+        const trainingTabs = document.querySelector('.training-tabs');
+        const trainingContent = document.querySelector('.training-content');
+        const detailView = document.getElementById('training-module-detail');
+        
+        if (!detailView) {
+            showError('Module detail view not available');
+            return;
+        }
+        
+        if (trainingTabs) trainingTabs.style.display = 'none';
+        if (trainingContent) trainingContent.style.display = 'none';
+        detailView.style.display = 'block';
+        
+        renderModuleHeader();
+        renderModuleProgressTracker();
+        renderComponentTabs();
+        
+        setTimeout(() => switchComponentTab('champion'), 50);
+        
+    } catch (error) {
+        console.error('Error opening module:', error);
+        showError('Failed to load module details');
+    }
+}
+
+function backToTrainingHub() {
+    const detailView = document.getElementById('training-module-detail');
+    if (detailView) {
+        detailView.style.display = 'none';
+    }
+    document.querySelector('.training-tabs').style.display = 'grid';
+    document.querySelector('.training-content').style.display = 'block';
+    currentTrainingModuleDetail = null;
+}
+
+function renderModuleHeader() {
+    const header = document.getElementById('module-detail-header');
+    if (!header || !currentTrainingModuleDetail) return;
+    
+    const module = currentTrainingModuleDetail;
+    const monthName = getMonthName(module.month).toUpperCase();
+    const statusConfig = getStatusConfig(module.status);
+    
+    header.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <span class="module-status-badge ${module.status}">
+                <span class="badge-icon">${statusConfig.icon}</span>
+                <span>${statusConfig.label}</span>
+            </span>
+            <span style="opacity: 0.8;">${monthName} ${module.year}</span>
+        </div>
+        <h1 class="module-detail-title">${module.title}</h1>
+        <p class="module-detail-subtitle">${module.description || ''}</p>
+        <div class="module-detail-meta">
+            <span>📚 Theme: ${module.theme || 'Training Module'}</span>
+            <span>⏱️ ${module.estimated_duration_minutes || 45} minutes</span>
+        </div>
+    `;
+}
+
+function renderModuleProgressTracker() {
+    const tracker = document.getElementById('module-progress-tracker');
+    if (!tracker || !currentTrainingModuleDetail) return;
+    
+    const progress = parseInt(currentTrainingModuleDetail.progress) || 0;
+    
+    let message = 'Ready to start your learning journey';
+    if (progress > 0 && progress < 100) message = 'In progress - keep going!';
+    if (progress === 100) message = 'Module complete! Great work! 🎉';
+    
+    tracker.innerHTML = `
+        <div class="progress-tracker-header">
+            <div>
+                <div class="progress-percentage">${progress}%</div>
+                <div class="progress-message">${message}</div>
+            </div>
+        </div>
+        <div class="progress-tracker-bar">
+            <div class="progress-tracker-fill" style="width: ${progress}%"></div>
+        </div>
+    `;
+}
+
+function renderComponentTabs() {
+    const components = [
+        { id: 'champion', icon: '📖', label: 'Shield Champion Training', weight: 25 },
+        { id: 'communication', icon: '💬', label: 'Team Communication', weight: 20 },
+        { id: 'acknowledgment', icon: '✓', label: 'Staff Acknowledgment', weight: 25 },
+        { id: 'audit', icon: '📋', label: 'Monthly Audit', weight: 15 },
+        { id: 'social', icon: '📱', label: 'SafeGrowth Accelerator', weight: 15 }
+    ];
+    
+    const tabsContainer = document.getElementById('component-tabs');
+    if (!tabsContainer) return;
+    
+    tabsContainer.innerHTML = components.map(comp => `
+        <button class="component-tab" id="comp-tab-${comp.id}" onclick="switchComponentTab('${comp.id}')">
+            <span class="component-tab-icon">${comp.icon}</span>
+            <div>
+                <div class="component-tab-label">${comp.label}</div>
+                <div class="component-tab-weight">${comp.weight}% weight</div>
+            </div>
+        </button>
+    `).join('');
+}
+
+function switchComponentTab(componentId) {
+    document.querySelectorAll('.component-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    const activeTab = document.getElementById(`comp-tab-${componentId}`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+    
+    loadComponentContent(componentId);
+}
+
+function loadComponentContent(componentId) {
+    const content = document.getElementById('component-content');
+    if (!content) return;
+    
+    const placeholders = {
+        champion: { 
+            icon: '📖', 
+            title: 'Shield Champion Training', 
+            description: 'Educational content with champion scripts, key learning points, and certification preparation materials.'
+        },
+        communication: { 
+            icon: '💬', 
+            title: 'Team Communication Distribution', 
+            description: 'Message templates to share with your team, with copy-to-clipboard functionality and response tracking.'
+        },
+        acknowledgment: { 
+            icon: '✓', 
+            title: 'Staff Acknowledgment Tracking', 
+            description: 'Track which staff members have reviewed and acknowledged this month\'s training content.'
+        },
+        audit: { 
+            icon: '📋', 
+            title: 'Monthly Audit Questions', 
+            description: '4 facility safety questions to assess and document your compliance status.'
+        },
+        social: { 
+            icon: '📱', 
+            title: 'SafeGrowth Accelerator Planning', 
+            description: '4-week social media content calendar to showcase your facility\'s safety commitment.'
+        }
+    };
+    
+    const placeholder = placeholders[componentId] || { icon: '📄', title: 'Component', description: 'Content loading...' };
+    
+    content.innerHTML = `
+        <div class="component-placeholder">
+            <div class="component-placeholder-icon">${placeholder.icon}</div>
+            <h2>${placeholder.title}</h2>
+            <p>${placeholder.description}</p>
+            <p style="margin-top: 16px; font-size: 0.875rem; opacity: 0.7;">Content coming in Stage 3C/3D</p>
+        </div>
+    `;
 }
 
 async function loadTrainingCertifications() {
@@ -6390,11 +6564,6 @@ function getCertCategoryIcon(category) {
         'emergency': '🚨'
     };
     return icons[category] || '📜';
-}
-
-function openTrainingModule(moduleId) {
-    console.log('Opening training module:', moduleId);
-    showSuccess('Module details coming in Stage 3');
 }
 
 async function loadTrainingModules() {
