@@ -38,6 +38,7 @@ The application is a single-page web application with a RESTful API.
 - **Training Hub (Redesigned):**
     - **2-Tab Navigation:** Monthly Curriculum and Required Certifications tabs with DOM-ready tab switching.
     - **Monthly Curriculum Calendar View (Stage 3A):** 12-month calendar grid with module cards, status badges (ACTIVE/PREVIEW/AVAILABLE), progress bars, current month highlight banner, and Training Progress Overview section.
+    - **Module Detail Page (Stage 3B):** Click module card → detail page with back button, header (title/theme/status badge), progress tracker with percentage bar, 5 component tabs (Shield Champion Training 25%, Team Communication 20%, Staff Acknowledgment 25%, Monthly Audit 15%, SafeGrowth Accelerator 15%), placeholder content for each tab.
     - **Required Certifications:** List view of certification types with status indicators.
     - **API Endpoints:** GET /training/modules-new (with status/progress), GET /training/progress-summary, GET /certification-types, GET /state-requirements.
     - **Database Tables (14 new):** training_modules_new, training_champion_content, training_team_messages, training_staff_responses, training_acknowledgments, training_audit_questions, training_audit_responses, training_social_content, training_social_completions, training_component_progress, training_module_progress, certification_types, staff_certifications, staff_annual_hours, state_training_requirements.
