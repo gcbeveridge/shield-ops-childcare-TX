@@ -6446,48 +6446,401 @@ function switchComponentTab(componentId) {
     loadComponentContent(componentId);
 }
 
-function loadComponentContent(componentId) {
+async function loadComponentContent(componentId) {
     const content = document.getElementById('component-content');
     if (!content) return;
     
-    const placeholders = {
-        champion: { 
-            icon: '📖', 
-            title: 'Shield Champion Training', 
-            description: 'Educational content with champion scripts, key learning points, and certification preparation materials.'
-        },
-        communication: { 
-            icon: '💬', 
-            title: 'Team Communication Distribution', 
-            description: 'Message templates to share with your team, with copy-to-clipboard functionality and response tracking.'
-        },
-        acknowledgment: { 
-            icon: '✓', 
-            title: 'Staff Acknowledgment Tracking', 
-            description: 'Track which staff members have reviewed and acknowledged this month\'s training content.'
-        },
-        audit: { 
-            icon: '📋', 
-            title: 'Monthly Audit Questions', 
-            description: '4 facility safety questions to assess and document your compliance status.'
-        },
-        social: { 
-            icon: '📱', 
-            title: 'SafeGrowth Accelerator Planning', 
-            description: '4-week social media content calendar to showcase your facility\'s safety commitment.'
+    const facilityId = AppState.facility?.id;
+    const moduleId = currentTrainingModuleDetail?.id;
+    
+    if (!facilityId || !moduleId) {
+        content.innerHTML = '<div class="component-placeholder"><p>Unable to load content</p></div>';
+        return;
+    }
+    
+    try {
+        const progress = await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/component-progress`);
+        
+        switch(componentId) {
+            case 'champion':
+                await loadChampionContent(progress);
+                break;
+            case 'communication':
+                await loadCommunicationContent(progress);
+                break;
+            case 'acknowledgment':
+                await loadAcknowledgmentContent(progress);
+                break;
+            case 'audit':
+                loadPlaceholderContent('audit', '📋', 'Monthly Audit Questions', 'Coming in Stage 3D');
+                break;
+            case 'social':
+                loadPlaceholderContent('social', '📱', 'SafeGrowth Accelerator', 'Coming in Stage 3D');
+                break;
         }
-    };
-    
-    const placeholder = placeholders[componentId] || { icon: '📄', title: 'Component', description: 'Content loading...' };
-    
+        
+        updateComponentTabStates(progress.components);
+        
+    } catch (error) {
+        console.error('Error loading component content:', error);
+        content.innerHTML = `
+            <div class="component-placeholder">
+                <div style="color: var(--status-critical);">Failed to load component</div>
+                <button class="btn-secondary" onclick="loadComponentContent('${componentId}')">Retry</button>
+            </div>
+        `;
+    }
+}
+
+function loadPlaceholderContent(componentId, icon, title, description) {
+    const content = document.getElementById('component-content');
     content.innerHTML = `
         <div class="component-placeholder">
-            <div class="component-placeholder-icon">${placeholder.icon}</div>
-            <h2>${placeholder.title}</h2>
-            <p>${placeholder.description}</p>
-            <p style="margin-top: 16px; font-size: 0.875rem; opacity: 0.7;">Content coming in Stage 3C/3D</p>
+            <div class="component-placeholder-icon">${icon}</div>
+            <h2>${title}</h2>
+            <p>${description}</p>
         </div>
     `;
+}
+
+async function loadChampionContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = AppState.facility.id;
+    const moduleId = currentTrainingModuleDetail.id;
+    
+    const sections = await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/champion-content`);
+    
+    const isComplete = progress.components?.find(c => c.component_type === 'champion')?.completed;
+    
+    if (!sections || sections.length === 0) {
+        content.innerHTML = `
+            <div class="champion-content">
+                <div class="champion-header">
+                    <h2>📖 Shield Champion Training</h2>
+                    <p>January 2026: New Year Safety Goals & Facility Assessment</p>
+                </div>
+                <div class="champion-sections">
+                    <div class="champion-section">
+                        <h3 class="section-title">Content Loading...</h3>
+                        <p>Training content for this module is being prepared. Please check back soon.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+    
+    const sectionsHtml = sections.map(section => `
+        <div class="champion-section">
+            <h3 class="section-title">${section.section_number}. ${section.section_title}</h3>
+            <div class="section-content">${formatSectionContent(section.section_content)}</div>
+        </div>
+    `).join('');
+    
+    content.innerHTML = `
+        <div class="champion-content">
+            <div class="champion-header">
+                <h2>📖 Shield Champion Training</h2>
+                <p>${currentTrainingModuleDetail.title}</p>
+            </div>
+            <div class="champion-sections">
+                ${sectionsHtml}
+            </div>
+            <div class="champion-actions" style="margin-top: 32px; text-align: center;">
+                ${isComplete ? `
+                    <div class="completion-badge" style="display: inline-flex; align-items: center; gap: 8px; padding: 16px 32px; background: rgba(180, 211, 51, 0.15); border-radius: 12px; color: var(--shield-navy);">
+                        <span style="font-size: 1.5rem;">✓</span>
+                        <span style="font-weight: 600;">Training Complete!</span>
+                    </div>
+                ` : `
+                    <button class="btn-primary" onclick="markChampionComplete()" style="padding: 16px 32px; font-size: 1rem;">
+                        ✓ Mark Training Complete
+                    </button>
+                    <p style="margin-top: 12px; font-size: 0.875rem; color: var(--text-secondary);">By completing, you confirm you have read and understood this month's training content.</p>
+                `}
+            </div>
+        </div>
+    `;
+}
+
+function formatSectionContent(text) {
+    if (!text) return '';
+    return text
+        .split('\n\n')
+        .map(p => `<p>${p.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')}</p>`)
+        .join('');
+}
+
+async function markChampionComplete() {
+    try {
+        const facilityId = AppState.facility.id;
+        const moduleId = currentTrainingModuleDetail.id;
+        
+        const result = await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/components/champion/complete`, {
+            method: 'POST'
+        });
+        
+        if (result.success) {
+            showSuccess('Champion Training marked complete!');
+            currentTrainingModuleDetail.progress = result.overall_percentage;
+            renderModuleProgressTracker();
+            loadComponentContent('champion');
+        }
+    } catch (error) {
+        console.error('Error marking champion complete:', error);
+        showError('Failed to mark complete');
+    }
+}
+
+async function loadCommunicationContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = AppState.facility.id;
+    const moduleId = currentTrainingModuleDetail.id;
+    
+    const [message, responses, staffList] = await Promise.all([
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/team-message`),
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/staff-responses`),
+        apiRequest(`/facilities/${facilityId}/staff`)
+    ]);
+    
+    const staff = staffList.data || staffList || [];
+    const respondedIds = new Set(responses.map(r => r.staff_id));
+    const unrespondedStaff = staff.filter(s => !respondedIds.has(s.id));
+    
+    const responsePercentage = progress.staff_responses?.percentage || 0;
+    const isComplete = progress.components?.find(c => c.component_type === 'communication')?.completed;
+    
+    content.innerHTML = `
+        <div class="communication-content">
+            <div class="message-box">
+                <div class="message-header">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--shield-navy); margin: 0;">${message.message_title || 'Team Message'}</h3>
+                </div>
+                <div class="message-content" id="team-message-text">${message.message_content || 'No message available for this month.'}</div>
+                <div class="message-actions">
+                    <button class="btn-primary" onclick="copyTeamMessage()">📋 Copy Message</button>
+                </div>
+                ${message.customization_tips ? `<div class="customization-tips"><strong>💡 Tip:</strong> ${message.customization_tips}</div>` : ''}
+            </div>
+            
+            <div class="response-tracking">
+                <div class="tracking-header">
+                    <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">📊 Team Response Tracking</h3>
+                    ${isComplete ? '<span class="completion-badge" style="background: rgba(180, 211, 51, 0.15); padding: 6px 12px; border-radius: 6px; font-size: 0.875rem; font-weight: 600;">✓ Complete</span>' : ''}
+                </div>
+                
+                <div class="response-progress" style="margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">${progress.staff_responses?.completed || 0} of ${progress.staff_responses?.total || 0} staff responded</span>
+                        <span style="font-weight: 700; color: var(--shield-navy);">${responsePercentage}%</span>
+                    </div>
+                    <div style="height: 8px; background: rgba(44, 95, 124, 0.1); border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${responsePercentage}%; height: 100%; background: linear-gradient(90deg, var(--shield-navy), var(--shield-lime)); transition: width 0.3s;"></div>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">Auto-completes at 80% response rate</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+                    <div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Log Staff Response</h4>
+                        <select id="comm-staff-select" style="width: 100%; padding: 10px; border: 2px solid var(--border-subtle); border-radius: 8px; margin-bottom: 12px;">
+                            <option value="">Select staff member...</option>
+                            ${unrespondedStaff.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                        </select>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                            ${['👍', '❤️', '🎉', '💪', '✨'].map(emoji => `
+                                <button class="emoji-btn" data-emoji="${emoji}" onclick="selectResponseEmoji('${emoji}')" style="padding: 8px 12px; font-size: 1.25rem; border: 2px solid var(--border-subtle); border-radius: 8px; background: white; cursor: pointer;">${emoji}</button>
+                            `).join('')}
+                        </div>
+                        <button class="btn-primary" onclick="logStaffResponse()" style="width: 100%;">Log Response</button>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Recent Responses</h4>
+                        <div class="response-list" style="max-height: 200px; overflow-y: auto;">
+                            ${responses.length === 0 ? '<p style="color: var(--text-secondary); font-size: 0.875rem;">No responses yet</p>' :
+                            responses.slice(0, 10).map(r => `
+                                <div class="response-item">
+                                    <span class="response-emoji">${r.emoji_used || '👍'}</span>
+                                    <div class="response-info">
+                                        <div class="response-name">${r.staff_name}</div>
+                                        <div class="response-time">${formatRelativeTime(r.responded_at)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+let selectedResponseEmoji = '👍';
+
+function selectResponseEmoji(emoji) {
+    selectedResponseEmoji = emoji;
+    document.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.style.borderColor = btn.dataset.emoji === emoji ? 'var(--shield-navy)' : 'var(--border-subtle)';
+        btn.style.background = btn.dataset.emoji === emoji ? 'rgba(44, 95, 124, 0.1)' : 'white';
+    });
+}
+
+async function copyTeamMessage() {
+    const messageText = document.getElementById('team-message-text')?.innerText;
+    if (messageText) {
+        await navigator.clipboard.writeText(messageText);
+        showSuccess('Message copied to clipboard!');
+    }
+}
+
+async function logStaffResponse() {
+    const staffSelect = document.getElementById('comm-staff-select');
+    const staffId = staffSelect?.value;
+    
+    if (!staffId) {
+        showError('Please select a staff member');
+        return;
+    }
+    
+    try {
+        const facilityId = AppState.facility.id;
+        const moduleId = currentTrainingModuleDetail.id;
+        
+        await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/staff-responses`, {
+            method: 'POST',
+            body: JSON.stringify({ staff_id: staffId, emoji_used: selectedResponseEmoji })
+        });
+        
+        showSuccess('Response logged!');
+        loadComponentContent('communication');
+    } catch (error) {
+        console.error('Error logging response:', error);
+        showError('Failed to log response');
+    }
+}
+
+async function loadAcknowledgmentContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = AppState.facility.id;
+    const moduleId = currentTrainingModuleDetail.id;
+    
+    const [acknowledgments, staffList] = await Promise.all([
+        apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/acknowledgments`),
+        apiRequest(`/facilities/${facilityId}/staff`)
+    ]);
+    
+    const staff = staffList.data || staffList || [];
+    const acknowledgedIds = new Set(acknowledgments.map(a => a.staff_id));
+    const unacknowledgedStaff = staff.filter(s => !acknowledgedIds.has(s.id));
+    
+    const ackPercentage = progress.staff_acknowledgments?.percentage || 0;
+    const isComplete = progress.components?.find(c => c.component_type === 'acknowledgment')?.completed;
+    
+    content.innerHTML = `
+        <div class="acknowledgment-content">
+            <div class="acknowledgment-tracking">
+                <div class="tracking-header">
+                    <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0;">✓ Staff Acknowledgment Tracking</h3>
+                    ${isComplete ? '<span class="completion-badge" style="background: rgba(180, 211, 51, 0.15); padding: 6px 12px; border-radius: 6px; font-size: 0.875rem; font-weight: 600;">✓ Complete</span>' : ''}
+                </div>
+                
+                <p style="color: var(--text-secondary); margin: 12px 0 24px;">Track which staff members have reviewed and acknowledged this month's training content.</p>
+                
+                <div class="response-progress" style="margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">${progress.staff_acknowledgments?.completed || 0} of ${progress.staff_acknowledgments?.total || 0} staff acknowledged</span>
+                        <span style="font-weight: 700; color: var(--shield-navy);">${ackPercentage}%</span>
+                    </div>
+                    <div style="height: 8px; background: rgba(44, 95, 124, 0.1); border-radius: 4px; overflow: hidden;">
+                        <div style="width: ${ackPercentage}%; height: 100%; background: linear-gradient(90deg, var(--shield-navy), var(--shield-lime)); transition: width 0.3s;"></div>
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">Auto-completes at 80% acknowledgment rate</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 24px;">
+                    <div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Log Acknowledgment</h4>
+                        <select id="ack-staff-select" style="width: 100%; padding: 10px; border: 2px solid var(--border-subtle); border-radius: 8px; margin-bottom: 12px;">
+                            <option value="">Select staff member...</option>
+                            ${unacknowledgedStaff.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+                        </select>
+                        <button class="btn-primary" onclick="logAcknowledgment()" style="width: 100%;">✓ Log Acknowledgment</button>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 12px;">Acknowledged Staff</h4>
+                        <div class="response-list" style="max-height: 200px; overflow-y: auto;">
+                            ${acknowledgments.length === 0 ? '<p style="color: var(--text-secondary); font-size: 0.875rem;">No acknowledgments yet</p>' :
+                            acknowledgments.slice(0, 15).map(a => `
+                                <div class="response-item">
+                                    <span class="response-emoji">✓</span>
+                                    <div class="response-info">
+                                        <div class="response-name">${a.staff_name}</div>
+                                        <div class="response-time">${formatRelativeTime(a.acknowledged_at)}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+async function logAcknowledgment() {
+    const staffSelect = document.getElementById('ack-staff-select');
+    const staffId = staffSelect?.value;
+    
+    if (!staffId) {
+        showError('Please select a staff member');
+        return;
+    }
+    
+    try {
+        const facilityId = AppState.facility.id;
+        const moduleId = currentTrainingModuleDetail.id;
+        
+        await apiRequest(`/facilities/${facilityId}/training/modules/${moduleId}/acknowledgments`, {
+            method: 'POST',
+            body: JSON.stringify({ staff_id: staffId })
+        });
+        
+        showSuccess('Acknowledgment logged!');
+        loadComponentContent('acknowledgment');
+    } catch (error) {
+        console.error('Error logging acknowledgment:', error);
+        showError('Failed to log acknowledgment');
+    }
+}
+
+function formatRelativeTime(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
+}
+
+function updateComponentTabStates(components) {
+    const completedTypes = new Set(components?.filter(c => c.completed).map(c => c.component_type) || []);
+    
+    ['champion', 'communication', 'acknowledgment', 'audit', 'social'].forEach(type => {
+        const tab = document.getElementById(`comp-tab-${type}`);
+        if (tab) {
+            if (completedTypes.has(type)) {
+                tab.classList.add('complete');
+            } else {
+                tab.classList.remove('complete');
+            }
+        }
+    });
 }
 
 async function loadTrainingCertifications() {

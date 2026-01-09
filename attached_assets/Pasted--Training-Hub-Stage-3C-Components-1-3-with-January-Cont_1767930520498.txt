@@ -1,0 +1,1208 @@
+# Training Hub - Stage 3C: Components 1-3 with January Content
+
+## Context
+Stage 3B completed successfully - module detail page with tab navigation works.
+Now we're building actual functionality for Components 1-3 with real content for January 2026.
+
+## Critical Requirements
+- ⚠️ DO NOT break existing module detail structure
+- ⚠️ DO NOT modify Audit or SafeGrowth tabs yet (Stage 3D)
+- ✅ Replace placeholders with real component UI
+- ✅ Use staff dropdown (NOT pre-populated cards)
+- ✅ Include January content (universal, not state-specific)
+- ✅ Components marked complete update overall module progress
+- ✅ Professional, engaging, premium feel
+
+## Goals for Stage 3C
+1. **Shield Champion Training**: Display educational content with mark complete
+2. **Team Communication**: Copy-paste message + staff response tracking
+3. **Staff Acknowledgment**: Manual checklist via dropdown
+4. Calculate weighted progress (25% + 20% + 25% = 70% when all 3 done)
+5. Update module progress tracker in real-time
+6. Save completion to database
+
+## Tasks
+
+### 1. Create API Endpoints for Component Progress
+
+**Add to your routes file:**
+```javascript
+// ============================================
+// COMPONENT PROGRESS & COMPLETION ENDPOINTS
+// ============================================
+
+// Helper function to recalculate module progress
+async function recalculateModuleProgress(facilityId, moduleId) {
+    try {
+        // Get all component progress
+        const components = await pool.query(`
+            SELECT component_type, completion_percentage
+            FROM training_component_progress
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        // Component weights
+        const weights = {
+            champion: 25,
+            communication: 20,
+            acknowledgment: 25,
+            audit: 15,
+            social: 15
+        };
+        
+        // Calculate weighted average
+        let totalProgress = 0;
+        let totalWeight = 0;
+        
+        components.rows.forEach(comp => {
+            const weight = weights[comp.component_type] || 0;
+            totalProgress += (comp.completion_percentage * weight);
+            totalWeight += weight;
+        });
+        
+        const overallPercentage = totalWeight > 0 ? Math.round(totalProgress / totalWeight) : 0;
+        
+        // Update module progress
+        const started = components.rows.length > 0;
+        const completed = overallPercentage === 100;
+        
+        await pool.query(`
+            INSERT INTO training_module_progress 
+            (facility_id, module_id, overall_percentage, started_at, completed_at)
+            VALUES ($1, $2, $3, ${started ? 'NOW()' : 'NULL'}, ${completed ? 'NOW()' : 'NULL'})
+            ON CONFLICT (facility_id, module_id)
+            DO UPDATE SET 
+                overall_percentage = $3,
+                started_at = COALESCE(training_module_progress.started_at, NOW()),
+                completed_at = ${completed ? 'NOW()' : 'NULL'},
+                updated_at = NOW()
+        `, [facilityId, moduleId, overallPercentage]);
+        
+        return overallPercentage;
+        
+    } catch (error) {
+        console.error('Error recalculating module progress:', error);
+        throw error;
+    }
+}
+
+// GET component progress for a module
+router.get('/:id/training/modules/:moduleId/component-progress', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const moduleId = req.params.moduleId;
+        
+        // Get component completions
+        const components = await pool.query(`
+            SELECT component_type, completed, completion_percentage, completed_at
+            FROM training_component_progress
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        // Get staff counts
+        const totalStaff = await pool.query(
+            'SELECT COUNT(*) as count FROM staff WHERE facility_id = $1',
+            [facilityId]
+        );
+        
+        const responsesCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_staff_responses
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const acknowledgementsCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_acknowledgments
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const staffCount = parseInt(totalStaff.rows[0].count);
+        const responsesNum = parseInt(responsesCount.rows[0].count);
+        const acknowledgementsNum = parseInt(acknowledgementsCount.rows[0].count);
+        
+        res.json({
+            components: components.rows,
+            staff_responses: {
+                completed: responsesNum,
+                total: staffCount,
+                percentage: staffCount > 0 ? Math.round((responsesNum / staffCount) * 100) : 0
+            },
+            staff_acknowledgments: {
+                completed: acknowledgementsNum,
+                total: staffCount,
+                percentage: staffCount > 0 ? Math.round((acknowledgementsNum / staffCount) * 100) : 0
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error fetching component progress:', error);
+        res.status(500).json({ error: 'Failed to fetch component progress' });
+    }
+});
+
+// POST - Mark component complete
+router.post('/:id/training/modules/:moduleId/components/:componentType/complete', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const moduleId = req.params.moduleId;
+        const componentType = req.params.componentType;
+        
+        // Mark component complete
+        await pool.query(`
+            INSERT INTO training_component_progress 
+            (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+            VALUES ($1, $2, $3, true, 100, NOW())
+            ON CONFLICT (facility_id, module_id, component_type)
+            DO UPDATE SET 
+                completed = true, 
+                completion_percentage = 100, 
+                completed_at = NOW(), 
+                updated_at = NOW()
+        `, [facilityId, moduleId, componentType]);
+        
+        // Recalculate overall module progress
+        const overallPercentage = await recalculateModuleProgress(facilityId, moduleId);
+        
+        res.json({ success: true, overall_percentage: overallPercentage });
+        
+    } catch (error) {
+        console.error('Error marking component complete:', error);
+        res.status(500).json({ error: 'Failed to mark component complete' });
+    }
+});
+
+// POST - Log staff response
+router.post('/:id/training/modules/:moduleId/staff-responses', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const moduleId = req.params.moduleId;
+        const { staff_id, emoji_used } = req.body;
+        
+        await pool.query(`
+            INSERT INTO training_staff_responses 
+            (facility_id, module_id, staff_id, responded, emoji_used, responded_at)
+            VALUES ($1, $2, $3, true, $4, NOW())
+            ON CONFLICT (facility_id, module_id, staff_id)
+            DO UPDATE SET responded = true, emoji_used = $4, responded_at = NOW()
+        `, [facilityId, moduleId, staff_id, emoji_used || '👍']);
+        
+        // Check if 80%+ staff responded, auto-complete component
+        const totalStaff = await pool.query(
+            'SELECT COUNT(*) as count FROM staff WHERE facility_id = $1',
+            [facilityId]
+        );
+        const responsesCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_staff_responses
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const staffCount = parseInt(totalStaff.rows[0].count);
+        const responsesNum = parseInt(responsesCount.rows[0].count);
+        const percentage = staffCount > 0 ? Math.round((responsesNum / staffCount) * 100) : 0;
+        
+        if (percentage >= 80) {
+            await pool.query(`
+                INSERT INTO training_component_progress 
+                (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+                VALUES ($1, $2, 'communication', true, 100, NOW())
+                ON CONFLICT (facility_id, module_id, component_type)
+                DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+            `, [facilityId, moduleId]);
+            
+            await recalculateModuleProgress(facilityId, moduleId);
+        }
+        
+        res.json({ success: true, percentage });
+        
+    } catch (error) {
+        console.error('Error logging staff response:', error);
+        res.status(500).json({ error: 'Failed to log response' });
+    }
+});
+
+// GET - Staff responses for module
+router.get('/:id/training/modules/:moduleId/staff-responses', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT sr.*, s.name as staff_name
+            FROM training_staff_responses sr
+            JOIN staff s ON sr.staff_id = s.id
+            WHERE sr.facility_id = $1 AND sr.module_id = $2
+            ORDER BY sr.responded_at DESC
+        `, [facilityId, moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching staff responses:', error);
+        res.status(500).json({ error: 'Failed to fetch responses' });
+    }
+});
+
+// POST - Log staff acknowledgment
+router.post('/:id/training/modules/:moduleId/acknowledgments', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const moduleId = req.params.moduleId;
+        const { staff_id } = req.body;
+        
+        await pool.query(`
+            INSERT INTO training_acknowledgments 
+            (facility_id, module_id, staff_id, acknowledged, acknowledged_at)
+            VALUES ($1, $2, $3, true, NOW())
+            ON CONFLICT (facility_id, module_id, staff_id)
+            DO UPDATE SET acknowledged = true, acknowledged_at = NOW()
+        `, [facilityId, moduleId, staff_id]);
+        
+        // Check if 80%+ staff acknowledged, auto-complete component
+        const totalStaff = await pool.query(
+            'SELECT COUNT(*) as count FROM staff WHERE facility_id = $1',
+            [facilityId]
+        );
+        const acknowledgementsCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_acknowledgments
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const staffCount = parseInt(totalStaff.rows[0].count);
+        const acknowledgementsNum = parseInt(acknowledgementsCount.rows[0].count);
+        const percentage = staffCount > 0 ? Math.round((acknowledgementsNum / staffCount) * 100) : 0;
+        
+        if (percentage >= 80) {
+            await pool.query(`
+                INSERT INTO training_component_progress 
+                (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+                VALUES ($1, $2, 'acknowledgment', true, 100, NOW())
+                ON CONFLICT (facility_id, module_id, component_type)
+                DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+            `, [facilityId, moduleId]);
+            
+            await recalculateModuleProgress(facilityId, moduleId);
+        }
+        
+        res.json({ success: true, percentage });
+        
+    } catch (error) {
+        console.error('Error logging acknowledgment:', error);
+        res.status(500).json({ error: 'Failed to log acknowledgment' });
+    }
+});
+
+// GET - Staff acknowledgments for module
+router.get('/:id/training/modules/:moduleId/acknowledgments', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.id;
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT ta.*, s.name as staff_name
+            FROM training_acknowledgments ta
+            JOIN staff s ON ta.staff_id = s.id
+            WHERE ta.facility_id = $1 AND ta.module_id = $2
+            ORDER BY ta.acknowledged_at DESC
+        `, [facilityId, moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching acknowledgments:', error);
+        res.status(500).json({ error: 'Failed to fetch acknowledgments' });
+    }
+});
+```
+
+### 2. Seed January Content to Database
+
+**Add this seed function:**
+```javascript
+async function seedJanuaryContent() {
+    try {
+        // Get January 2026 module
+        const moduleResult = await pool.query(`
+            SELECT id FROM training_modules WHERE month = 1 AND year = 2026
+        `);
+        
+        if (moduleResult.rows.length === 0) {
+            console.log('❌ January module not found');
+            return;
+        }
+        
+        const moduleId = moduleResult.rows[0].id;
+        
+        // SHIELD CHAMPION TRAINING CONTENT
+        const championSections = [
+            {
+                section_number: 1,
+                section_title: 'Monthly Theme: New Year Safety Goals & Facility Assessment',
+                section_content: `January represents fresh beginnings and systematic excellence in safety management. Professional goal-setting and comprehensive facility assessment create the foundation for year-long safety achievement and continuous improvement in child protection.
+
+This month's training establishes a proactive, systematic approach to safety excellence—moving beyond reactive compliance to building a culture where safety is embedded in every decision, every day.
+
+Why Goal-Setting Matters: Clear, measurable safety goals transform abstract intentions into concrete actions. When your entire team understands not just what to do, but why it matters and how success is measured, you create ownership and accountability. This month, you'll learn to set goals that are ambitious yet achievable, specific yet flexible enough to adapt to your facility's unique needs.`
+            },
+            {
+                section_number: 2,
+                section_title: 'The SMART SAFETY Method for Goal Excellence',
+                section_content: `The SMART SAFETY method expands on traditional goal-setting: Specific, Measurable, Achievable, Relevant, Time-Bound, plus Safety Culture Integration, Assessment cycles, Facility Excellence, Emergency Preparedness, Training, and Yearly Planning.
+
+**Specific:** Your goals must be crystal clear. Instead of "improve safety," define exactly what you're improving: "Reduce playground incidents by implementing daily equipment inspections and quarterly deep safety audits."
+
+**Measurable:** Quantify success. How will you know you've achieved your goal? "Zero medication errors for six consecutive months" or "100% staff completion of CPR recertification by March 31st."
+
+**Achievable:** Set ambitious goals that stretch your team without breaking them. Consider your resources, staff capacity, and realistic timelines. A goal to "achieve perfect attendance" might be unrealistic; "reduce unexpected staff absences by 25%" is challenging yet attainable.
+
+**Relevant:** Every goal must tie directly to protecting children and supporting staff. Ask: "Will this goal make children safer or staff more effective?" If the answer isn't a clear yes, reconsider.
+
+**Time-Bound:** Assign specific deadlines. Break annual goals into quarterly milestones and monthly check-ins. "Update all emergency procedures" becomes "Review fire evacuation plan by Jan 31, update medical emergency protocols by Feb 28, refresh lockdown procedures by March 31."
+
+**Safety Culture Integration:** Your goals must reinforce a culture where safety is everyone's responsibility—not just the director's job, but woven into how every staff member thinks and acts daily.`
+            },
+            {
+                section_number: 3,
+                section_title: 'Comprehensive Facility Assessment Framework',
+                section_content: `A thorough assessment is critical. This includes evaluating the Physical Environment (structure, lighting, equipment), Safety Systems (emergency gear, fire safety, first aid), and a deep review of Policies and Procedures for adequacy and consistent implementation.
+
+**Physical Environment Assessment:**
+Walk through every space as if seeing it for the first time. Check for trip hazards, loose fixtures, adequate lighting, proper temperature control, and clean, functional restrooms. Examine outdoor play areas for surface condition, equipment stability, and appropriate fall zones.
+
+**Safety Systems Review:**
+Test smoke detectors, fire extinguishers, AED functionality. Verify emergency contact information is current. Ensure all required safety equipment is accessible, properly maintained, and staff know how to use it.
+
+**Policy & Procedure Audit:**
+When did you last review your policies? Are they current with regulations? More importantly—are staff actually following them? The best policy on paper is worthless if it's not consistently implemented. This assessment helps you identify gaps between policy and practice.
+
+**Staff Competency Assessment:**
+Do all staff members know emergency procedures? Can they confidently handle a medical emergency? Have certifications expired? This assessment isn't about blaming—it's about identifying training needs before an emergency exposes them.`
+            },
+            {
+                section_number: 4,
+                section_title: 'Goal Implementation and Progress Tracking',
+                section_content: `Break annual goals into manageable monthly objectives. Create accountability systems with regular progress reviews, and use transparent reporting systems to build confidence and engagement with your team and families.
+
+**Monthly Objectives:** Don't let annual goals become abstract New Year's resolutions. Break them into 12 monthly milestones. If your annual goal is "implement comprehensive staff wellness program," January might focus on "survey staff needs," February on "select wellness initiatives," and so on.
+
+**Accountability Systems:** Assign clear ownership. Who's responsible for each goal? How often will you check progress? What support do they need? Regular progress reviews (we recommend weekly 15-minute check-ins) keep goals alive and obstacles visible before they become crises.
+
+**Transparent Reporting:** Share progress with your team. Celebrate wins publicly. When you fall short, discuss it openly—what can you learn? What needs to change? This transparency builds trust and collective ownership.
+
+**Using Shield Ops to Track Progress:** This platform is your accountability partner. Log assessments, track training completion, monitor incident trends. Over time, you'll see patterns that inform smarter goal-setting and more effective interventions.`
+            }
+        ];
+        
+        for (const section of championSections) {
+            await pool.query(`
+                INSERT INTO training_champion_content 
+                (module_id, section_number, section_title, section_content, weight_percentage)
+                VALUES ($1, $2, $3, $4, 25)
+            `, [moduleId, section.section_number, section.section_title, section.section_content]);
+        }
+        
+        // TEAM COMMUNICATION MESSAGE
+        await pool.query(`
+            INSERT INTO training_team_messages 
+            (module_id, message_title, message_content, customization_tips, weight_percentage)
+            VALUES ($1, $2, $3, $4, 20)
+        `, [
+            moduleId,
+            'January: New Year Safety Goals Team Message',
+            `Hey Team!
+
+Welcome to January 2026! This month we're setting the foundation for an amazing year of safety excellence and creating systematic approaches to continuous safety improvement and professional development.
+
+This Month's Focus: SMART SAFETY goal-setting, facility assessment, and creating systematic approaches to safety improvement.
+
+What This Means for You:
+- Participate actively in setting meaningful, achievable safety goals for our facility
+- Contribute to comprehensive facility assessment with your observations and insights
+- Embrace systematic approaches to safety improvement and professional development
+- Celebrate progress milestones and achievements as we build excellence together
+- Take ownership of facility safety goals and support team-wide success
+
+Quick Reminder: Strong safety foundations built through systematic goal-setting create the framework for everything we'll achieve this year in child protection and facility excellence.
+
+Let's make 2026 our best year yet! Your input and commitment make all the difference.`,
+            'Replace [Team] with your team name. Adjust tone to match your facility culture. Consider adding a specific example of a safety goal your facility is pursuing this month.'
+        ]);
+        
+        console.log('✅ January content seeded successfully');
+        
+    } catch (error) {
+        console.error('❌ Error seeding January content:', error);
+    }
+}
+
+// Call this in your initialization
+// seedJanuaryContent();
+```
+
+### 3. Update loadComponentContent Function in app.js
+
+**Replace the loadComponentContent function with this complete implementation:**
+```javascript
+/**
+ * Load component content (full implementation)
+ */
+async function loadComponentContent(componentId) {
+    const content = document.getElementById('component-content');
+    const facilityId = localStorage.getItem('facilityId');
+    
+    try {
+        // Fetch component progress
+        const progress = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/component-progress`);
+        
+        switch(componentId) {
+            case 'champion':
+                await loadChampionContent(progress);
+                break;
+            case 'communication':
+                await loadCommunicationContent(progress);
+                break;
+            case 'acknowledgment':
+                await loadAcknowledgmentContent(progress);
+                break;
+            case 'audit':
+                loadPlaceholder('audit', '📋', 'Monthly Audit Questions', 'Coming in Stage 3D');
+                break;
+            case 'social':
+                loadPlaceholder('social', '📱', 'SafeGrowth Accelerator', 'Coming in Stage 3D');
+                break;
+        }
+        
+    } catch (error) {
+        console.error('Error loading component content:', error);
+        content.innerHTML = `
+            <div class="component-placeholder">
+                <div style="color: var(--color-critical);">Failed to load component</div>
+                <button class="btn-secondary" onclick="loadComponentContent('${componentId}')">Retry</button>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Load Shield Champion Training content
+ */
+async function loadChampionContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = localStorage.getItem('facilityId');
+    
+    // Fetch Champion content from database
+    const response = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/champion-content`);
+    const sections = response || [];
+    
+    const isComplete = progress.components.find(c => c.component_type === 'champion')?.completed || false;
+    
+    content.innerHTML = `
+        <div class="champion-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700;">📖 Shield Champion Deep-Dive Training</h2>
+                ${isComplete ? `
+                    <span style="background: var(--shield-lime); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;">
+                        ✓ Complete
+                    </span>
+                ` : `
+                    <button class="btn-primary" onclick="markChampionComplete()">
+                        Mark as Complete
+                    </button>
+                `}
+            </div>
+            
+            <div class="champion-sections">
+                ${sections.length > 0 ? sections.map(section => `
+                    <div class="champion-section">
+                        <h3 class="section-title">${section.section_title}</h3>
+                        <div class="section-content">${section.section_content.replace(/\n\n/g, '</p><p>').replace(/^(.*)$/, '<p>$1</p>')}</div>
+                    </div>
+                `).join('') : `
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <p>Content will be available soon.</p>
+                        <p style="font-size: 0.875rem; margin-top: 8px;">Educational materials are being prepared for this module.</p>
+                    </div>
+                `}
+            </div>
+            
+            ${!isComplete && sections.length > 0 ? `
+                <div style="text-align: center; margin-top: 32px; padding-top: 32px; border-top: 2px solid rgba(44, 95, 124, 0.1);">
+                    <button class="btn-primary" onclick="markChampionComplete()" style="font-size: 1rem; padding: 12px 32px;">
+                        ✓ Mark Shield Champion Training Complete
+                    </button>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+/**
+ * Load Team Communication content
+ */
+async function loadCommunicationContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = localStorage.getItem('facilityId');
+    
+    // Fetch message
+    const messageResponse = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/team-message`);
+    const message = messageResponse || {};
+    
+    // Fetch staff responses
+    const responses = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/staff-responses`);
+    
+    const isComplete = progress.components.find(c => c.component_type === 'communication')?.completed || false;
+    const responsePercentage = progress.staff_responses.percentage;
+    
+    content.innerHTML = `
+        <div class="communication-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700;">💬 Team Communication Distribution</h2>
+                ${isComplete ? `
+                    <span style="background: var(--shield-lime); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;">
+                        ✓ Complete
+                    </span>
+                ` : ''}
+            </div>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Copy this message and send it to your team via your preferred platform (GroupMe, Slack, Band, etc.). 
+                Then log who responded to track engagement.
+            </p>
+            
+            <div class="message-box">
+                <div class="message-header">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 4px;">${message.message_title || 'Team Message'}</h3>
+                </div>
+                <div class="message-content" id="team-message-content">
+                    ${message.message_content ? message.message_content.replace(/\n\n/g, '</p><p>').replace(/^(.*)$/, '<p>$1</p>') : '<p>Message content will be available soon.</p>'}
+                </div>
+                <div class="message-actions">
+                    <button class="btn-primary" onclick="copyTeamMessage()">
+                        📋 Copy Message
+                    </button>
+                </div>
+                ${message.customization_tips ? `
+                    <div class="customization-tips">
+                        <strong>💡 Customization Tips:</strong> ${message.customization_tips}
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="response-tracking">
+                <div class="tracking-header">
+                    <h3 style="font-size: 1.125rem; font-weight: 600;">Response Tracking</h3>
+                    <button class="btn-secondary" onclick="openLogResponseModal()">
+                        + Log Staff Response
+                    </button>
+                </div>
+                
+                <div class="response-progress">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">Responses: ${progress.staff_responses.completed}/${progress.staff_responses.total} staff (${responsePercentage}%)</span>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);">Target: 80% for completion</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${responsePercentage}%; background: ${responsePercentage >= 80 ? 'var(--shield-lime)' : 'var(--shield-navy)'}"></div>
+                    </div>
+                </div>
+                
+                <div class="response-list">
+                    <h4 style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px;">RECENT RESPONSES</h4>
+                    ${responses && responses.length > 0 ? responses.map(r => `
+                        <div class="response-item">
+                            <span class="response-emoji">${r.emoji_used || '👍'}</span>
+                            <div class="response-info">
+                                <div class="response-name">${r.staff_name}</div>
+                                <div class="response-time">${formatDate(r.responded_at)}</div>
+                            </div>
+                        </div>
+                    `).join('') : `
+                        <div style="text-align: center; padding: 24px; color: var(--text-secondary); font-size: 0.875rem;">
+                            No responses logged yet. Send the message to your team and start logging responses!
+                        </div>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Load Staff Acknowledgment content
+ */
+async function loadAcknowledgmentContent(progress) {
+    const content = document.getElementById('component-content');
+    const facilityId = localStorage.getItem('facilityId');
+    
+    // Fetch acknowledgments
+    const acknowledgments = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/acknowledgments`);
+    
+    const isComplete = progress.components.find(c => c.component_type === 'acknowledgment')?.completed || false;
+    const ackPercentage = progress.staff_acknowledgments.percentage;
+    
+    content.innerHTML = `
+        <div class="acknowledgment-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700;">✓ Staff Acknowledgment Tracking</h2>
+                ${isComplete ? `
+                    <span style="background: var(--shield-lime); color: var(--text-primary); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.875rem;">
+                        ✓ Complete
+                    </span>
+                ` : ''}
+            </div>
+            
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                Track which staff members have acknowledged completing this month's training module. 
+                Log acknowledgments as staff confirm they've reviewed the material.
+            </p>
+            
+            <div class="acknowledgment-tracking">
+                <div class="tracking-header">
+                    <h3 style="font-size: 1.125rem; font-weight: 600;">Acknowledgment Progress</h3>
+                    <button class="btn-secondary" onclick="openLogAcknowledgmentModal()">
+                        + Log Acknowledgment
+                    </button>
+                </div>
+                
+                <div class="response-progress">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">Acknowledged: ${progress.staff_acknowledgments.completed}/${progress.staff_acknowledgments.total} staff (${ackPercentage}%)</span>
+                        <span style="font-size: 0.875rem; color: var(--text-secondary);">Target: 80% for completion</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${ackPercentage}%; background: ${ackPercentage >= 80 ? 'var(--shield-lime)' : 'var(--shield-navy)'}"></div>
+                    </div>
+                </div>
+                
+                <div class="response-list">
+                    <h4 style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px;">RECENT ACKNOWLEDGMENTS</h4>
+                    ${acknowledgments && acknowledgments.length > 0 ? acknowledgments.map(a => `
+                        <div class="response-item">
+                            <span class="response-emoji">✓</span>
+                            <div class="response-info">
+                                <div class="response-name">${a.staff_name}</div>
+                                <div class="response-time">${formatDate(a.acknowledged_at)}</div>
+                            </div>
+                        </div>
+                    `).join('') : `
+                        <div style="text-align: center; padding: 24px; color: var(--text-secondary); font-size: 0.875rem;">
+                            No acknowledgments logged yet. Start logging as staff complete the training!
+                        </div>
+                    `}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Load placeholder for components not yet built
+ */
+function loadPlaceholder(componentId, icon, title, message) {
+    const content = document.getElementById('component-content');
+    content.innerHTML = `
+        <div class="component-placeholder">
+            <div style="font-size: 4rem; margin-bottom: 16px;">${icon}</div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;">${title}</h2>
+            <p style="color: var(--text-secondary);">${message}</p>
+            <button class="btn-secondary" style="margin-top: 24px;" onclick="backToTrainingHub()">
+                Back to Calendar
+            </button>
+        </div>
+    `;
+}
+```
+
+### 4. Add Completion and Modal Functions
+
+**Continue in app.js:**
+```javascript
+// ============================================
+// COMPONENT COMPLETION FUNCTIONS
+// ============================================
+
+/**
+ * Mark Shield Champion Training complete
+ */
+async function markChampionComplete() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        
+        const result = await apiRequest(
+            `/api/facilities/${facilityId}/training/modules/${currentModule.id}/components/champion/complete`,
+            { method: 'POST' }
+        );
+        
+        showSuccess('Shield Champion Training marked complete!');
+        
+        // Update module progress
+        currentModule.progress = result.overall_percentage;
+        renderProgressTracker();
+        
+        // Mark tab as complete
+        document.getElementById('tab-champion').classList.add('complete');
+        
+        // Reload content to show complete badge
+        await loadComponentContent('champion');
+        
+    } catch (error) {
+        console.error('Error marking champion complete:', error);
+        showError('Failed to mark complete');
+    }
+}
+
+/**
+ * Copy team message to clipboard
+ */
+function copyTeamMessage() {
+    const messageContent = document.getElementById('team-message-content');
+    const text = messageContent.innerText || messageContent.textContent;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showSuccess('Message copied! Paste it into your team communication platform.');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showError('Failed to copy message');
+    });
+}
+
+/**
+ * Open log staff response modal
+ */
+function openLogResponseModal() {
+    showModal('logResponseModal');
+    loadStaffDropdown('response-staff-select');
+}
+
+/**
+ * Open log acknowledgment modal
+ */
+function openLogAcknowledgmentModal() {
+    showModal('logAcknowledgmentModal');
+    loadStaffDropdown('acknowledgment-staff-select');
+}
+
+/**
+ * Load staff into dropdown
+ */
+async function loadStaffDropdown(selectId) {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const staff = await apiRequest(`/api/facilities/${facilityId}/staff`);
+        
+        const select = document.getElementById(selectId);
+        select.innerHTML = '<option value="">Select staff member...</option>' +
+            staff.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+            
+    } catch (error) {
+        console.error('Error loading staff:', error);
+    }
+}
+
+/**
+ * Submit staff response
+ */
+async function submitStaffResponse() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const staffId = document.getElementById('response-staff-select').value;
+        const emoji = document.getElementById('response-emoji-select').value;
+        
+        if (!staffId) {
+            showError('Please select a staff member');
+            return;
+        }
+        
+        await apiRequest(
+            `/api/facilities/${facilityId}/training/modules/${currentModule.id}/staff-responses`,
+            {
+                method: 'POST',
+                body: JSON.stringify({ staff_id: staffId, emoji_used: emoji })
+            }
+        );
+        
+        showSuccess('Staff response logged!');
+        hideModal('logResponseModal');
+        
+        // Reload communication content
+        await loadComponentContent('communication');
+        
+        // Update progress tracker
+        const progress = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/component-progress`);
+        if (progress.staff_responses.percentage >= 80) {
+            document.getElementById('tab-communication').classList.add('complete');
+        }
+        renderProgressTracker();
+        
+    } catch (error) {
+        console.error('Error logging response:', error);
+        showError('Failed to log response');
+    }
+}
+
+/**
+ * Submit staff acknowledgment
+ */
+async function submitStaffAcknowledgment() {
+    try {
+        const facilityId = localStorage.getItem('facilityId');
+        const staffId = document.getElementById('acknowledgment-staff-select').value;
+        
+        if (!staffId) {
+            showError('Please select a staff member');
+            return;
+        }
+        
+        await apiRequest(
+            `/api/facilities/${facilityId}/training/modules/${currentModule.id}/acknowledgments`,
+            {
+                method: 'POST',
+                body: JSON.stringify({ staff_id: staffId })
+            }
+        );
+        
+        showSuccess('Acknowledgment logged!');
+        hideModal('logAcknowledgmentModal');
+        
+        // Reload acknowledgment content
+        await loadComponentContent('acknowledgment');
+        
+        // Update progress tracker
+        const progress = await apiRequest(`/api/facilities/${facilityId}/training/modules/${currentModule.id}/component-progress`);
+        if (progress.staff_acknowledgments.percentage >= 80) {
+            document.getElementById('tab-acknowledgment').classList.add('complete');
+        }
+        renderProgressTracker();
+        
+    } catch (error) {
+        console.error('Error logging acknowledgment:', error);
+        showError('Failed to log acknowledgment');
+    }
+}
+
+/**
+ * Format date for display
+ */
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+```
+
+### 5. Add Modals to index.html
+
+**Add these modals before closing body tag:**
+```html
+<!-- Log Staff Response Modal -->
+<div id="logResponseModal" class="modal" style="display: none;">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h2>Log Staff Response</h2>
+            <button class="modal-close" onclick="hideModal('logResponseModal')">✕</button>
+        </div>
+        <form id="logResponseForm" class="modal-body" onsubmit="event.preventDefault(); submitStaffResponse();">
+            <div class="form-group">
+                <label>Staff Member *</label>
+                <select id="response-staff-select" required>
+                    <option value="">Loading...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Emoji Used (optional)</label>
+                <select id="response-emoji-select">
+                    <option value="👍">👍 Thumbs Up</option>
+                    <option value="❤️">❤️ Heart</option>
+                    <option value="😊">😊 Smile</option>
+                    <option value="🎉">🎉 Party</option>
+                    <option value="💪">💪 Strong</option>
+                    <option value="🙏">🙏 Pray</option>
+                </select>
+            </div>
+        </form>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="hideModal('logResponseModal')">Cancel</button>
+            <button class="btn-primary" onclick="submitStaffResponse()">Log Response</button>
+        </div>
+    </div>
+</div>
+
+<!-- Log Staff Acknowledgment Modal -->
+<div id="logAcknowledgmentModal" class="modal" style="display: none;">
+    <div class="modal-content modal-small">
+        <div class="modal-header">
+            <h2>Log Staff Acknowledgment</h2>
+            <button class="modal-close" onclick="hideModal('logAcknowledgmentModal')">✕</button>
+        </div>
+        <form id="logAcknowledgmentForm" class="modal-body" onsubmit="event.preventDefault(); submitStaffAcknowledgment();">
+            <div class="form-group">
+                <label>Staff Member *</label>
+                <select id="acknowledgment-staff-select" required>
+                    <option value="">Loading...</option>
+                </select>
+            </div>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 12px;">
+                Log when a staff member confirms they've completed this month's training.
+            </p>
+        </form>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="hideModal('logAcknowledgmentModal')">Cancel</button>
+            <button class="btn-primary" onclick="submitStaffAcknowledgment()">Log Acknowledgment</button>
+        </div>
+    </div>
+</div>
+```
+
+### 6. Add Component Styling to styles.css
+
+**Add these styles:**
+```css
+/* ============================================ */
+/* COMPONENT CONTENT STYLES */
+/* ============================================ */
+
+/* Shield Champion Content */
+.champion-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.champion-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.champion-section {
+    padding: 24px;
+    background: var(--background-primary);
+    border-radius: 12px;
+    border-left: 4px solid var(--shield-navy);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--shield-navy);
+    margin-bottom: 16px;
+}
+
+.section-content {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+
+.section-content p {
+    margin-bottom: 16px;
+}
+
+.section-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Team Communication Content */
+.communication-content,
+.acknowledgment-content {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.message-box {
+    background: white;
+    border: 2px solid rgba(44, 95, 124, 0.1);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.message-header {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid rgba(44, 95, 124, 0.1);
+}
+
+.message-content {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+}
+
+.message-content p {
+    margin-bottom: 16px;
+}
+
+.message-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.customization-tips {
+    font-size: 0.875rem;
+    padding: 12px;
+    background: rgba(180, 211, 51, 0.1);
+    border-radius: 8px;
+    color: var(--text-secondary);
+}
+
+/* Response Tracking */
+.response-tracking,
+.acknowledgment-tracking {
+    background: white;
+    border: 2px solid rgba(44, 95, 124, 0.1);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.tracking-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.response-progress {
+    margin-bottom: 24px;
+}
+
+.response-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.response-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--background-primary);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.response-emoji {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.response-info {
+    flex: 1;
+}
+
+.response-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 2px;
+}
+
+.response-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .tracking-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .message-actions {
+        flex-direction: column;
+    }
+}
+```
+
+### 7. Add API Endpoint for Champion Content
+
+**Add this endpoint:**
+```javascript
+// GET Shield Champion content
+router.get('/:id/training/modules/:moduleId/champion-content', authenticateToken, async (req, res) => {
+    try {
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT section_number, section_title, section_content
+            FROM training_champion_content
+            WHERE module_id = $1
+            ORDER BY section_number ASC
+        `, [moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching champion content:', error);
+        res.status(500).json({ error: 'Failed to fetch content' });
+    }
+});
+
+// GET Team message
+router.get('/:id/training/modules/:moduleId/team-message', authenticateToken, async (req, res) => {
+    try {
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT message_title, message_content, customization_tips
+            FROM training_team_messages
+            WHERE module_id = $1
+            LIMIT 1
+        `, [moduleId]);
+        
+        res.json(result.rows[0] || {});
+        
+    } catch (error) {
+        console.error('Error fetching team message:', error);
+        res.status(500).json({ error: 'Failed to fetch message' });
+    }
+});
+```
+
+## Expected Outcome After Stage 3C
+- ✅ Shield Champion Training displays January content (4 sections)
+- ✅ Can mark Champion training complete
+- ✅ Team Communication shows message with copy button
+- ✅ Can log staff responses with emoji selection
+- ✅ Staff Acknowledgment tracking works
+- ✅ Can log acknowledgments via dropdown
+- ✅ Progress bars update in real-time (0% → 25%, 45%, 70%)
+- ✅ Module progress tracker updates as components complete
+- ✅ Component tabs show "complete" badge when done
+- ✅ Auto-completion at 80% staff participation
+- ✅ All content is universal (not state-specific)
+- ✅ Professional, engaging, premium feel
+
+## Testing Checklist Stage 3C
+- [ ] January module opens without errors
+- [ ] Shield Champion tab shows 4 content sections
+- [ ] Content is professional, engaging, well-formatted
+- [ ] "Mark Complete" button works
+- [ ] Tab gets checkmark after marking complete
+- [ ] Team Communication tab shows message
+- [ ] "Copy Message" copies to clipboard
+- [ ] Can log staff response with emoji
+- [ ] Response list updates
+- [ ] Progress bar shows X/total staff
+- [ ] Staff Acknowledgment tab works
+- [ ] Can log acknowledgment
+- [ ] Lists update in real-time
+- [ ] Module progress tracker updates (0% → 25% → 45% → 70%)
+- [ ] No console errors
+- [ ] Responsive on mobile
+
+## Next Stage
+Stage 3D will add Monthly Audit (4 questions) and SafeGrowth Accelerator (4-week content)
+
+Implement Stage 3C - Components 1-3 with January Content!

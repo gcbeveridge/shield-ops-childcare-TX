@@ -162,4 +162,303 @@ router.get('/facilities/:facilityId/state-requirements', authenticateToken, asyn
     }
 });
 
+async function recalculateModuleProgress(facilityId, moduleId) {
+    try {
+        const components = await pool.query(`
+            SELECT component_type, completion_percentage
+            FROM training_component_progress
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const weights = {
+            champion: 25,
+            communication: 20,
+            acknowledgment: 25,
+            audit: 15,
+            social: 15
+        };
+        
+        let totalProgress = 0;
+        
+        components.rows.forEach(comp => {
+            const weight = weights[comp.component_type] || 0;
+            totalProgress += (comp.completion_percentage * weight / 100);
+        });
+        
+        const overallPercentage = Math.round(totalProgress);
+        const started = components.rows.length > 0;
+        const completed = overallPercentage === 100;
+        
+        await pool.query(`
+            INSERT INTO training_module_progress 
+            (facility_id, module_id, overall_percentage, started_at, completed_at)
+            VALUES ($1, $2, $3, ${started ? 'NOW()' : 'NULL'}, ${completed ? 'NOW()' : 'NULL'})
+            ON CONFLICT (facility_id, module_id)
+            DO UPDATE SET 
+                overall_percentage = $3,
+                started_at = COALESCE(training_module_progress.started_at, NOW()),
+                completed_at = ${completed ? 'NOW()' : 'NULL'},
+                updated_at = NOW()
+        `, [facilityId, moduleId, overallPercentage]);
+        
+        return overallPercentage;
+        
+    } catch (error) {
+        console.error('Error recalculating module progress:', error);
+        throw error;
+    }
+}
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/component-progress', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        
+        const components = await pool.query(`
+            SELECT component_type, completed, completion_percentage, completed_at
+            FROM training_component_progress
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const totalStaff = await pool.query(
+            'SELECT COUNT(*) as count FROM staff WHERE facility_id = $1',
+            [facilityId]
+        );
+        
+        const responsesCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_staff_responses
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const acknowledgementsCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_acknowledgments
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const staffCount = parseInt(totalStaff.rows[0].count);
+        const responsesNum = parseInt(responsesCount.rows[0].count);
+        const acknowledgementsNum = parseInt(acknowledgementsCount.rows[0].count);
+        
+        res.json({
+            components: components.rows,
+            staff_responses: {
+                completed: responsesNum,
+                total: staffCount,
+                percentage: staffCount > 0 ? Math.round((responsesNum / staffCount) * 100) : 0
+            },
+            staff_acknowledgments: {
+                completed: acknowledgementsNum,
+                total: staffCount,
+                percentage: staffCount > 0 ? Math.round((acknowledgementsNum / staffCount) * 100) : 0
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error fetching component progress:', error);
+        res.status(500).json({ error: 'Failed to fetch component progress' });
+    }
+});
+
+router.post('/facilities/:facilityId/training/modules/:moduleId/components/:componentType/complete', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        const componentType = req.params.componentType;
+        
+        await pool.query(`
+            INSERT INTO training_component_progress 
+            (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+            VALUES ($1, $2, $3, true, 100, NOW())
+            ON CONFLICT (facility_id, module_id, component_type)
+            DO UPDATE SET 
+                completed = true, 
+                completion_percentage = 100, 
+                completed_at = NOW(), 
+                updated_at = NOW()
+        `, [facilityId, moduleId, componentType]);
+        
+        const overallPercentage = await recalculateModuleProgress(facilityId, moduleId);
+        
+        res.json({ success: true, overall_percentage: overallPercentage });
+        
+    } catch (error) {
+        console.error('Error marking component complete:', error);
+        res.status(500).json({ error: 'Failed to mark component complete' });
+    }
+});
+
+router.post('/facilities/:facilityId/training/modules/:moduleId/staff-responses', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        const { staff_id, emoji_used } = req.body;
+        
+        await pool.query(`
+            INSERT INTO training_staff_responses 
+            (facility_id, module_id, staff_id, responded, emoji_used, responded_at)
+            VALUES ($1, $2, $3, true, $4, NOW())
+            ON CONFLICT (facility_id, module_id, staff_id)
+            DO UPDATE SET responded = true, emoji_used = $4, responded_at = NOW()
+        `, [facilityId, moduleId, staff_id, emoji_used || '👍']);
+        
+        const totalStaff = await pool.query(
+            'SELECT COUNT(*) as count FROM staff WHERE facility_id = $1',
+            [facilityId]
+        );
+        const responsesCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_staff_responses
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const staffCount = parseInt(totalStaff.rows[0].count);
+        const responsesNum = parseInt(responsesCount.rows[0].count);
+        const percentage = staffCount > 0 ? Math.round((responsesNum / staffCount) * 100) : 0;
+        
+        if (percentage >= 80) {
+            await pool.query(`
+                INSERT INTO training_component_progress 
+                (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+                VALUES ($1, $2, 'communication', true, 100, NOW())
+                ON CONFLICT (facility_id, module_id, component_type)
+                DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+            `, [facilityId, moduleId]);
+            
+            await recalculateModuleProgress(facilityId, moduleId);
+        }
+        
+        res.json({ success: true, percentage });
+        
+    } catch (error) {
+        console.error('Error logging staff response:', error);
+        res.status(500).json({ error: 'Failed to log response' });
+    }
+});
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/staff-responses', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT sr.*, s.name as staff_name
+            FROM training_staff_responses sr
+            JOIN staff s ON sr.staff_id = s.id
+            WHERE sr.facility_id = $1 AND sr.module_id = $2
+            ORDER BY sr.responded_at DESC
+        `, [facilityId, moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching staff responses:', error);
+        res.status(500).json({ error: 'Failed to fetch responses' });
+    }
+});
+
+router.post('/facilities/:facilityId/training/modules/:moduleId/acknowledgments', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        const { staff_id } = req.body;
+        
+        await pool.query(`
+            INSERT INTO training_acknowledgments 
+            (facility_id, module_id, staff_id, acknowledged, acknowledged_at)
+            VALUES ($1, $2, $3, true, NOW())
+            ON CONFLICT (facility_id, module_id, staff_id)
+            DO UPDATE SET acknowledged = true, acknowledged_at = NOW()
+        `, [facilityId, moduleId, staff_id]);
+        
+        const totalStaff = await pool.query(
+            'SELECT COUNT(*) as count FROM staff WHERE facility_id = $1',
+            [facilityId]
+        );
+        const acknowledgementsCount = await pool.query(`
+            SELECT COUNT(*) as count FROM training_acknowledgments
+            WHERE facility_id = $1 AND module_id = $2
+        `, [facilityId, moduleId]);
+        
+        const staffCount = parseInt(totalStaff.rows[0].count);
+        const acknowledgementsNum = parseInt(acknowledgementsCount.rows[0].count);
+        const percentage = staffCount > 0 ? Math.round((acknowledgementsNum / staffCount) * 100) : 0;
+        
+        if (percentage >= 80) {
+            await pool.query(`
+                INSERT INTO training_component_progress 
+                (facility_id, module_id, component_type, completed, completion_percentage, completed_at)
+                VALUES ($1, $2, 'acknowledgment', true, 100, NOW())
+                ON CONFLICT (facility_id, module_id, component_type)
+                DO UPDATE SET completed = true, completion_percentage = 100, completed_at = NOW()
+            `, [facilityId, moduleId]);
+            
+            await recalculateModuleProgress(facilityId, moduleId);
+        }
+        
+        res.json({ success: true, percentage });
+        
+    } catch (error) {
+        console.error('Error logging acknowledgment:', error);
+        res.status(500).json({ error: 'Failed to log acknowledgment' });
+    }
+});
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/acknowledgments', authenticateToken, async (req, res) => {
+    try {
+        const facilityId = req.params.facilityId;
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT ta.*, s.name as staff_name
+            FROM training_acknowledgments ta
+            JOIN staff s ON ta.staff_id = s.id
+            WHERE ta.facility_id = $1 AND ta.module_id = $2
+            ORDER BY ta.acknowledged_at DESC
+        `, [facilityId, moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching acknowledgments:', error);
+        res.status(500).json({ error: 'Failed to fetch acknowledgments' });
+    }
+});
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/champion-content', authenticateToken, async (req, res) => {
+    try {
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT section_number, section_title, section_content
+            FROM training_champion_content
+            WHERE module_id = $1
+            ORDER BY section_number ASC
+        `, [moduleId]);
+        
+        res.json(result.rows);
+        
+    } catch (error) {
+        console.error('Error fetching champion content:', error);
+        res.status(500).json({ error: 'Failed to fetch content' });
+    }
+});
+
+router.get('/facilities/:facilityId/training/modules/:moduleId/team-message', authenticateToken, async (req, res) => {
+    try {
+        const moduleId = req.params.moduleId;
+        
+        const result = await pool.query(`
+            SELECT message_title, message_content, customization_tips
+            FROM training_team_messages
+            WHERE module_id = $1
+            LIMIT 1
+        `, [moduleId]);
+        
+        res.json(result.rows[0] || {});
+        
+    } catch (error) {
+        console.error('Error fetching team message:', error);
+        res.status(500).json({ error: 'Failed to fetch message' });
+    }
+});
+
 module.exports = router;
